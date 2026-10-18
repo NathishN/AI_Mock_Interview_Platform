@@ -1,0 +1,8 @@
+{
+  "id_prefix": "hr",
+  "category": "HR",
+  "target": 100,
+  "roles": ["Software Development Engineer", "Python Developer", "Java Developer", "Data Analyst", "Data Scientist", "Machine Learning Engineer", "AI Engineer", "Generative AI Engineer", "Full-Stack Developer", "Backend Developer", "Business Analyst"],
+  "stages": ["HR", "Managerial", "Final"],
+  "criteria": ["Relevance", "Answer structure", "Specificity and supporting examples", "Self-awareness", "Professional communication", "Authenticity and consistency"]
+}

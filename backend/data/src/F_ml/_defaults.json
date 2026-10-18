@@ -1,0 +1,8 @@
+{
+  "id_prefix": "ml",
+  "category": "ML, AI & GenAI",
+  "target": 60,
+  "roles": ["Machine Learning Engineer", "AI Engineer", "Generative AI Engineer", "Data Scientist", "Python Developer", "Software Development Engineer"],
+  "stages": ["Technical Screening", "Technical", "Final"],
+  "criteria": ["Mathematical and conceptual grounding", "Evaluation metrics appropriateness", "RAG and GenAI pipeline architecture", "Trade-offs and hallucination handling", "Production deployment feasibility"]
+}

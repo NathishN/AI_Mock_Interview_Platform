@@ -1,0 +1,700 @@
+[
+  {
+    "q": "What is the logical query processing order in SQL? How does it differ from lexical written order?",
+    "sub": "SQL Execution Order",
+    "d": "Intermediate",
+    "ans": "SQL queries are written in lexical order: `SELECT -> FROM -> WHERE -> GROUP BY -> HAVING -> ORDER BY -> LIMIT`. However, the relational database engine executes clauses in a different logical order: 1) `FROM` and `JOIN` (identify source tables and Cartesian products), 2) `WHERE` (filter individual rows before grouping), 3) `GROUP BY` (aggregate rows into buckets), 4) `HAVING` (filter grouped buckets), 5) `SELECT` (evaluate expressions and assign column aliases), 6) `DISTINCT` (eliminate duplicate rows), 7) `ORDER BY` (sort output rows), and 8) `LIMIT / OFFSET` (truncate result set). This explains why column aliases declared in `SELECT` cannot be referenced in `WHERE` or `GROUP BY` clauses, but are available in `ORDER BY`.",
+    "kp": [
+      "Logical order: FROM/JOIN -> WHERE -> GROUP BY -> HAVING -> SELECT -> DISTINCT -> ORDER BY -> LIMIT",
+      "Column aliases defined in SELECT are not visible to WHERE or GROUP BY",
+      "WHERE filters individual base rows; HAVING filters aggregated groups",
+      "ORDER BY runs after SELECT, allowing sorting on computed column aliases"
+    ],
+    "cm": [
+      "Attempting to filter by a calculated column alias in the WHERE clause",
+      "Confusing lexical syntax order with relational execution order",
+      "Placing aggregation functions like SUM() inside WHERE clauses"
+    ],
+    "fu": [
+      "Why can aliases be referenced in `ORDER BY` but not in `HAVING` in standard SQL?",
+      "How do subqueries or CTEs allow filtering by calculated aliases?"
+    ],
+    "tags": [
+      "sql",
+      "execution-order",
+      "query-lifecycle",
+      "rdbms"
+    ]
+  },
+  {
+    "q": "Explain the difference between the `WHERE` clause and the `HAVING` clause in SQL.",
+    "sub": "Filtering & Aggregation",
+    "d": "Beginner",
+    "ans": "Both clauses filter data, but operate at different stages of query execution. `WHERE` filters individual rows BEFORE any grouping or aggregation takes place; it cannot contain aggregate functions like `SUM()`, `AVG()`, or `COUNT()`. `HAVING` filters aggregated group records AFTER the `GROUP BY` clause has evaluated; it operates on group properties and conditions involving aggregate functions. For example, `WHERE salary > 50000` filters out low-earning employees before grouping by department, while `HAVING COUNT(*) > 5` filters out departments that have 5 or fewer employees after grouping. Using WHERE to eliminate irrelevant rows early improves query performance.",
+    "kp": [
+      "`WHERE` filters individual rows before grouping; cannot use aggregate functions",
+      "`HAVING` filters aggregated groups after GROUP BY; uses aggregate functions",
+      "Conditions on non-aggregated columns should be placed in `WHERE` for speed",
+      "Can be used together in the same query"
+    ],
+    "cm": [
+      "Placing row-level non-aggregated filters inside `HAVING`, slowing down queries",
+      "Attempting to write `WHERE COUNT(*) > 1` (causes SQL syntax error)",
+      "Thinking HAVING can replace WHERE entirely without performance penalties"
+    ],
+    "fu": [
+      "Can a query have a `HAVING` clause without an explicit `GROUP BY` clause?",
+      "What happens to NULL values when evaluating conditions in WHERE vs HAVING?"
+    ],
+    "tags": [
+      "sql",
+      "where-vs-having",
+      "aggregation",
+      "filtering"
+    ]
+  },
+  {
+    "q": "Explain the differences between INNER JOIN, LEFT JOIN, RIGHT JOIN, FULL OUTER JOIN, and CROSS JOIN.",
+    "sub": "SQL Joins",
+    "d": "Beginner",
+    "ans": "1) `INNER JOIN`: returns only rows where matching keys exist in both tables. 2) `LEFT JOIN` (LEFT OUTER JOIN): returns all rows from the left table, with matched data from the right table, or NULLs where no match exists. 3) `RIGHT JOIN`: returns all rows from the right table, matched data from the left, or NULLs. 4) `FULL OUTER JOIN`: returns all rows when there is a match in either table; unmatched sides are populated with NULLs. 5) `CROSS JOIN`: produces the Cartesian product of both tables, pairing every row from table A with every row from table B (yielding count(A) * count(B) rows), useful for generating grid combinations without join predicates.",
+    "kp": [
+      "INNER JOIN: intersection of matching keys from both tables",
+      "LEFT JOIN: all left rows preserved; right unmatched filled with NULL",
+      "RIGHT JOIN: all right rows preserved; left unmatched filled with NULL",
+      "FULL OUTER JOIN: union of all rows from both tables with NULL padding",
+      "CROSS JOIN: Cartesian product of all rows without join conditions"
+    ],
+    "cm": [
+      "Accidentally converting a LEFT JOIN into an INNER JOIN by placing a right-table condition in the WHERE clause instead of ON",
+      "Executing unintended CROSS JOINs on large tables, causing massive memory spikes",
+      "Confusing NULL values produced by outer joins with actual stored NULL values in data"
+    ],
+    "fu": [
+      "How does placing a filter condition in the `ON` clause differ from placing it in the `WHERE` clause during a LEFT JOIN?",
+      "How do you simulate a FULL OUTER JOIN in MySQL using UNION?"
+    ],
+    "tags": [
+      "sql",
+      "joins",
+      "inner-join",
+      "left-join",
+      "cross-join"
+    ]
+  },
+  {
+    "q": "What is a self join in SQL and when is it typically used? Provide a concrete example.",
+    "sub": "SQL Joins",
+    "d": "Intermediate",
+    "ans": "A self join is a regular join in which a table is joined with itself. It requires distinct table aliases (e.g., `e` for employee, `m` for manager) to differentiate the two roles in the query. Self joins are typically used to model hierarchical data, parent-child relationships within a single table, or compare rows within the same table. A classic example is querying employee and manager names from an `Employees` table where `manager_id` references `employee_id`:\n\n```sql\nSELECT e.name AS employee_name, m.name AS manager_name\nFROM employees e\nLEFT JOIN employees m ON e.manager_id = m.employee_id;\n```\nUsing LEFT JOIN ensures top-level executives without a manager are not excluded from results.",
+    "kp": [
+      "Join table with itself using distinct table aliases",
+      "Essential for hierarchical and recursive data structures (e.g., Employee-Manager)",
+      "Can compare rows within the same table (e.g., finding price changes over time)",
+      "Use LEFT JOIN to retain root nodes that lack parent references"
+    ],
+    "cm": [
+      "Forgetting table aliases, resulting in ambiguous column name errors",
+      "Using INNER JOIN and accidentally filtering out the CEO/root record with NULL parent ID",
+      "Unbounded self joins that inadvertently produce Cartesian products"
+    ],
+    "fu": [
+      "How do recursive Common Table Expressions (CTEs) handle deep organizational hierarchies better than chained self joins?",
+      "How would you find all pairs of customers living in the same city using a self join?"
+    ],
+    "tags": [
+      "sql",
+      "self-join",
+      "hierarchical-data",
+      "aliases"
+    ]
+  },
+  {
+    "q": "What is the difference between `UNION` and `UNION ALL` in SQL? When should you prefer one over the other?",
+    "sub": "Set Operations",
+    "d": "Beginner",
+    "ans": "Both operators combine result sets from two or more SELECT queries into a single result set. Requirement: all queries must have the identical number of columns with compatible data types in corresponding positions. 1) `UNION ALL` combines all rows directly, preserving duplicates; it requires no sorting and is fast with minimal computational overhead. 2) `UNION` combines rows and performs an internal distinct sorting operation to eliminate all duplicate rows across queries. Rule of thumb: always prefer `UNION ALL` unless duplicate elimination is explicitly required by business rules, as `UNION` introduces expensive disk and memory sorting overhead on large datasets.",
+    "kp": [
+      "UNION ALL retains duplicates; fast with no sort overhead",
+      "UNION removes duplicates; requires sorting/hashing across results",
+      "Queries must have matching column counts and compatible data types",
+      "Default to UNION ALL unless duplicate elimination is strictly needed"
+    ],
+    "cm": [
+      "Defaulting to `UNION` blindly when data is already disjoint, incurring needless performance penalties",
+      "Trying to combine queries with mismatched column counts or incompatible types",
+      "Expecting UNION to maintain a predictable row order without an explicit outer ORDER BY"
+    ],
+    "fu": [
+      "What other set operators exist in SQL (INTERSECT, EXCEPT / MINUS)?",
+      "How does UNION compare with JOIN in terms of combining data?"
+    ],
+    "tags": [
+      "sql",
+      "union",
+      "union-all",
+      "set-operations",
+      "performance"
+    ]
+  },
+  {
+    "q": "What are window functions in SQL and how do they differ from standard aggregate functions with `GROUP BY`?",
+    "sub": "Window Functions",
+    "d": "Intermediate",
+    "ans": "Standard aggregate functions (like `SUM()`, `AVG()`) combined with `GROUP BY` collapse multiple rows into a single aggregated summary row, losing individual row identities and detail columns. Window functions perform calculations across a set of table rows related to the current row (the 'window' defined by the `OVER()` clause), but do NOT collapse rows: every individual row retains its separate identity and detail values while displaying the computed aggregate alongside it. Window clauses support `PARTITION BY` (to divide rows into calculation partitions) and `ORDER BY` (to define calculation sequence for ranking, running totals, and moving averages).",
+    "kp": [
+      "Window functions compute over partitions without collapsing individual rows",
+      "`GROUP BY` collapses multiple rows into a single summary record",
+      "`OVER(PARTITION BY ... ORDER BY ...)` defines calculation window",
+      "Allows simultaneous display of row-level details and aggregate values"
+    ],
+    "cm": [
+      "Attempting to use window functions directly inside WHERE or HAVING clauses",
+      "Confusing PARTITION BY with GROUP BY",
+      "Forgetting the ORDER BY clause in window specifications when calculating running totals or ranks"
+    ],
+    "fu": [
+      "Why are window functions evaluated after WHERE and HAVING clauses in the logical query order?",
+      "How can you filter by the output of a window function using a CTE or subquery?"
+    ],
+    "tags": [
+      "sql",
+      "window-functions",
+      "over-clause",
+      "analytics"
+    ]
+  },
+  {
+    "q": "Explain the differences between `ROW_NUMBER()`, `RANK()`, and `DENSE_RANK()` in SQL with a tie-breaking example.",
+    "sub": "Ranking Functions",
+    "d": "Intermediate",
+    "ans": "All three are window ranking functions that assign integer positions based on an `ORDER BY` clause, but handle identical duplicate values (ties) differently: 1) `ROW_NUMBER()` assigns a strict, unique sequential integer (1, 2, 3, 4...) to every row regardless of ties, arbitrarily breaking ties unless further order columns are provided. 2) `RANK()` assigns identical ranks to tied values, but skips subsequent rank numbers by the number of ties (e.g., scores 90, 80, 80, 70 receive ranks 1, 2, 2, 4). 3) `DENSE_RANK()` assigns identical ranks to tied values, but does NOT skip any rank numbers (scores 90, 80, 80, 70 receive ranks 1, 2, 2, 3). For finding the N-th highest value without gaps, `DENSE_RANK()` is preferred.",
+    "kp": [
+      "`ROW_NUMBER()`: strictly sequential (1, 2, 3, 4), no ties",
+      "`RANK()`: identical ranks for ties, skips subsequent numbers (1, 2, 2, 4)",
+      "`DENSE_RANK()`: identical ranks for ties, no gap in numbering (1, 2, 2, 3)",
+      "Used with `OVER (PARTITION BY ... ORDER BY ...)`"
+    ],
+    "cm": [
+      "Using `ROW_NUMBER()` for leaderboard ranks where tied candidates deserve equal standing",
+      "Using `RANK()` to find the second-highest salary, which fails if two employees tie for first",
+      "Forgetting the ORDER BY clause inside the OVER specification"
+    ],
+    "fu": [
+      "Which ranking function is ideal for deduplicating exact duplicate records?",
+      "How do you retrieve the top 3 highest-earning employees in each department using `DENSE_RANK()`?"
+    ],
+    "tags": [
+      "sql",
+      "row-number",
+      "rank",
+      "dense-rank",
+      "window-functions"
+    ]
+  },
+  {
+    "q": "How do you write a query to find the N-th highest salary from an `Employee` table in SQL?",
+    "sub": "SQL Problem Solving",
+    "d": "Intermediate",
+    "ans": "Using `DENSE_RANK()` within a Common Table Expression (CTE) handles ties correctly and is database-agnostic:\n\n```sql\nWITH RankedSalaries AS (\n    SELECT salary, DENSE_RANK() OVER (ORDER BY salary DESC) AS rank_pos\n    FROM employees\n)\nSELECT DISTINCT salary\nFROM RankedSalaries\nWHERE rank_pos = 2; -- replace 2 with N\n```\n\nAlternative database-specific approach using `LIMIT / OFFSET`:\n```sql\nSELECT DISTINCT salary\nFROM employees\nORDER BY salary DESC\nLIMIT 1 OFFSET 1; -- for 2nd highest (N-1)\n```\nThe CTE with `DENSE_RANK()` is preferred because it handles cases where multiple employees share the top salary.",
+    "kp": [
+      "`DENSE_RANK() OVER (ORDER BY salary DESC)` ranks salaries without gaps",
+      "CTE or subquery wraps the window function so it can be filtered in WHERE",
+      "`DISTINCT` ensures clean return of the unique salary value",
+      "`LIMIT 1 OFFSET N-1` is an alternative for databases like MySQL/PostgreSQL"
+    ],
+    "cm": [
+      "Using `LIMIT 1 OFFSET 1` without `DISTINCT`, returning the highest salary again if two people share top salary",
+      "Using `RANK()` instead of `DENSE_RANK()`, causing N-th rank to be skipped during ties",
+      "Not handling empty tables or tables with fewer than N distinct salaries"
+    ],
+    "fu": [
+      "What does the query return if there are fewer than N distinct salaries in the table?",
+      "How do you solve this using a correlated subquery without window functions?"
+    ],
+    "tags": [
+      "sql",
+      "dense-rank",
+      "second-highest-salary",
+      "cte",
+      "problem-solving"
+    ]
+  },
+  {
+    "q": "How do you calculate running totals (cumulative sum) and moving averages in SQL using window functions?",
+    "sub": "Window Calculations",
+    "d": "Intermediate",
+    "ans": "A running total computes the cumulative sum of a metric from the beginning of a partition up to the current row:\n\n```sql\nSELECT order_date, amount,\n       SUM(amount) OVER (ORDER BY order_date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS running_total\nFROM orders;\n```\nOmitting the window frame defaults to `RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW`, but explicit `ROWS BETWEEN` is faster and handles duplicate dates properly. A 7-day moving average uses a sliding frame:\n\n```sql\nSELECT order_date, amount,\n       AVG(amount) OVER (ORDER BY order_date ROWS BETWEEN 6 PRECEDING AND CURRENT ROW) AS moving_avg_7d\nFROM orders;\n```",
+    "kp": [
+      "`SUM(col) OVER (ORDER BY col)` calculates cumulative running totals",
+      "`ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW` defines cumulative frame",
+      "`ROWS BETWEEN N PRECEDING AND CURRENT ROW` calculates moving rolling averages",
+      "`PARTITION BY` resets running calculations per category or customer"
+    ],
+    "cm": [
+      "Confusing `ROWS` (physical row count) with `RANGE` (logical value range) in frame clauses",
+      "Forgetting the ORDER BY in the OVER clause, which converts it to a total grand sum",
+      "Using self joins to compute running totals, which degrades to O(n^2) performance"
+    ],
+    "fu": [
+      "What is the difference between `ROWS` and `RANGE` window frame specifications?",
+      "How does `PARTITION BY customer_id` reset the running total for each individual customer?"
+    ],
+    "tags": [
+      "sql",
+      "running-total",
+      "moving-average",
+      "window-functions",
+      "cumulative-sum"
+    ]
+  },
+  {
+    "q": "Explain `LAG()` and `LEAD()` window functions. Provide a use case such as calculating month-over-month growth.",
+    "sub": "Window Navigation",
+    "d": "Intermediate",
+    "ans": "`LAG(column, offset, default)` accesses data from a preceding row in the same result set without a self join, while `LEAD(column, offset, default)` accesses data from a subsequent row. Default offset is 1. They are used for time-series comparisons, calculating deltas, and detecting status transitions. Example calculating Month-over-Month (MoM) revenue growth:\n\n```sql\nWITH MonthlyRevenue AS (\n    SELECT DATE_TRUNC('month', order_date) AS month, SUM(amount) AS revenue\n    FROM orders\n    GROUP BY 1\n)\nSELECT month, revenue,\n       LAG(revenue, 1) OVER (ORDER BY month) AS prev_month_revenue,\n       ROUND(100.0 * (revenue - LAG(revenue, 1) OVER (ORDER BY month)) / \n             NULLIF(LAG(revenue, 1) OVER (ORDER BY month), 0), 2) AS mom_growth_pct\nFROM MonthlyRevenue;\n```",
+    "kp": [
+      "`LAG()` looks back N rows; `LEAD()` looks ahead N rows",
+      "Eliminates complex and slow self-joins on timestamps",
+      "Essential for period-over-period growth rates, churn analysis, and gaps",
+      "Use `NULLIF(val, 0)` in division to prevent division-by-zero errors"
+    ],
+    "cm": [
+      "Forgetting `ORDER BY` in the window clause, resulting in nondeterministic previous values",
+      "Dividing by zero when the previous period had 0 revenue without `NULLIF`",
+      "Not handling the first row where `LAG()` naturally returns NULL"
+    ],
+    "fu": [
+      "What default value does `LAG()` return for the first row if no default is specified?",
+      "How do you find inactive gaps between consecutive user logins using `LAG()`?"
+    ],
+    "tags": [
+      "sql",
+      "lag",
+      "lead",
+      "mom-growth",
+      "analytics"
+    ]
+  },
+  {
+    "q": "What is a Common Table Expression (CTE) in SQL, and how does it compare to subqueries and temporary tables?",
+    "sub": "CTEs & Modularity",
+    "d": "Beginner",
+    "ans": "A Common Table Expression (CTE) is a named, temporary result set defined within the execution scope of a single SQL statement using the `WITH` keyword: `WITH cte_name AS (SELECT ... ) SELECT ... FROM cte_name;`. Compared to subqueries, CTEs improve query readability, eliminate deeply nested parenthesis structures, and can be referenced multiple times within the same query. Compared to temporary tables (`CREATE TEMPORARY TABLE`), CTEs do not write metadata to disk, require no manual cleanup, and exist only for the query duration. Many modern optimizers materialize non-trivial CTEs or inline them for cost-based optimization.",
+    "kp": [
+      "Defined using `WITH cte_name AS (...)` preceding main query",
+      "Dramatically improves readability over deeply nested subqueries",
+      "Can be referenced multiple times within the same statement",
+      "Exists strictly for query execution scope; no disk cleanup needed"
+    ],
+    "cm": [
+      "Believing CTEs persist across separate query executions in a session",
+      "Creating dozens of sequential CTEs for operations that could be combined simply",
+      "Assuming CTEs always materialize or index data like temporary tables"
+    ],
+    "fu": [
+      "How do recursive CTEs work for traversing graph or tree structures (e.g., BOM or Org charts)?",
+      "What does the `MATERIALIZED` vs `NOT MATERIALIZED` hint do in PostgreSQL 12+ CTEs?"
+    ],
+    "tags": [
+      "sql",
+      "cte",
+      "with-clause",
+      "subqueries",
+      "readability"
+    ]
+  },
+  {
+    "q": "How does three-valued logic work in SQL when handling `NULL` values? How do `COALESCE` and `NULLIF` help?",
+    "sub": "NULL Handling",
+    "d": "Intermediate",
+    "ans": "In SQL, `NULL` represents the absence of a value or an unknown value. As a result, comparisons with NULL using standard equality operators (`=`, `!=`, `<>`) do not evaluate to `TRUE` or `FALSE`, but to `UNKNOWN`. This is SQL's three-valued logic (TRUE, FALSE, UNKNOWN). A condition in `WHERE` only passes rows when it evaluates strictly to `TRUE`; `UNKNOWN` is treated as false. To test for NULL, you must use `IS NULL` or `IS NOT NULL`. Two helper functions are vital: 1) `COALESCE(val1, val2, ...)` returns the first non-NULL argument, useful for providing default fallback values. 2) `NULLIF(a, b)` returns `NULL` if `a == b`, otherwise returns `a`, commonly used to prevent division-by-zero (`val / NULLIF(divisor, 0)`).",
+    "kp": [
+      "Three-valued logic: TRUE, FALSE, UNKNOWN; comparisons with NULL return UNKNOWN",
+      "`col = NULL` is ALWAYS UNKNOWN; must use `IS NULL` or `IS NOT NULL`",
+      "`COALESCE(a, b, c)` returns first non-null expression",
+      "`NULLIF(a, b)` returns NULL if a equals b; prevents division by zero"
+    ],
+    "cm": [
+      "Writing `WHERE status = NULL` instead of `WHERE status IS NULL`",
+      "Not realizing `NOT IN (SELECT col FROM table)` returns zero rows if ANY returned value is NULL",
+      "Ignoring NULL handling in aggregate functions like `AVG()` which ignore NULLs"
+    ],
+    "fu": [
+      "Why does `WHERE id NOT IN (1, 2, NULL)` evaluate to UNKNOWN and return zero rows?",
+      "How does `COUNT(*)` differ from `COUNT(column_name)` regarding NULL values?"
+    ],
+    "tags": [
+      "sql",
+      "null-handling",
+      "three-valued-logic",
+      "coalesce",
+      "nullif"
+    ]
+  },
+  {
+    "q": "Explain the difference between `COUNT(*)`, `COUNT(1)`, and `COUNT(column_name)` in SQL.",
+    "sub": "Aggregate Functions",
+    "d": "Beginner",
+    "ans": "`COUNT(*)` counts the total number of rows in the result set, including rows that contain NULL values across any or all columns. `COUNT(1)` evaluates the constant literal 1 for every row and counts the occurrences; in modern relational database optimizers (PostgreSQL, MySQL, SQL Server, Oracle), `COUNT(1)` and `COUNT(*)` generate identical query execution plans and have identical performance. `COUNT(column_name)`, however, counts only rows where the specified `column_name` is NOT NULL, skipping all NULL entries. `COUNT(DISTINCT column_name)` counts unique non-NULL values.",
+    "kp": [
+      "`COUNT(*)`: counts total rows regardless of NULL values",
+      "`COUNT(1)`: identical execution plan and performance to `COUNT(*)` in modern DBs",
+      "`COUNT(column_name)`: counts only rows where `column_name` IS NOT NULL",
+      "`COUNT(DISTINCT column_name)`: counts unique non-null values"
+    ],
+    "cm": [
+      "Believing `COUNT(1)` is faster than `COUNT(*)` on modern databases (urban myth)",
+      "Using `COUNT(column)` expecting total row count when column contains NULLs",
+      "Thinking `COUNT(*)` scans all table columns in memory"
+    ],
+    "fu": [
+      "How does `COUNT(DISTINCT status)` handle NULL values in its tally?",
+      "Why can `COUNT(*)` on an indexed table in PostgreSQL be slower than on MySQL MyISAM?"
+    ],
+    "tags": [
+      "sql",
+      "count",
+      "aggregates",
+      "nulls",
+      "performance"
+    ]
+  },
+  {
+    "q": "What is the difference between correlated subqueries and non-correlated subqueries? Which is faster and why?",
+    "sub": "Subqueries",
+    "d": "Intermediate",
+    "ans": "A non-correlated subquery is completely independent of the outer query; it can be executed standalone once, and its scalar value or result set is passed to the outer query (e.g., `WHERE salary > (SELECT AVG(salary) FROM employees)`). It executes once for the entire query. A correlated subquery references columns from the outer query table (e.g., `WHERE salary > (SELECT AVG(salary) FROM employees e2 WHERE e2.dept_id = e1.dept_id)`). Conceptually, the inner subquery must be re-evaluated for every row evaluated by the outer query. While database optimizers often rewrite correlated subqueries into joins or window functions, poorly written correlated subqueries can cause severe O(n*m) performance degradation.",
+    "kp": [
+      "Non-correlated: independent of outer query; executes once",
+      "Correlated: references outer query columns; conceptually runs per outer row",
+      "Correlated subqueries can create quadratic performance bottlenecks",
+      "Often rewritten more efficiently using window functions or JOINs"
+    ],
+    "cm": [
+      "Using correlated subqueries inside the SELECT list when a single window function suffices",
+      "Not realizing a correlated subquery executes repeatedly for each row in unoptimized engines",
+      "Confusing EXISTS with IN for subquery membership checks"
+    ],
+    "fu": [
+      "How does `EXISTS` optimize correlated subqueries via short-circuit evaluation?",
+      "When is `EXISTS` faster than `IN` when subqueries contain NULL values?"
+    ],
+    "tags": [
+      "sql",
+      "subqueries",
+      "correlated-subqueries",
+      "optimization",
+      "performance"
+    ]
+  },
+  {
+    "q": "Explain `EXISTS` vs `IN` in SQL. How do they handle performance and `NULL` values differently?",
+    "sub": "Subqueries & Predicates",
+    "d": "Intermediate",
+    "ans": "`IN` evaluates whether a value matches any member of an explicit list or subquery result. If the subquery contains even a single `NULL` value, `NOT IN` fails completely, evaluating to `UNKNOWN` and returning zero rows. `EXISTS` tests for the existence of rows returned by a subquery (`WHERE EXISTS (SELECT 1 FROM ...)`), returning a boolean `TRUE` or `FALSE` without inspecting actual column values; it handles NULLs safely. Performance: `EXISTS` uses short-circuit evaluation, stopping as soon as the first matching row is found. On modern optimizers, correlated `EXISTS` and `IN` on indexed columns often yield similar plans, but `EXISTS` is safer and faster on large subqueries with potential NULLs.",
+    "kp": [
+      "`EXISTS` checks boolean row existence and short-circuits on first match",
+      "`IN` compares values; dangerous with `NOT IN` if subquery contains NULLs",
+      "`EXISTS` ignores NULL value traps in subquery data",
+      "`NOT EXISTS` is strongly preferred over `NOT IN` for safety with NULLs"
+    ],
+    "cm": [
+      "Using `NOT IN (SELECT ...)` where the subquery can return NULL, yielding an empty result set",
+      "Writing `SELECT *` inside EXISTS instead of `SELECT 1` (though optimizers optimize both)",
+      "Assuming IN is always faster without checking index availability"
+    ],
+    "fu": [
+      "Why does `WHERE id NOT IN (SELECT id FROM ...)` return empty if any id is NULL?",
+      "How does an anti-join using LEFT JOIN ... WHERE right.id IS NULL compare to NOT EXISTS?"
+    ],
+    "tags": [
+      "sql",
+      "exists",
+      "in-clause",
+      "subqueries",
+      "null-traps"
+    ]
+  },
+  {
+    "q": "How do you identify and delete duplicate rows from a table while keeping one copy in SQL?",
+    "sub": "Data Cleaning in SQL",
+    "d": "Intermediate",
+    "ans": "Using a CTE with `ROW_NUMBER()` is the standard, safest method:\n\n```sql\nWITH DuplicateCTE AS (\n    SELECT id, email,\n           ROW_NUMBER() OVER (PARTITION BY email ORDER BY id ASC) AS row_num\n    FROM users\n)\nDELETE FROM users\nWHERE id IN (\n    SELECT id FROM DuplicateCTE WHERE row_num > 1\n);\n```\n`PARTITION BY email` groups identical records together, while `ROW_NUMBER()` assigns sequential numbers starting at 1. The first instance (`row_num = 1`) is preserved, while duplicates (`row_num > 1`) are targeted for deletion. In PostgreSQL/MySQL, this can also be done using a self join with `DELETE u1 FROM users u1 JOIN users u2 ON u1.email = u2.email AND u1.id > u2.id`.",
+    "kp": [
+      "`ROW_NUMBER() OVER (PARTITION BY key ORDER BY id)` identifies duplicates",
+      "Keeps `row_num = 1` and deletes `row_num > 1`",
+      "Enforces deterministic retention via `ORDER BY id ASC`",
+      "Alternative self-join deletion using primary key comparison (`u1.id > u2.id`)"
+    ],
+    "cm": [
+      "Deleting based on `COUNT(*) > 1` without retaining a single unique record, wiping all data",
+      "Using non-deterministic sorting in `ROW_NUMBER()`, deleting the wrong record version",
+      "Not wrapping mass deletions in a transaction to verify affected row counts"
+    ],
+    "fu": [
+      "How do you prevent duplicate records from ever being inserted in the first place?",
+      "How do you execute this deletion safely in batches on a table with 10 million rows?"
+    ],
+    "tags": [
+      "sql",
+      "duplicates",
+      "row-number",
+      "data-cleaning",
+      "delete"
+    ]
+  },
+  {
+    "q": "What are primary keys, foreign keys, and unique constraints? What is referential integrity?",
+    "sub": "Relational Constraints",
+    "d": "Beginner",
+    "ans": "1) Primary Key (PK): a column or set of columns (composite PK) that uniquely identifies each row in a table. It strictly enforces uniqueness and cannot contain `NULL` values; a table can have only one primary key. 2) Unique Constraint: enforces uniqueness across column values, but permits `NULL` values (one or multiple depending on SQL dialect); tables can have multiple unique constraints. 3) Foreign Key (FK): a column that references a primary or unique key in another table, enforcing referential integrity. Referential integrity guarantees that relationships between tables remain consistent: child rows cannot point to non-existent parent rows, and parent rows cannot be deleted if children exist unless cascading actions (`ON DELETE CASCADE`, `ON DELETE SET NULL`) are declared.",
+    "kp": [
+      "Primary Key: unique identifier, strictly NOT NULL, one per table",
+      "Unique Constraint: enforces uniqueness, permits NULLs, multiple per table",
+      "Foreign Key: enforces referential integrity by referencing valid parent keys",
+      "Cascading actions: `ON DELETE CASCADE`, `SET NULL`, `RESTRICT`"
+    ],
+    "cm": [
+      "Assuming unique constraints forbid NULL values like primary keys do",
+      "Omitting foreign keys and relying on application code to maintain referential integrity",
+      "Using `ON DELETE CASCADE` blindly on critical audit data"
+    ],
+    "fu": [
+      "What is a surrogate key vs a natural key? What are the trade-offs of each?",
+      "What happens when an `ON DELETE RESTRICT` constraint is triggered?"
+    ],
+    "tags": [
+      "sql",
+      "primary-key",
+      "foreign-key",
+      "referential-integrity",
+      "constraints"
+    ]
+  },
+  {
+    "q": "What are the ACID properties in database management systems? Explain each with a banking transaction example.",
+    "sub": "Database Transactions",
+    "d": "Intermediate",
+    "ans": "ACID guarantees reliable processing of database transactions: 1) Atomicity: 'all-or-nothing'. If transferring $100 from Account A to B, both debiting A and crediting B must succeed; if crediting B fails, debiting A is rolled back completely. 2) Consistency: transactions transition the database from one valid state to another, satisfying all schema rules, constraints (e.g., account balance >= 0), and triggers. 3) Isolation: concurrent transactions execute without interfering with each other; intermediate uncommitted states of transaction 1 are invisible to transaction 2 based on isolation levels. 4) Durability: once committed, transaction results survive power failures, crashes, or reboots, guaranteed via write-ahead logging (WAL) to disk.",
+    "kp": [
+      "Atomicity: all operations succeed or all rollback (all-or-nothing)",
+      "Consistency: preserves all schema constraints, checks, and foreign keys",
+      "Isolation: concurrent transactions execute independently without race conditions",
+      "Durability: committed changes persist permanently across crashes via WAL"
+    ],
+    "cm": [
+      "Confusing Consistency in ACID with Consistency in the CAP theorem",
+      "Assuming all databases provide maximum Serializable isolation by default",
+      "Thinking Durability means data is immune to hardware disk destruction without backups"
+    ],
+    "fu": [
+      "What are the four standard SQL transaction isolation levels (Read Uncommitted to Serializable)?",
+      "What is a dirty read, non-repeatable read, and phantom read?"
+    ],
+    "tags": [
+      "database",
+      "acid",
+      "transactions",
+      "rdbms",
+      "concurrency"
+    ]
+  },
+  {
+    "q": "Explain transaction isolation levels in SQL. What anomalies do they prevent?",
+    "sub": "Transaction Isolation",
+    "d": "Advanced",
+    "ans": "SQL defines four standard isolation levels that balance concurrency performance against data consistency anomalies: 1) `Read Uncommitted`: permits Dirty Reads (reading uncommitted changes from another transaction that might rollback). 2) `Read Committed` (default in PostgreSQL/SQL Server): prevents Dirty Reads, but permits Non-Repeatable Reads (reading the same row twice yields different values because another transaction committed an update). 3) `Repeatable Read` (default in MySQL InnoDB): prevents Dirty Reads and Non-Repeatable Reads, but may permit Phantom Reads (new rows inserted by another transaction appear in subsequent range queries). 4) `Serializable`: highest isolation; eliminates all anomalies by executing transactions as if strictly serial, using range locks or Multi-Version Concurrency Control (MVCC) with serialization failure retries.",
+    "kp": [
+      "Dirty Read: reading uncommitted data that may rollback",
+      "Non-Repeatable Read: re-reading a row shows modified committed data",
+      "Phantom Read: re-running range query shows newly inserted committed rows",
+      "Levels: Read Uncommitted -> Read Committed -> Repeatable Read -> Serializable"
+    ],
+    "cm": [
+      "Assuming Read Committed prevents phantom rows or duplicate calculations",
+      "Running Serializable isolation everywhere without handling serialization conflict retries",
+      "Not knowing the default isolation level of your production database"
+    ],
+    "fu": [
+      "How does Multi-Version Concurrency Control (MVCC) achieve high concurrency without read locks?",
+      "What error does PostgreSQL throw when a Serializable transaction conflicts?"
+    ],
+    "tags": [
+      "sql",
+      "isolation-levels",
+      "mvcc",
+      "transactions",
+      "concurrency"
+    ]
+  },
+  {
+    "q": "Explain Database Normalization: First Normal Form (1NF), Second Normal Form (2NF), and Third Normal Form (3NF).",
+    "sub": "Database Normalization",
+    "d": "Intermediate",
+    "ans": "Normalization organizes relational tables to eliminate data redundancy and insertion, update, and deletion anomalies. 1) 1NF (First Normal Form): requires atomic (indivisible) column values, unique row identities (primary key), and no repeating groups or comma-separated lists. 2) 2NF (Second Normal Form): satisfies 1NF AND eliminates partial dependencies—all non-key attributes must depend on the FULL primary key (applies to composite primary keys). 3) 3NF (Third Normal Form): satisfies 2NF AND eliminates transitive dependencies—non-key attributes must depend directly on the primary key, not on another non-key attribute ('the key, the whole key, and nothing but the key, so help me Codd').",
+    "kp": [
+      "1NF: atomic values, unique primary key, no repeating columns or arrays",
+      "2NF: satisfies 1NF + no partial dependency on composite primary key",
+      "3NF: satisfies 2NF + no transitive dependencies between non-key columns",
+      "Prevents update, insert, and delete anomalies; saves storage space"
+    ],
+    "cm": [
+      "Storing comma-separated strings in a column, violating 1NF",
+      "Confusing 2NF (partial key dependency) with 3NF (non-key transitive dependency)",
+      "Believing extreme normalization (BCNF/5NF) is always optimal for analytical data warehouses"
+    ],
+    "fu": [
+      "What is Boyce-Codd Normal Form (BCNF) and when does 3NF fall short of it?",
+      "Why do data warehouses deliberately denormalize tables into Star Schemas?"
+    ],
+    "tags": [
+      "database",
+      "normalization",
+      "1nf",
+      "2nf",
+      "3nf",
+      "schema-design"
+    ]
+  },
+  {
+    "q": "What is database denormalization? When and why would an engineer intentionally denormalize a database?",
+    "sub": "Schema Design",
+    "d": "Intermediate",
+    "ans": "Denormalization is the deliberate strategy of introducing redundant data or pre-aggregated columns into a normalized relational schema to optimize read performance. While 3NF minimizes storage and eliminates update anomalies, querying highly normalized schemas requires expensive multi-table joins that degrade read throughput at scale. Engineers denormalize when: 1) Read traffic vastly outnumbers write traffic (e.g., e-commerce product catalogs), 2) Complex joins on high-volume tables cause latency bottlenecks, and 3) In analytical data warehouses where Star and Snowflake schemas store dimensional redundancies for rapid aggregation. Trade-offs: increased storage consumption and the requirement for application code or triggers to keep duplicate data synchronized.",
+    "kp": [
+      "Deliberate redundancy introduced to eliminate costly table joins",
+      "Optimizes heavy read workloads at the expense of slower write operations",
+      "Common in OLAP data warehouses, search caches, and reporting dashboards",
+      "Requires synchronization mechanisms (triggers, background jobs) to prevent data drift"
+    ],
+    "cm": [
+      "Denormalizing prematurely without empirical query profiling measurements",
+      "Failing to implement synchronization, leading to stale or conflicting data",
+      "Confusing sloppy schema design with intentional engineering denormalization"
+    ],
+    "fu": [
+      "How does a Star Schema in a data warehouse exemplify intentional denormalization?",
+      "What are materialized views and how do they automate denormalized caching?"
+    ],
+    "tags": [
+      "database",
+      "denormalization",
+      "performance",
+      "olap",
+      "schema-design"
+    ]
+  },
+  {
+    "q": "How do database indexes (B-Tree indexes) work? What are clustered vs non-clustered indexes?",
+    "sub": "Database Indexing",
+    "d": "Intermediate",
+    "ans": "A database index is a data structure (typically a self-balancing B-Tree) that speeds up data retrieval on specific columns at the cost of additional storage and slower writes (INSERT, UPDATE, DELETE must update index trees). B-Trees maintain sorted data with logarithmic O(log n) lookup, range scans, and insertions. 1) Clustered Index: dictates the physical on-disk storage order of the actual table rows; a table can have only ONE clustered index (usually the primary key). Leaf nodes contain the complete data rows. 2) Non-Clustered (Secondary) Index: a separate structure sorted by the indexed column; leaf nodes contain index keys and row pointers (or clustered key references) that point to the physical table location.",
+    "kp": [
+      "B-Tree structure provides O(log n) search, insert, and range queries",
+      "Clustered index defines physical row order on disk; strictly one per table",
+      "Non-clustered index stores sorted keys with pointers to base table data",
+      "Trade-off: faster SELECT queries vs slower INSERT/UPDATE and extra disk storage"
+    ],
+    "cm": [
+      "Indexing every single column, severely degrading write/insert throughput",
+      "Assuming an index is always used (optimizers ignore indexes on low-cardinality columns)",
+      "Creating multiple clustered indexes on the same table (physically impossible)"
+    ],
+    "fu": [
+      "What is an index-only scan (covering index) and why is it exceptionally fast?",
+      "Why are B-Trees preferred over Hash indexes or Binary Search Trees in databases?"
+    ],
+    "tags": [
+      "sql",
+      "indexing",
+      "b-tree",
+      "clustered-index",
+      "performance"
+    ]
+  },
+  {
+    "q": "What is a composite index and why is column ordering (the Leftmost Prefix Rule) critical?",
+    "sub": "Database Indexing",
+    "d": "Intermediate",
+    "ans": "A composite (multi-column) index is an index on two or more columns of a table: `CREATE INDEX idx_user_status ON users(department_id, status, created_at);`. Column ordering is critical due to the Leftmost Prefix Rule: the database can only use the index for queries that filter by the leftmost column(s) in sequence. The index on `(A, B, C)` can speed up queries filtering by `(A)`, `(A, B)`, or `(A, B, C)`. However, it CANNOT be used efficiently for queries filtering by `(B)` alone, `(C)` alone, or `(B, C)` without `A`. Best practice: place columns used in equality filters with highest selectivity first, followed by range filter columns.",
+    "kp": [
+      "Composite index covers multiple columns in a specific defined order",
+      "Leftmost Prefix Rule: can only be used if leading leftmost columns are queried",
+      "Index on (A, B, C) accelerates queries on A, (A,B), (A,B,C); useless for B or C alone",
+      "Place highest-cardinality equality columns first, followed by range filter columns"
+    ],
+    "cm": [
+      "Creating an index on `(A, B)` and wondering why `WHERE B = 10` does a full table scan",
+      "Creating separate individual indexes on A and B instead of one composite index",
+      "Putting a range condition (`created_at > ...`) before an equality column in index definition"
+    ],
+    "fu": [
+      "What happens when a query filters on `A = 1 AND C = 2` with an index on `(A, B, C)`?",
+      "How do covering indexes eliminate table lookups by using the `INCLUDE` clause?"
+    ],
+    "tags": [
+      "sql",
+      "composite-index",
+      "leftmost-prefix",
+      "indexing",
+      "query-optimization"
+    ]
+  },
+  {
+    "q": "How do you use `EXPLAIN` and `EXPLAIN ANALYZE` to diagnose and optimize slow SQL queries?",
+    "sub": "Query Optimization",
+    "d": "Advanced",
+    "ans": "`EXPLAIN` displays the query execution plan generated by the database optimizer without running the query, showing cost estimates, index choices, and join algorithms. `EXPLAIN ANALYZE` (or `EXPLAIN (ANALYZE, BUFFERS)` in PostgreSQL) actually executes the query, outputting real execution times and disk buffer statistics alongside optimizer estimates. Key warning signs: 1) `Seq Scan` (Sequential / Full Table Scan) on large tables instead of `Index Scan`, 2) High discrepancy between estimated row counts and actual row counts (indicating stale table statistics needing `ANALYZE`), 3) Expensive nested loop joins on large unindexed tables, and 4) Disk spills during sorting or hash aggregates.",
+    "kp": [
+      "`EXPLAIN`: estimates query execution plan, costs, and index usage",
+      "`EXPLAIN ANALYZE`: executes query, reporting actual milliseconds and disk buffer hits",
+      "Spot bottlenecks: Seq Scan vs Index Scan, nested loops, memory sort vs disk spills",
+      "Discrepancies in estimated vs actual rows indicate stale table statistics"
+    ],
+    "cm": [
+      "Running `EXPLAIN ANALYZE` on destructive DELETE or UPDATE queries in production without transactions",
+      "Relying on cost numbers alone without comparing actual execution milliseconds",
+      "Ignoring full table scans on multi-million row tables"
+    ],
+    "fu": [
+      "What is the difference between an `Index Scan` and a `Bitmap Index Scan` in PostgreSQL?",
+      "How does running `ANALYZE table_name` update optimizer statistics?"
+    ],
+    "tags": [
+      "sql",
+      "explain",
+      "explain-analyze",
+      "query-optimization",
+      "postgresql"
+    ]
+  },
+  {
+    "q": "Why is `SELECT *` considered a dangerous anti-pattern in production SQL queries?",
+    "sub": "SQL Best Practices",
+    "d": "Beginner",
+    "ans": "Using `SELECT *` in production code causes several problems: 1) Performance and I/O overhead: retrieves all columns from disk, consuming unnecessary I/O, network bandwidth, and application memory, especially for large TEXT, BLOB, or JSONB columns. 2) Prevents Covering Indexes: a covering index scan cannot be used because columns not in the index must be fetched from base table pages. 3) Fragility: if a column is added, renamed, or reordered in the table schema, application unpackers, positional tuples, and ORM projections can break silently. Explicitly naming required columns (`SELECT id, name, email`) ensures predictable contracts and optimal performance.",
+    "kp": [
+      "Fetches unnecessary columns, wasting disk I/O, network transit, and RAM",
+      "Destroys ability of optimizer to use covering index scans",
+      "Fragile to schema changes (breaks positional array unpackers)",
+      "Explicitly specifying columns produces self-documenting, maintainable queries"
+    ],
+    "cm": [
+      "Using `SELECT *` inside subqueries or production API endpoint queries",
+      "Ignoring bandwidth costs when tables contain massive JSON or text columns",
+      "Thinking `SELECT *` makes code easier to maintain"
+    ],
+    "fu": [
+      "When is `SELECT *` acceptable (e.g., inside `EXISTS (SELECT * FROM ...)` or ad-hoc CLI exploration)?",
+      "How does GraphQL address over-fetching on the API layer similar to explicit column selection?"
+    ],
+    "tags": [
+      "sql",
+      "anti-patterns",
+      "best-practices",
+      "performance",
+      "select-star"
+    ]
+  }
+]

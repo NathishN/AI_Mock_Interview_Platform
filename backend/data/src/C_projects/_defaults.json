@@ -1,0 +1,8 @@
+{
+  "id_prefix": "proj",
+  "category": "Resume & Projects",
+  "target": 60,
+  "roles": ["Software Development Engineer", "Python Developer", "Java Developer", "Data Analyst", "Data Scientist", "Machine Learning Engineer", "AI Engineer", "Generative AI Engineer", "Full-Stack Developer", "Backend Developer", "Business Analyst"],
+  "stages": ["Technical Screening", "Technical", "Managerial", "Final"],
+  "criteria": ["Technical clarity", "Ownership and individual contribution", "Architectural and trade-off understanding", "Problem-solving depth", "Communication of complex ideas", "Honesty about limitations"]
+}

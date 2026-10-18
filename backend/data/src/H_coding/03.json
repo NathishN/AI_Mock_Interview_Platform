@@ -1,0 +1,562 @@
+[
+  {
+    "q": "Write a Python function to invert a binary tree (swap left and right children for every node).",
+    "sub": "Tree Algorithms",
+    "d": "Beginner",
+    "ans": "Inverting a binary tree swaps the left and right children of every node throughout the hierarchy:\n\n```python\nclass TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\ndef invert_tree(root: TreeNode | None) -> TreeNode | None:\n    if not root:\n        return None\n    # Swap children\n    root.left, root.right = root.right, root.left\n    # Recurse on subtrees\n    invert_tree(root.left)\n    invert_tree(root.right)\n    return root\n```\n\nSample Input: `[4, 2, 7, 1, 3, 6, 9]` -> Expected Output: `[4, 7, 2, 9, 6, 3, 1]`. Time Complexity: O(n) where n is the number of nodes (visits every node once). Space Complexity: O(h) where h is tree height for the recursion call stack (O(log n) for balanced tree, O(n) worst-case skewed tree). An iterative level-order traversal using `collections.deque` achieves identical O(n) time.",
+    "kp": [
+      "Base case: if node is None, return None immediately",
+      "Swap left and right child pointers at current node",
+      "Recursively call invert on both children",
+      "Time Complexity: O(n); Space Complexity: O(h) call stack depth"
+    ],
+    "cm": [
+      "Overwriting one child pointer before saving the other when not using Python tuple assignment",
+      "Forgetting base case resulting in RecursionError on leaf children",
+      "Assuming space complexity is O(1) without accounting for recursion call stack"
+    ],
+    "fu": [
+      "How would you invert the tree iteratively using a breadth-first queue?",
+      "What is the famous Max Howell tweet regarding Homebrew and inverting a binary tree?"
+    ],
+    "tags": [
+      "coding",
+      "binary-tree",
+      "dfs",
+      "tree-inversion",
+      "recursion"
+    ]
+  },
+  {
+    "q": "Write a Python function to perform an Inorder Traversal of a Binary Tree iteratively using an explicit stack.",
+    "sub": "Tree Algorithms",
+    "d": "Intermediate",
+    "ans": "Inorder traversal visits nodes in the order Left -> Root -> Right. To perform this iteratively without recursion, an explicit LIFO stack simulates the call stack:\n\n```python\ndef inorder_traversal(root: TreeNode | None) -> list[int]:\n    result = []\n    stack = []\n    curr = root\n    while curr or stack:\n        # Reach the leftmost node of the current subtree\n        while curr:\n            stack.append(curr)\n            curr = curr.left\n        curr = stack.pop()\n        result.append(curr.val)\n        # Visit right subtree\n        curr = curr.right\n    return result\n```\n\nSample Input: `[1, None, 2, 3]` -> Expected Output: `[1, 3, 2]`. On a Binary Search Tree (BST), inorder traversal always yields values in strictly ascending sorted order. Time Complexity: O(n) since every node is pushed and popped exactly once. Space Complexity: O(h) where h is tree height.",
+    "kp": [
+      "Inorder visits Left Subtree -> Current Root -> Right Subtree",
+      "Simulates recursion stack: traverse left deep while pushing to stack",
+      "Pop top node, record its value, then move to right child",
+      "Inorder traversal of any BST yields sorted values in ascending order"
+    ],
+    "cm": [
+      "Mixing up traversal orders: preorder (Root-Left-Right) vs postorder (Left-Right-Root)",
+      "Pushing right child before left child onto the stack",
+      "Terminating the loop too early when `curr` is None but stack is non-empty"
+    ],
+    "fu": [
+      "How does Morris Traversal achieve Inorder Traversal in O(n) time with O(1) space?",
+      "How can you implement iterative Postorder traversal using two stacks or one stack with a prev pointer?"
+    ],
+    "tags": [
+      "coding",
+      "binary-tree",
+      "inorder-traversal",
+      "stack",
+      "trees"
+    ]
+  },
+  {
+    "q": "Write a Python function to find the Lowest Common Ancestor (LCA) of two nodes in a Binary Search Tree (BST).",
+    "sub": "Tree Algorithms",
+    "d": "Intermediate",
+    "ans": "In a BST, values in the left subtree are `< root.val` and values in the right subtree are `> root.val`. The Lowest Common Ancestor of nodes `p` and `q` is the first split node where `p` and `q` diverge into different subtrees, or where one equals the root:\n\n```python\ndef lowest_common_ancestor_bst(root: TreeNode, p: TreeNode, q: TreeNode) -> TreeNode:\n    curr = root\n    while curr:\n        if p.val < curr.val and q.val < curr.val:\n            curr = curr.left\n        elif p.val > curr.val and q.val > curr.val:\n            curr = curr.right\n        else:\n            # Split point found, or curr matches p or q\n            return curr\n    return root\n```\n\nSample Input: BST with root=6, p=2, q=8 -> LCA is 6. Sample Input: root=6, p=2, q=4 -> LCA is 2. Time Complexity: O(h) where h is tree height (O(log n) balanced, O(n) skewed). Space Complexity: O(1) iterative.",
+    "kp": [
+      "Leverages BST ordering: left < root < right",
+      "If both p and q are smaller than curr, LCA is in left subtree",
+      "If both p and q are larger than curr, LCA is in right subtree",
+      "First node where paths diverge or equal is the Lowest Common Ancestor"
+    ],
+    "cm": [
+      "Treating the tree as a generic binary tree and traversing all paths in O(n) time",
+      "Not handling case where one node is ancestor of the other (`p == curr` or `q == curr`)",
+      "Using recursive solution when iterative solution runs in O(1) space"
+    ],
+    "fu": [
+      "How does LCA differ in an arbitrary binary tree without BST ordering properties?",
+      "How would you find LCA if each tree node had an explicit `.parent` pointer?"
+    ],
+    "tags": [
+      "coding",
+      "bst",
+      "lowest-common-ancestor",
+      "trees",
+      "algorithms"
+    ]
+  },
+  {
+    "q": "Write a Python function to detect if a singly linked list has a cycle, and find the node where the cycle begins.",
+    "sub": "Linked List Algorithms",
+    "d": "Intermediate",
+    "ans": "Floyd's Cycle-Finding Algorithm (Tortoise and Hare) detects cycles and identifies the cycle entry point in O(n) time and O(1) space:\n\n```python\nclass ListNode:\n    def __init__(self, val=0, next=None):\n        self.val = val\n        self.next = next\n\ndef detect_cycle(head: ListNode | None) -> ListNode | None:\n    slow = fast = head\n    # Phase 1: Detect if a cycle exists\n    while fast and fast.next:\n        slow = slow.next\n        fast = fast.next.next\n        if slow == fast:\n            break\n    else:\n        return None  # No cycle found\n\n    # Phase 2: Find the entry node of the cycle\n    entry = head\n    while entry != slow:\n        entry = entry.next\n        slow = slow.next\n    return entry\n```\n\nMathematical proof: if head-to-cycle length is `L`, and meeting point is `d` from entry inside cycle of length `C`, then `2*(L + d) = L + d + k*C` -> `L = k*C - d`. Moving one pointer from head and one from intersection point at equal 1-step speed meets precisely at the cycle entrance.",
+    "kp": [
+      "Phase 1: fast pointer advances 2 steps, slow pointer 1 step; they meet if cycle exists",
+      "Phase 2: reset entry pointer to head; advance both 1 step until they collide at cycle entry",
+      "Time Complexity: O(n); Space Complexity: O(1) strictly in-place",
+      "Mathematical relation: distance from head to entrance equals distance from meeting point to entrance"
+    ],
+    "cm": [
+      "Using a hash set `seen` consuming O(n) extra space instead of O(1) pointers",
+      "Forgetting `fast.next` check leading to AttributeError on `fast.next.next`",
+      "Advancing entry and slow pointers at 2 steps instead of 1 in Phase 2"
+    ],
+    "fu": [
+      "How does this same cycle detection algorithm solve 'Find the Duplicate Number' in an array of n+1 integers?",
+      "How would you determine the exact length of the cycle once detected?"
+    ],
+    "tags": [
+      "coding",
+      "linked-list",
+      "two-pointers",
+      "cycle-detection",
+      "floyds-algorithm"
+    ]
+  },
+  {
+    "q": "Write a Python function to reverse a singly linked list both iteratively and recursively.",
+    "sub": "Linked List Algorithms",
+    "d": "Beginner",
+    "ans": "1) Iterative approach: maintain three pointers (`prev`, `curr`, `next_node`) and reverse links one by one in a single pass:\n\n```python\ndef reverse_list_iterative(head: ListNode | None) -> ListNode | None:\n    prev = None\n    curr = head\n    while curr:\n        next_node = curr.next\n        curr.next = prev\n        prev = curr\n        curr = next_node\n    return prev\n```\n\n2) Recursive approach:\n```python\ndef reverse_list_recursive(head: ListNode | None) -> ListNode | None:\n    if not head or not head.next:\n        return head\n    new_head = reverse_list_recursive(head.next)\n    head.next.next = head\n    head.next = None\n    return new_head\n```\nSample Input: `1 -> 2 -> 3 -> 4 -> 5` -> Output: `5 -> 4 -> 3 -> 2 -> 1`. Iterative Time: O(n), Space: O(1). Recursive Time: O(n), Space: O(n) call stack.",
+    "kp": [
+      "Iterative: 3-pointer pattern (`prev`, `curr`, `next_node`)",
+      "Reverses directional pointer `curr.next = prev` before shifting forward",
+      "Recursive base case: `not head or not head.next`",
+      "Recursive wiring: `head.next.next = head` and `head.next = None`"
+    ],
+    "cm": [
+      "Losing reference to `curr.next` before overwriting pointer, breaking the list",
+      "Forgetting to set `head.next = None` in recursive implementation, creating circular loop",
+      "Returning `curr` instead of `prev` at the end of iterative loop"
+    ],
+    "fu": [
+      "How would you reverse a linked list between left position m and right position n in one pass?",
+      "How do you reverse nodes of a linked list in k-group (Reverse Nodes in k-Group)?"
+    ],
+    "tags": [
+      "coding",
+      "linked-list",
+      "reverse-linked-list",
+      "pointers",
+      "algorithms"
+    ]
+  },
+  {
+    "q": "Write a Python function to merge two sorted singly linked lists into a single sorted linked list.",
+    "sub": "Linked List Algorithms",
+    "d": "Beginner",
+    "ans": "Using a dummy node simplifies edge-case handling when stitching two sorted linked lists together:\n\n```python\ndef merge_two_sorted_lists(l1: ListNode | None, l2: ListNode | None) -> ListNode | None:\n    dummy = ListNode(0)\n    tail = dummy\n    while l1 and l2:\n        if l1.val <= l2.val:\n            tail.next = l1\n            l1 = l1.next\n        else:\n            tail.next = l2\n            l2 = l2.next\n        tail = tail.next\n    # Attach remaining non-empty list\n    tail.next = l1 if l1 else l2\n    return dummy.next\n```\n\nSample Input: `l1 = 1->2->4`, `l2 = 1->3->4` -> Output: `1->1->2->3->4->4`. Time Complexity: O(n + m) where n and m are lengths of the lists. Space Complexity: O(1) auxiliary space since nodes are spliced in-place without creating new list nodes.",
+    "kp": [
+      "Dummy head node avoids special conditional logic for the first node",
+      "Compare `l1.val` and `l2.val`; wire `tail.next` to the smaller node",
+      "After loop, attach remaining tail `tail.next = l1 if l1 else l2` in O(1)",
+      "Time Complexity: O(n + m); Space Complexity: O(1) in-place pointers"
+    ],
+    "cm": [
+      "Iterating through remaining nodes one-by-one instead of wiring pointer in O(1)",
+      "Allocating new `ListNode` instances instead of rearranging existing pointers",
+      "Failing to advance `tail` pointer inside the loop"
+    ],
+    "fu": [
+      "How would you merge K sorted linked lists efficiently in O(N log k) time?",
+      "Why is Merge Sort the preferred sorting algorithm for singly linked lists over Quick Sort?"
+    ],
+    "tags": [
+      "coding",
+      "linked-list",
+      "merge-sorted",
+      "dummy-node",
+      "two-pointers"
+    ]
+  },
+  {
+    "q": "Write a Python function to search for a target value in a rotated sorted array in O(log n) time.",
+    "sub": "Binary Search",
+    "d": "Intermediate",
+    "ans": "When a sorted array is rotated at an unknown pivot, dividing the array at midpoint `mid` always leaves at least one half strictly sorted:\n\n```python\ndef search_rotated_sorted(nums: list[int], target: int) -> int:\n    low, high = 0, len(nums) - 1\n    while low <= high:\n        mid = (low + high) // 2\n        if nums[mid] == target:\n            return mid\n        # Check if left half is sorted\n        if nums[low] <= nums[mid]:\n            if nums[low] <= target < nums[mid]:\n                high = mid - 1\n            else:\n                low = mid + 1\n        # Otherwise right half must be sorted\n        else:\n            if nums[mid] < target <= nums[high]:\n                low = mid + 1\n            else:\n                high = mid - 1\n    return -1\n```\n\nSample Input: `nums = [4, 5, 6, 7, 0, 1, 2], target = 0` -> Output: `4`. Sample Input: `target = 3` -> Output: `-1`. Time Complexity: O(log n). Space Complexity: O(1).",
+    "kp": [
+      "Key observation: at least one half `[low...mid]` or `[mid...high]` is always strictly sorted",
+      "Identify which half is sorted by checking `nums[low] <= nums[mid]`",
+      "Check if target falls within the sorted half's range; if so, narrow to that half",
+      "Time Complexity: O(log n); Space Complexity: O(1)"
+    ],
+    "cm": [
+      "Using linear scan O(n) which misses the logarithmic performance requirement",
+      "Forgetting `<=` in boundary checks (`nums[low] <= target < nums[mid]`)",
+      "Not handling arrays of size 1 or 2 properly"
+    ],
+    "fu": [
+      "What if the rotated array contains duplicate values (Search in Rotated Sorted Array II)?",
+      "How do you find the minimum element or rotation pivot index in O(log n) time?"
+    ],
+    "tags": [
+      "coding",
+      "binary-search",
+      "rotated-array",
+      "arrays",
+      "algorithms"
+    ]
+  },
+  {
+    "q": "Write a Python function to find a peak element in an array where nums[i] != nums[i+1] in O(log n) time.",
+    "sub": "Binary Search",
+    "d": "Intermediate",
+    "ans": "A peak element is strictly greater than its neighbors. Binary search can find a peak in O(log n) by following the rising slope:\n\n```python\ndef find_peak_element(nums: list[int]) -> int:\n    low, high = 0, len(nums) - 1\n    while low < high:\n        mid = (low + high) // 2\n        if nums[mid] < nums[mid + 1]:\n            # Upward slope: a peak must exist to the right\n            low = mid + 1\n        else:\n            # Downward slope: mid itself or an element to the left is a peak\n            high = mid\n    return low\n```\n\nLogic: if `nums[mid] < nums[mid + 1]`, we are on an ascending slope, guaranteeing at least one local peak exists in `[mid + 1, high]`. Otherwise, a peak exists in `[low, mid]`. Sample Input: `[1, 2, 3, 1]` -> Output: `2` (index of 3). Sample Input: `[1, 2, 1, 3, 5, 6, 4]` -> Output: `1` or `5`. Time Complexity: O(log n). Space Complexity: O(1).",
+    "kp": [
+      "Binary search on unsorted arrays by following rising slope",
+      "Compare `nums[mid]` against `nums[mid + 1]` to determine ascent or descent",
+      "Loop condition `low < high` terminates when `low == high` at peak",
+      "Time Complexity: O(log n); Space Complexity: O(1)"
+    ],
+    "cm": [
+      "Checking `mid - 1` without guarding against index underflow when `mid == 0`",
+      "Using `low <= high` with `high = mid - 1`, which may overshoot the peak",
+      "Assuming binary search only works on globally sorted arrays"
+    ],
+    "fu": [
+      "How do you find a 2D peak element in an N x M matrix in O(N log M) time?",
+      "Can this approach be applied to find local minima?"
+    ],
+    "tags": [
+      "coding",
+      "binary-search",
+      "peak-element",
+      "arrays",
+      "algorithms"
+    ]
+  },
+  {
+    "q": "Write a Python function to solve the Container With Most Water problem in O(n) time.",
+    "sub": "Two-Pointer Algorithms",
+    "d": "Intermediate",
+    "ans": "The area between two vertical lines at indices `i` and `j` is given by `(j - i) * min(height[i], height[j])`. A two-pointer inward converging approach achieves O(n) linear time:\n\n```python\ndef max_area(height: list[int]) -> int:\n    left, right = 0, len(height) - 1\n    max_water = 0\n    while left < right:\n        width = right - left\n        current_water = width * min(height[left], height[right])\n        if current_water > max_water:\n            max_water = current_water\n        # Move the pointer pointing to the shorter vertical bar\n        if height[left] < height[right]:\n            left += 1\n        else:\n            right -= 1\n    return max_water\n```\n\nGreedy rationale: the width `(right - left)` shrinks on every step. To have any chance of finding a larger area, we must find a taller line, so we advance the pointer with the shorter bar. Sample Input: `[1, 8, 6, 2, 5, 4, 8, 3, 7]` -> Output: `49`. Time Complexity: O(n). Space Complexity: O(1).",
+    "kp": [
+      "Area formula: `(right - left) * min(height[left], height[right])`",
+      "Two pointers start at maximum width boundaries (`0` and `n - 1`)",
+      "Always advance the pointer with shorter height to maximize potential area",
+      "Time Complexity: O(n) single pass; Space Complexity: O(1)"
+    ],
+    "cm": [
+      "Using brute-force nested loops evaluating all pairs in O(n^2) time",
+      "Moving the taller pointer or moving both simultaneously",
+      "Confusing this problem with Trapping Rain Water (which accumulates trapped water between bars)"
+    ],
+    "fu": [
+      "Why is moving the shorter pointer mathematically guaranteed not to miss the maximum area?",
+      "How does this differ from the Trapping Rain Water problem?"
+    ],
+    "tags": [
+      "coding",
+      "two-pointers",
+      "greedy",
+      "arrays",
+      "container-with-most-water"
+    ]
+  },
+  {
+    "q": "Write a Python function to solve the 3Sum problem: find all unique triplets in an array that sum to zero.",
+    "sub": "Two-Pointer Algorithms",
+    "d": "Intermediate",
+    "ans": "Sort the array first to enable two pointers and easily skip duplicate elements:\n\n```python\ndef three_sum(nums: list[int]) -> list[list[int]]:\n    nums.sort()\n    triplets = []\n    n = len(nums)\n    for i in range(n - 2):\n        if nums[i] > 0:\n            break  # Smallest number > 0 cannot sum to 0\n        if i > 0 and nums[i] == nums[i - 1]:\n            continue  # Skip duplicate first element\n        left, right = i + 1, n - 1\n        while left < right:\n            total = nums[i] + nums[left] + nums[right]\n            if total < 0:\n                left += 1\n            elif total > 0:\n                right -= 1\n            else:\n                triplets.append([nums[i], nums[left], nums[right]])\n                left += 1\n                right -= 1\n                # Skip duplicates for left and right\n                while left < right and nums[left] == nums[left - 1]:\n                    left += 1\n                while left < right and nums[right] == nums[right + 1]:\n                    right -= 1\n    return triplets\n```\n\nSample Input: `[-1, 0, 1, 2, -1, -4]` -> Output: `[[-1, -1, 2], [-1, 0, 1]]`. Time Complexity: O(n^2). Space Complexity: O(1) or O(n) depending on sort implementation.",
+    "kp": [
+      "Sort array first in O(n log n)",
+      "Fix first element `nums[i]` and use Two-Pointer inward scan for remaining two",
+      "Crucial duplicate skipping: check `nums[i] == nums[i - 1]` and while loops after finding triplet",
+      "Early termination: if `nums[i] > 0`, remaining sorted elements cannot sum to zero"
+    ],
+    "cm": [
+      "Using nested triple loops in O(n^3) time",
+      "Using a set of tuples to filter duplicates instead of skipping pointers, causing memory overhead",
+      "Forgetting to skip duplicates on `left` and `right` pointers inside the match block"
+    ],
+    "fu": [
+      "How would you generalize this algorithm to 4Sum in O(n^3) time?",
+      "How do you solve 3Sum Closest (finding the triplet sum nearest to a target)?"
+    ],
+    "tags": [
+      "coding",
+      "two-pointers",
+      "3sum",
+      "sorting",
+      "arrays"
+    ]
+  },
+  {
+    "q": "Write a Python function to solve the Trapping Rain Water problem in O(n) time and O(1) space.",
+    "sub": "Two-Pointer Algorithms",
+    "d": "Advanced",
+    "ans": "Water trapped above bar `i` is determined by `min(max_left, max_right) - height[i]`. We can compute this in O(1) space using two converging pointers:\n\n```python\ndef trap_rain_water(height: list[int]) -> int:\n    if not height:\n        return 0\n    left, right = 0, len(height) - 1\n    left_max = right_max = 0\n    water = 0\n    while left < right:\n        if height[left] < height[right]:\n            if height[left] >= left_max:\n                left_max = height[left]\n            else:\n                water += left_max - height[left]\n            left += 1\n        else:\n            if height[right] >= right_max:\n                right_max = height[right]\n            else:\n                water += right_max - height[right]\n            right -= 1\n    return water\n```\n\nSample Input: `[0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1]` -> Output: `6`. Time Complexity: O(n) single pass. Space Complexity: O(1) constant auxiliary memory.",
+    "kp": [
+      "Water trapped at index i equals `min(max_left, max_right) - height[i]`",
+      "Two pointers converge from boundaries; always process the side with smaller height",
+      "The side with smaller height is bounded by `left_max` (or `right_max`) regardless of future peaks",
+      "Time Complexity: O(n); Space Complexity: O(1) in-place"
+    ],
+    "cm": [
+      "Allocating two O(n) prefix/suffix arrays when O(1) two-pointer space is requested",
+      "Brute-force scanning left and right for every single bar in O(n^2) time",
+      "Adding negative water values when bar exceeds running max"
+    ],
+    "fu": [
+      "How can this problem be solved using a Monotonic Decreasing Stack?",
+      "How do you solve Trapping Rain Water II in a 3D elevation map using a Min-Heap?"
+    ],
+    "tags": [
+      "coding",
+      "two-pointers",
+      "trapping-rain-water",
+      "arrays",
+      "algorithms"
+    ]
+  },
+  {
+    "q": "Write a Python function to validate a 9x9 Sudoku board according to standard rules.",
+    "sub": "Hash Set Algorithms",
+    "d": "Intermediate",
+    "ans": "A valid Sudoku board requires that numbers 1-9 occur without repetition across: 1) each row, 2) each column, and 3) each 3x3 sub-grid. Empty cells are represented by `'.'`. Hash sets track seen digits:\n\n```python\ndef is_valid_sudoku(board: list[list[str]]) -> bool:\n    rows = [set() for _ in range(9)]\n    cols = [set() for _ in range(9)]\n    boxes = [set() for _ in range(9)]\n    for r in range(9):\n        for c in range(9):\n            val = board[r][c]\n            if val == '.':\n                continue\n            box_idx = (r // 3) * 3 + (c // 3)\n            if val in rows[r] or val in cols[c] or val in boxes[box_idx]:\n                return False\n            rows[r].add(val)\n            cols[c].add(val)\n            boxes[box_idx].add(val)\n    return True\n```\n\nBox indexing formula: `(r // 3) * 3 + (c // 3)` uniquely maps each `(r, c)` cell into its respective 3x3 box numbered 0 to 8. Time Complexity: O(1) since board is fixed 9x9 (81 iterations). Space Complexity: O(1) bounded auxiliary sets.",
+    "kp": [
+      "Validate rows, columns, and 3x3 sub-boxes without duplicates",
+      "Sub-box index formula: `(r // 3) * 3 + (c // 3)`",
+      "Skip empty cells represented by `'.'`",
+      "Time Complexity: O(1) fixed 81 cells; Space Complexity: O(1)"
+    ],
+    "cm": [
+      "Incorrect formula for 3x3 sub-box index (e.g., forgetting `* 3`)",
+      "Checking whether the board is solvable rather than merely validating current entries",
+      "Creating new sets for every cell inside the loop instead of persisting per row/col/box"
+    ],
+    "fu": [
+      "How do you solve a complete Sudoku puzzle using Backtracking DFS?",
+      "How can bitmasks of length 9 replace hash sets for zero-allocation performance?"
+    ],
+    "tags": [
+      "coding",
+      "hash-set",
+      "matrix",
+      "sudoku",
+      "problem-solving"
+    ]
+  },
+  {
+    "q": "Write a Python function to solve Min Cost Climbing Stairs using Dynamic Programming.",
+    "sub": "Dynamic Programming",
+    "d": "Beginner",
+    "ans": "Given array `cost` where `cost[i]` is cost of step `i`, you can climb 1 or 2 steps. You can start at index 0 or index 1. Min cost to reach top floor (index `n`):\n\n```python\ndef min_cost_climbing_stairs(cost: list[int]) -> int:\n    # prev2 is min cost to reach step i-2; prev1 is min cost to reach step i-1\n    prev2, prev1 = cost[0], cost[1]\n    for i in range(2, len(cost)):\n        curr = cost[i] + min(prev1, prev2)\n        prev2, prev1 = prev1, curr\n    return min(prev1, prev2)\n```\n\nRecurrence relation: `dp[i] = cost[i] + min(dp[i-1], dp[i-2])`. At the top floor, we can step from `n-1` or `n-2`, so we return `min(prev1, prev2)`. Sample Input: `[10, 15, 20]` -> Output: `15`. Sample Input: `[1, 100, 1, 1, 1, 100, 1, 1, 100, 1]` -> Output: `6`. Time Complexity: O(n). Space Complexity: O(1).",
+    "kp": [
+      "Recurrence: `dp[i] = cost[i] + min(dp[i-1], dp[i-2])`",
+      "Base cases: start at index 0 with cost[0] or index 1 with cost[1]",
+      "Space optimization: keep only previous two states (`prev1`, `prev2`)",
+      "Time Complexity: O(n); Space Complexity: O(1)"
+    ],
+    "cm": [
+      "Allocating a full DP table of size N when only two variables are required",
+      "Returning `cost[-1]` instead of `min(prev1, prev2)` for the final step past the array",
+      "Using naive recursion without memoization (O(2^n) time)"
+    ],
+    "fu": [
+      "How does this problem extend to variable step sizes up to K steps?",
+      "How do you reconstruct the actual path of steps taken to achieve minimum cost?"
+    ],
+    "tags": [
+      "coding",
+      "dynamic-programming",
+      "arrays",
+      "climbing-stairs",
+      "memoization"
+    ]
+  },
+  {
+    "q": "Write a Python function to solve the Coin Change problem (minimum coins to make up an amount) using Dynamic Programming.",
+    "sub": "Dynamic Programming",
+    "d": "Intermediate",
+    "ans": "Given integer array `coins` and integer `amount`, return the fewest coins needed, or `-1` if amount cannot be made. Unbounded knapsack dynamic programming:\n\n```python\ndef coin_change(coins: list[int], amount: int) -> int:\n    dp = [float('inf')] * (amount + 1)\n    dp[0] = 0  # 0 coins to make amount 0\n    for c in coins:\n        for a in range(c, amount + 1):\n            dp[a] = min(dp[a], dp[a - c] + 1)\n    return dp[amount] if dp[amount] != float('inf') else -1\n```\n\nRecurrence: `dp[a] = min(dp[a], dp[a - coin] + 1)`. We initialize `dp` with infinity. Iterating coins first or amount first both work for minimum count. Sample Input: `coins = [1, 2, 5], amount = 11` -> Output: `3` (5 + 5 + 1). Sample Input: `coins = [2], amount = 3` -> Output: `-1`. Time Complexity: O(amount * len(coins)). Space Complexity: O(amount).",
+    "kp": [
+      "Unbounded knapsack dynamic programming formulation",
+      "Base case: `dp[0] = 0`; all other amounts initialized to `float('inf')`",
+      "Transition: `dp[a] = min(dp[a], dp[a - coin] + 1)`",
+      "Time Complexity: O(amount * len(coins)); Space Complexity: O(amount)"
+    ],
+    "cm": [
+      "Greedy approach (always picking largest coin) fails on non-canonical systems like `coins=[1, 3, 4], amount=6` (greedy picks 4+1+1=3 coins; optimal is 3+3=2 coins)",
+      "Initializing `dp` with 0 instead of infinity, causing incorrect min comparisons",
+      "Forgetting to check if `dp[amount]` is unreachable before returning"
+    ],
+    "fu": [
+      "How does the recurrence change if you need to count the total number of combinations (Coin Change 2)?",
+      "Why must coin iteration be outer in Coin Change 2 to avoid counting permutations?"
+    ],
+    "tags": [
+      "coding",
+      "dynamic-programming",
+      "coin-change",
+      "knapsack",
+      "algorithms"
+    ]
+  },
+  {
+    "q": "Write a Python function to find the length of the Longest Increasing Subsequence (LIS) in an integer array.",
+    "sub": "Dynamic Programming",
+    "d": "Intermediate",
+    "ans": "Method 1: Dynamic Programming in O(n^2) where `dp[i]` is length of LIS ending at index `i`:\n`dp[i] = 1 + max(dp[j] for j < i if nums[j] < nums[i])`.\n\nMethod 2 (Optimal Patience Sorting with Binary Search in O(n log n)):\n```python\nimport bisect\n\ndef length_of_lis(nums: list[int]) -> int:\n    tails = []\n    for num in nums:\n        idx = bisect.bisect_left(tails, num)\n        if idx == len(tails):\n            tails.append(num)\n        else:\n            tails[idx] = num\n    return len(tails)\n```\n\n`tails[k]` stores the smallest tail element among all increasing subsequences of length `k + 1`. For each number, we binary search its insertion position in `tails`. If larger than all tails, extend the subsequence; otherwise replace the first element `>= num` to minimize future tails. Sample Input: `[10, 9, 2, 5, 3, 7, 101, 18]` -> Output: `4` (`[2, 3, 7, 101]`). Time: O(n log n). Space: O(n).",
+    "kp": [
+      "DP approach: O(n^2) state comparisons",
+      "Patience sorting approach: O(n log n) using binary search (`bisect_left`)",
+      "`tails` array maintains smallest tail values of increasing subsequences",
+      "Replacing `tails[idx] = num` keeps tails as small as possible for future extensions"
+    ],
+    "cm": [
+      "Assuming `tails` represents the actual LIS sequence (it only represents tail values, not elements)",
+      "Using `bisect_right` instead of `bisect_left` for strictly increasing subsequences",
+      "Confusing contiguous subarrays with non-contiguous subsequences"
+    ],
+    "fu": [
+      "How would you reconstruct the actual LIS elements instead of just the length?",
+      "How does LIS relate to the Russian Doll Envelopes 2D problem?"
+    ],
+    "tags": [
+      "coding",
+      "dynamic-programming",
+      "binary-search",
+      "lis",
+      "patience-sorting"
+    ]
+  },
+  {
+    "q": "Write a Python function to merge all overlapping intervals in a collection.",
+    "sub": "Interval Algorithms",
+    "d": "Intermediate",
+    "ans": "Sort intervals by their starting times. Then iterate through intervals and merge with the previous interval if overlap occurs:\n\n```python\ndef merge_intervals(intervals: list[list[int]]) -> list[list[int]]:\n    if not intervals:\n        return []\n    intervals.sort(key=lambda x: x[0])\n    merged = [intervals[0]]\n    for curr in intervals[1:]:\n        prev = merged[-1]\n        if curr[0] <= prev[1]:\n            # Overlapping intervals: extend end boundary\n            prev[1] = max(prev[1], curr[1])\n        else:\n            # Non-overlapping: append new interval\n            merged.append(curr)\n    return merged\n```\n\nSample Input: `[[1, 3], [2, 6], [8, 10], [15, 18]]` -> Output: `[[1, 6], [8, 10], [15, 18]]`. Sample Input: `[[1, 4], [4, 5]]` -> Output: `[[1, 5]]`. Sorting takes O(n log n) time, and linear merging pass takes O(n). Total Time: O(n log n). Space: O(n) for output.",
+    "kp": [
+      "Sort intervals primarily by start time `intervals.sort(key=lambda x: x[0])`",
+      "Compare `curr[0] <= prev[1]` to detect overlap",
+      "Extend end boundary: `prev[1] = max(prev[1], curr[1])`",
+      "Time Complexity: O(n log n); Space Complexity: O(n)"
+    ],
+    "cm": [
+      "Forgetting to sort intervals before merging",
+      "Setting `prev[1] = curr[1]` instead of `max(prev[1], curr[1])`, failing when an interval is completely swallowed (e.g., `[1, 5]` and `[2, 3]`)",
+      "Assuming adjacent intervals like `[1, 4]` and `[4, 5]` do not overlap (they share point 4)"
+    ],
+    "fu": [
+      "How do you insert a new interval into an already sorted list of non-overlapping intervals in O(n) time?",
+      "How do you find the minimum number of meeting rooms required (Meeting Rooms II)?"
+    ],
+    "tags": [
+      "coding",
+      "intervals",
+      "sorting",
+      "merge-intervals",
+      "arrays"
+    ]
+  },
+  {
+    "q": "Write a Python function to find the K most frequent elements in an array in O(n log k) time or better.",
+    "sub": "Heap & Bucket Sort",
+    "d": "Intermediate",
+    "ans": "Method 1 (Min-Heap of size K in O(n log k)):\n```python\nimport heapq\nfrom collections import Counter\n\ndef top_k_frequent_heap(nums: list[int], k: int) -> list[int]:\n    count = Counter(nums)\n    # Min-heap stores (frequency, num)\n    return heapq.nlargest(k, count.keys(), key=count.get)\n```\n\nMethod 2 (Bucket Sort in O(n) linear time):\n```python\ndef top_k_frequent_bucket(nums: list[int], k: int) -> list[int]:\n    count = Counter(nums)\n    buckets = [[] for _ in range(len(nums) + 1)]\n    for num, freq in count.items():\n        buckets[freq].append(num)\n    result = []\n    for freq in range(len(buckets) - 1, 0, -1):\n        for num in buckets[freq]:\n            result.append(num)\n            if len(result) == k:\n                return result\n    return result\n```\nSample Input: `nums = [1, 1, 1, 2, 2, 3], k = 2` -> Output: `[1, 2]`. Bucket sort runs in O(n) time and O(n) space.",
+    "kp": [
+      "Frequency hash map via `Counter` counts occurrences in O(n)",
+      "Heap approach maintains min-heap of size K in O(n log k)",
+      "Bucket Sort uses frequencies as indices (`buckets[freq]`) to achieve O(n) linear time",
+      "Iterates buckets backwards from highest frequency to collect top K"
+    ],
+    "cm": [
+      "Sorting the entire dictionary by frequency taking O(u log u) time where u is unique keys",
+      "Not handling case where array contains all unique elements",
+      "Creating buckets of size `k` instead of size `len(nums) + 1`"
+    ],
+    "fu": [
+      "When is Bucket Sort preferred over Min-Heap, and what are their relative memory trade-offs?",
+      "How can Quickselect find the top K frequent elements in O(n) average time?"
+    ],
+    "tags": [
+      "coding",
+      "heap",
+      "bucket-sort",
+      "hash-map",
+      "top-k"
+    ]
+  },
+  {
+    "q": "Write a Python function to solve the Course Schedule problem (detecting cycles in prerequisites) using Kahn's Topological Sort.",
+    "sub": "Graph Algorithms",
+    "d": "Intermediate",
+    "ans": "To finish all courses, the prerequisite graph must be a Directed Acyclic Graph (DAG). Kahn's Algorithm (BFS using in-degrees) detects cycles:\n\n```python\nfrom collections import deque\n\ndef can_finish_courses(num_courses: int, prerequisites: list[list[int]]) -> bool:\n    adj = [[] for _ in range(num_courses)]\n    in_degree = [0] * num_courses\n    for dest, src in prerequisites:\n        adj[src].append(dest)\n        in_degree[dest] += 1\n    queue = deque([i for i in range(num_courses) if in_degree[i] == 0])\n    processed = 0\n    while queue:\n        node = queue.popleft()\n        processed += 1\n        for neighbor in adj[node]:\n            in_degree[neighbor] -= 1\n            if in_degree[neighbor] == 0:\n                queue.append(neighbor)\n    return processed == num_courses\n```\n\nIf the total processed nodes equals `num_courses`, topological order is valid (no cycle). If `processed < num_courses`, a dependency cycle exists. Sample Input: `num_courses = 2, prerequisites = [[1, 0]]` -> `True`. Sample Input: `prerequisites = [[1, 0], [0, 1]]` -> `False`. Time: O(V + E). Space: O(V + E).",
+    "kp": [
+      "Model courses as directed edges `src -> dest`",
+      "In-degree tracks number of remaining prerequisite courses",
+      "Enqueue all nodes with `in_degree == 0` (courses with no prerequisites)",
+      "If `processed == num_courses`, DAG has no cycle and all courses can be finished"
+    ],
+    "cm": [
+      "Reversing edge direction `[dest, src]` causing incorrect in-degree counts",
+      "Using DFS cycle detection without 3-state coloring (`unvisited`, `visiting`, `visited`), failing to detect back-edges",
+      "Assuming disconnected graphs always contain cycles"
+    ],
+    "fu": [
+      "How do you return the actual course order (Course Schedule II)?",
+      "How does 3-color DFS cycle detection work on directed graphs?"
+    ],
+    "tags": [
+      "coding",
+      "graphs",
+      "topological-sort",
+      "kahns-algorithm",
+      "bfs"
+    ]
+  },
+  {
+    "q": "Write a Python function to count the number of islands in an m x n 2D binary grid using Breadth-First Search (BFS).",
+    "sub": "Graph & Matrix Algorithms",
+    "d": "Intermediate",
+    "ans": "An island is surrounded by water and formed by connecting adjacent lands horizontally or vertically. We iterate through grid and trigger BFS whenever an unvisited land `'1'` is found:\n\n```python\nfrom collections import deque\n\ndef num_islands(grid: list[list[str]]) -> int:\n    if not grid:\n        return 0\n    rows, cols = len(grid), len(grid[0])\n    islands = 0\n    for r in range(rows):\n        for c in range(cols):\n            if grid[r][c] == '1':\n                islands += 1\n                # Sunk the land to '0' to mark visited\n                grid[r][c] = '0'\n                queue = deque([(r, c)])\n                while queue:\n                    curr_r, curr_c = queue.popleft()\n                    for dr, dc in [(-1,0), (1,0), (0,-1), (0,1)]:\n                        nr, nc = curr_r + dr, curr_c + dc\n                        if 0 <= nr < rows and 0 <= nc < cols and grid[nr][nc] == '1':\n                            grid[nr][nc] = '0'  # Mark visited immediately upon enqueue\n                            queue.append((nr, nc))\n    return islands\n```\n\nSample Input: 4x5 grid with lands -> Output: count of connected components. Time Complexity: O(m * n). Space Complexity: O(min(m, n)) for queue.",
+    "kp": [
+      "Matrix connected components problem solved with BFS or DFS",
+      "Mark cell as visited (`'0'`) immediately upon enqueuing to prevent duplicate queue entries",
+      "Check 4 cardinal directions `[(-1,0), (1,0), (0,-1), (0,1)]`",
+      "Time Complexity: O(m * n); Space Complexity: O(min(m, n)) queue size"
+    ],
+    "cm": [
+      "Marking cell visited only when popping from queue, causing exponential memory explosion",
+      "Counting diagonal connections when the problem specifies horizontal and vertical only",
+      "Recursion depth exceeded when using DFS on large 1000x1000 grids in Python"
+    ],
+    "fu": [
+      "How would you solve this using a Disjoint Set Union (Union-Find) data structure?",
+      "How do you find the area of the largest island (Max Area of Island)?"
+    ],
+    "tags": [
+      "coding",
+      "bfs",
+      "matrix",
+      "graphs",
+      "number-of-islands"
+    ]
+  },
+  {
+    "q": "Write a Python function to solve the Rotting Oranges problem (minimum minutes until no fresh orange remains) using multi-source BFS.",
+    "sub": "Graph & Matrix Algorithms",
+    "d": "Intermediate",
+    "ans": "In an m x n grid: 0 is empty, 1 is fresh, 2 is rotten. Every minute, 4-directionally adjacent fresh oranges become rotten. Multi-source BFS starts simultaneously from all initial rotten oranges:\n\n```python\nfrom collections import deque\n\ndef oranges_rotting(grid: list[list[int]]) -> int:\n    rows, cols = len(grid), len(grid[0])\n    queue = deque()\n    fresh = 0\n    for r in range(rows):\n        for c in range(cols):\n            if grid[r][c] == 2:\n                queue.append((r, c))\n            elif grid[r][c] == 1:\n                fresh += 1\n    if fresh == 0:\n        return 0\n    minutes = -1\n    while queue:\n        minutes += 1\n        for _ in range(len(queue)):\n            r, c = queue.popleft()\n            for dr, dc in [(-1,0), (1,0), (0,-1), (0,1)]:\n                nr, nc = r + dr, c + dc\n                if 0 <= nr < rows and 0 <= nc < cols and grid[nr][nc] == 1:\n                    grid[nr][nc] = 2\n                    fresh -= 1\n                    queue.append((nr, nc))\n    return minutes if fresh == 0 else -1\n```\n\nSample Input: `[[2,1,1],[1,1,0],[0,1,1]]` -> Output: `4`. Sample Input: `[[2,1,1],[0,1,1],[1,0,1]]` -> Output: `-1` (unreachable orange). Time: O(m * n). Space: O(m * n).",
+    "kp": [
+      "Multi-source BFS: enqueue all initially rotten oranges at t=0",
+      "Process queue level-by-level to track elapsed minutes",
+      "Count fresh oranges initially and decrement; if `fresh > 0` at end, return -1",
+      "Time Complexity: O(m * n); Space Complexity: O(m * n)"
+    ],
+    "cm": [
+      "Running independent BFS from each rotten orange instead of simultaneous multi-source BFS",
+      "Incrementing minutes when queue has no neighbors to rot, overcounting by 1",
+      "Not handling the edge case where `fresh == 0` initially (should return 0 minutes)"
+    ],
+    "fu": [
+      "How does multi-source BFS generalize to finding shortest distance to gates in walls and gates?",
+      "How does Dijkstra's algorithm compare to multi-source BFS when edge weights are uniform vs varying?"
+    ],
+    "tags": [
+      "coding",
+      "bfs",
+      "multi-source-bfs",
+      "matrix",
+      "shortest-path"
+    ]
+  }
+]

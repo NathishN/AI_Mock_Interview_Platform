@@ -1,0 +1,549 @@
+[
+  {
+    "q": "If you built a RAG (Retrieval-Augmented Generation) chatbot project, how did you handle chunking, embedding, and vector retrieval?",
+    "sub": "RAG Architecture",
+    "d": "Advanced",
+    "ans": "Interviewer is assessing: deep practical knowledge of modern GenAI systems. Explain your document chunking strategy (chunk size and overlap rationale), your embedding model choice, vector database index type, and how you retrieved relevant context into the LLM prompt. Illustrative example (replace with your actual project details): 'For our RAG documentation bot, we chunked PDF manuals using RecursiveCharacterTextSplitter with 500-token chunks and 50-token overlap to preserve semantic continuity. We embedded chunks with BAAI/bge-small-en-v1.5 and stored them in FAISS with cosine similarity. During retrieval, we fetched top-4 chunks, appended them into a system prompt with strict hallucination guardrails, and streamed the answer via Groq.'",
+    "kp": [
+      "Chunking strategy (size, overlap, splitting logic)",
+      "Embedding model selection and dimensionality",
+      "Vector database and similarity metric (Cosine/L2)",
+      "Prompt augmentation and hallucination prevention"
+    ],
+    "cm": [
+      "Using arbitrary chunk sizes with no semantic boundaries",
+      "Not knowing the difference between embedding model and chat model",
+      "Ignoring retrieval evaluation or hallucination risks"
+    ],
+    "fu": [
+      "What happened when relevant context was split across chunk boundaries?",
+      "How did you handle queries where the knowledge base had no relevant information?"
+    ],
+    "tags": [
+      "rag",
+      "genai",
+      "vector-db",
+      "embeddings",
+      "llm"
+    ]
+  },
+  {
+    "q": "In your RAG chatbot project, how did you measure retrieval quality and reduce hallucinations?",
+    "sub": "RAG Evaluation",
+    "d": "Advanced",
+    "ans": "Interviewer is assessing: empirical evaluation of LLM systems and production safeguards. Discuss RAG evaluation metrics (Faithfulness, Answer Relevance, Context Precision) using frameworks like Ragas or TruLens, prompt engineering constraints, and citation mechanisms. Illustrative example (replace with your actual project details): 'To minimize hallucinations, we instructed the model to answer strictly based on provided context and return \"I do not know based on the provided documents\" when unsure. We evaluated retrieval quality using 50 synthetic Q&A pairs, tracking Context Recall and Faithfulness. Adding a reranker stage using FlashRank increased top-3 context precision by 18%.'",
+    "kp": [
+      "Strict negative prompt constraints (\"I do not know\")",
+      "Evaluation metrics: Faithfulness, Context Recall, Precision",
+      "Reranking stage (Cross-Encoder / Cohere / FlashRank)",
+      "Source attribution and citation in outputs"
+    ],
+    "cm": [
+      "Assuming LLMs never hallucinate if provided a prompt",
+      "No systematic evaluation beyond subjective manual testing",
+      "Unable to define Faithfulness or Context Precision"
+    ],
+    "fu": [
+      "How do you differentiate between a retrieval failure and a generation failure?",
+      "What role does temperature play in controlling hallucination?"
+    ],
+    "tags": [
+      "rag",
+      "hallucination",
+      "ragas",
+      "evaluation",
+      "genai"
+    ]
+  },
+  {
+    "q": "If you developed an AI Agent project, how did you design tool calling, state management, and loop termination?",
+    "sub": "AI Agents",
+    "d": "Advanced",
+    "ans": "Interviewer is assessing: agentic reasoning loops, tool invocation schemas, and safety controls. Explain the ReAct (Reasoning + Acting) loop, how tool schemas were exposed via JSON Schema / Pydantic, how intermediate state was preserved, and how infinite loops were prevented via maximum iteration bounds. Illustrative example (replace with your actual project details): 'Our research agent used an autonomous ReAct loop. We exposed tools (calculator, search, database query) using Pydantic schemas. The agent inspected user queries, formulated an action plan, called tools, and observed results in memory. We enforced a hard cap of 5 tool calls per turn and implemented schema validation on tool outputs to prevent infinite execution loops.'",
+    "kp": [
+      "ReAct / tool-calling workflow",
+      "Structured tool definition via JSON Schema/Pydantic",
+      "State retention across iterative tool steps",
+      "Termination conditions and loop guardrails"
+    ],
+    "cm": [
+      "Confusing a simple sequential prompt chain with an autonomous agent",
+      "No timeout or iteration limit, risking runaway API costs",
+      "Failing to sanitize or validate tool execution outputs"
+    ],
+    "fu": [
+      "How did your agent handle a tool execution error gracefully?",
+      "What security controls prevented prompt injection from executing malicious tool calls?"
+    ],
+    "tags": [
+      "ai-agents",
+      "tool-calling",
+      "react-framework",
+      "llm"
+    ]
+  },
+  {
+    "q": "If you built a Machine Learning project, walk me through your feature engineering and data leakage prevention steps.",
+    "sub": "ML Engineering",
+    "d": "Intermediate",
+    "ans": "Interviewer is assessing: ML hygiene, statistical rigor, and feature engineering depth. Explain the features you created from raw data, how you handled categorical variables and missing values, and how you strictly separated training and validation pipelines to prevent data leakage. Illustrative example (replace with your actual project details): 'In our student placement prediction model, we engineered features such as semester-over-semester GPA trajectory and ratio of projects to backlogs. To prevent data leakage, we split data into 80/20 train/test before any imputation or scaling. Imputers and StandardScaler were fit strictly on the training fold and only transformed on test data within an scikit-learn Pipeline.'",
+    "kp": [
+      "Domain-specific feature engineering",
+      "Strict train/test separation before transformations",
+      "Use of scikit-learn Pipelines to encapsulate transformers",
+      "Handling of categorical variables and missing values"
+    ],
+    "cm": [
+      "Fitting scalers or encoders on the entire dataset prior to splitting",
+      "Using future or target-correlated data as input features",
+      "Ignoring multicollinearity between engineered features"
+    ],
+    "fu": [
+      "How did you verify that your model was not memorizing training data?",
+      "Which single engineered feature contributed highest feature importance?"
+    ],
+    "tags": [
+      "machine-learning",
+      "feature-engineering",
+      "data-leakage",
+      "pipeline"
+    ]
+  },
+  {
+    "q": "In your Machine Learning project, which evaluation metrics did you prioritize and why was accuracy insufficient?",
+    "sub": "ML Evaluation",
+    "d": "Intermediate",
+    "ans": "Interviewer is assessing: metric selection under real-world class distributions. Explain why raw accuracy fails on imbalanced datasets, how you balanced Precision vs Recall based on business costs of False Positives vs False Negatives, and your use of F1-score or PR-AUC. Illustrative example (replace with your actual project details): 'Our disease risk dataset had a 95:5 class imbalance, meaning a dumb classifier predicting all negative achieved 95% accuracy while finding zero patients. We prioritized Recall to minimize False Negatives, ensuring at-risk patients were not missed. We evaluated our model using F1-score and Precision-Recall AUC rather than standard ROC-AUC.'",
+    "kp": [
+      "Failure mode of accuracy under class imbalance",
+      "Cost trade-off of False Positives vs False Negatives",
+      "Precision, Recall, F1-score, and PR-AUC definitions",
+      "Threshold tuning based on business impact"
+    ],
+    "cm": [
+      "Reporting 98% accuracy on a heavily skewed dataset without checking baseline",
+      "Inability to distinguish Precision from Recall",
+      "Not knowing what a confusion matrix shows"
+    ],
+    "fu": [
+      "What technique did you use to handle the class imbalance (SMOTE, class weights)?",
+      "How did you determine the optimal probability classification threshold?"
+    ],
+    "tags": [
+      "ml-metrics",
+      "imbalanced-data",
+      "precision-recall",
+      "f1-score"
+    ]
+  },
+  {
+    "q": "If you built a Full-Stack Web Application, how did you architect state management and API communication between client and server?",
+    "sub": "Full-Stack Architecture",
+    "d": "Intermediate",
+    "ans": "Interviewer is assessing: end-to-end full-stack cohesion, client state management, and network efficiency. Discuss whether you used TanStack Query, Redux, or Context API, how you cached server responses, managed loading/error states, and structured typed API clients. Illustrative example (replace with your actual project details): 'On the frontend, we used TanStack Query for server state management and React Context for local UI state like active theme. TanStack Query handled automatic background refetching, query deduplication, and optimistic updates. On the backend, FastAPI provided automatic OpenAPI schemas, which we used to generate typed TypeScript interfaces, eliminating type mismatch errors.'",
+    "kp": [
+      "Server state (TanStack Query / SWR) vs client UI state",
+      "Cache invalidation and deduplication strategies",
+      "Loading, error, and empty states handling",
+      "Type safety across frontend and backend boundaries"
+    ],
+    "cm": [
+      "Storing entire server payloads in unstructured useState loops",
+      "Ignoring network failure or offline states in the UI",
+      "Not knowing the difference between client state and server state"
+    ],
+    "fu": [
+      "How did you prevent unnecessary re-renders in your React component tree?",
+      "How did you implement optimistic UI updates for faster perceived latency?"
+    ],
+    "tags": [
+      "full-stack",
+      "react",
+      "tanstack-query",
+      "state-management"
+    ]
+  },
+  {
+    "q": "If you built a Data Analytics Dashboard project, how did you design the data pipeline and choose visualization charts?",
+    "sub": "Analytics & Visualization",
+    "d": "Intermediate",
+    "ans": "Interviewer is assessing: business intelligence, data aggregation, and visual communication. Describe the pipeline from raw ingestion (CSV/database) to aggregation (SQL/Pandas) and visualization (Power BI/Recharts/Plotly). Explain why specific charts were chosen to answer specific business questions. Illustrative example (replace with your actual project details): 'Our campus placement dashboard processed 5 years of student placement records. We transformed raw university spreadsheets using Pandas into cleaned star-schema tables. We used line charts for historical hiring trends, horizontal bar charts for department median CTC comparisons, and scatter plots for CGPA vs salary correlation. We adhered to clean visual hierarchy without 3D gimmicks.'",
+    "kp": [
+      "Data aggregation pipeline (Pandas/SQL star schema)",
+      "Intentional chart selection matched to data types",
+      "Business KPIs clearly emphasized (CTC, placement rate)",
+      "Dashboard visual hierarchy and interactivity"
+    ],
+    "cm": [
+      "Using pie charts with 20 slices or 3D visual effects",
+      "Describing visuals without knowing the underlying business questions",
+      "Displaying unaggregated raw data that slows down client rendering"
+    ],
+    "fu": [
+      "What was the most surprising insight discovered through your dashboard?",
+      "How did your dashboard handle filtering across multiple linked dimensions?"
+    ],
+    "tags": [
+      "data-analytics",
+      "dashboards",
+      "visualization",
+      "power-bi",
+      "kpi"
+    ]
+  },
+  {
+    "q": "If you developed a Computer Vision project, how did you handle image preprocessing, model selection, and inference latency?",
+    "sub": "Computer Vision",
+    "d": "Advanced",
+    "ans": "Interviewer is assessing: computer vision pipelines, image augmentation, and edge inference efficiency. Discuss resolution normalization, color space transformations, data augmentation techniques, model architecture (CNN vs YOLO vs MobileNet), and inference frame rates. Illustrative example (replace with your actual project details): 'In our real-time helmet detection system, we resized camera streams to 640x640, normalized pixel values, and used Albumentations for rotation and contrast jittering. We selected YOLOv8-nano over larger variants to maintain 30 FPS on an edge CPU without requiring an expensive GPU. Non-Maximum Suppression (NMS) thresholds were tuned to 0.45 IoU to eliminate duplicate bounding boxes.'",
+    "kp": [
+      "Image preprocessing (resizing, normalization, color spaces)",
+      "Data augmentation to prevent overfitting",
+      "Model choice balancing mAP accuracy vs FPS throughput",
+      "Inference optimization (YOLO-nano, ONNX, NMS tuning)"
+    ],
+    "cm": [
+      "Trying to run massive models on video streams without checking FPS",
+      "Not understanding IoU or Non-Maximum Suppression",
+      "Feeding raw high-resolution images directly into training"
+    ],
+    "fu": [
+      "How did your model perform under poor lighting or occlusion conditions?",
+      "Did you convert your model to ONNX or TensorRT to optimize inference?"
+    ],
+    "tags": [
+      "computer-vision",
+      "yolo",
+      "cnn",
+      "image-processing",
+      "deep-learning"
+    ]
+  },
+  {
+    "q": "If you developed a Recommendation System project, how did you handle the cold-start problem and user-item sparsity?",
+    "sub": "Recommendation Systems",
+    "d": "Advanced",
+    "ans": "Interviewer is assessing: collaborative vs content-based filtering trade-offs and matrix factorization. Explain how collaborative filtering struggles when new users or items appear (cold start) and how hybrid approaches combine metadata features with interaction matrices to bridge the gap. Illustrative example (replace with your actual project details): 'Our book recommendation engine combined matrix factorization via SVD for users with substantial reading history and content-based cosine similarity on book genres, authors, and synopsis embeddings for new items. For completely new users, we implemented an onboarding questionnaire to collect initial topic preferences, bypassing the cold-start barrier.'",
+    "kp": [
+      "Collaborative filtering vs Content-based filtering",
+      "Cold-start problem for new users and new items",
+      "Sparsity handling via matrix factorization (SVD/ALS)",
+      "Hybrid recommendation architecture"
+    ],
+    "cm": [
+      "Assuming collaborative filtering works on items with zero ratings",
+      "Not measuring recommendation quality beyond offline RMSE",
+      "Ignoring diversity and serendipity in recommendation lists"
+    ],
+    "fu": [
+      "What evaluation metrics did you use (RMSE, Precision@K, NDCG)?",
+      "How did you prevent the system from creating filter bubbles?"
+    ],
+    "tags": [
+      "recommendations",
+      "collaborative-filtering",
+      "cold-start",
+      "matrix-factorization"
+    ]
+  },
+  {
+    "q": "How did you handle error logging, exception boundaries, and operational monitoring in your backend project?",
+    "sub": "Logging & Monitoring",
+    "d": "Intermediate",
+    "ans": "Interviewer is assessing: observability and production diagnostics. Explain structured logging (JSON format), log severity levels (INFO, WARNING, ERROR), global exception handlers, and correlation request IDs that trace a transaction across system layers. Illustrative example (replace with your actual project details): 'We implemented structured logging using Python\\'s logging module with JSON output formatted for easy parsing. A global FastAPI exception handler caught unhandled exceptions, logged full stack traces with a unique request-id header, and returned clean 500 error messages to the client without leaking internal database traceback details.'",
+    "kp": [
+      "Structured logging with consistent log levels",
+      "Global exception handlers preventing server crashes",
+      "Sanitization of error responses (no stack trace leaks)",
+      "Correlation IDs for request tracing"
+    ],
+    "cm": [
+      "Using print() statements scattered throughout production code",
+      "Swallowing exceptions silently with bare 'except: pass'",
+      "Exposing raw database errors or passwords in client error responses"
+    ],
+    "fu": [
+      "How would you aggregate logs across multiple distributed servers?",
+      "What metrics would trigger an immediate alert to your engineering team?"
+    ],
+    "tags": [
+      "logging",
+      "monitoring",
+      "observability",
+      "exception-handling"
+    ]
+  },
+  {
+    "q": "How did you design asynchronous background jobs or task processing in your web application?",
+    "sub": "Asynchronous Processing",
+    "d": "Intermediate",
+    "ans": "Interviewer is assessing: understanding of I/O concurrency, message queues, and worker separation. Explain why long-running tasks (email sending, report generation, LLM evaluations) must be offloaded from the main HTTP request-response cycle, and how a worker queue coordinates tasks. Illustrative example (replace with your actual project details): 'In our application, report generation took over 8 seconds. Keeping users waiting on an open HTTP connection risked browser timeouts. We offloaded the job by returning a 202 Accepted response with a task ID, pushing the payload to a Redis queue, and processing it in a background worker process. The frontend polled task status until completion.'",
+    "kp": [
+      "Separation of short HTTP requests from long background jobs",
+      "HTTP 202 Accepted pattern with status polling or webhooks",
+      "Message broker role (Redis / RabbitMQ)",
+      "Worker resiliency and retry handling"
+    ],
+    "cm": [
+      "Executing heavy 10-second processing inside a synchronous HTTP route",
+      "No retry strategy if background task fails mid-execution",
+      "Not understanding the difference between asyncio and multi-process workers"
+    ],
+    "fu": [
+      "What happens if a worker crashes midway through processing a task?",
+      "How do you prevent duplicate execution of the same background job?"
+    ],
+    "tags": [
+      "async",
+      "celery",
+      "redis",
+      "background-tasks",
+      "concurrency"
+    ]
+  },
+  {
+    "q": "How did you handle pagination, sorting, and search filtering on high-volume database queries?",
+    "sub": "Database Optimization",
+    "d": "Intermediate",
+    "ans": "Interviewer is assessing: query efficiency and database scalability. Contrast offset-based pagination with keyset/cursor-based pagination, explain SQL indexing on sorted columns, and describe full-text or prefix search mechanisms. Illustrative example (replace with your actual project details): 'For our question repository, offset pagination worked well for small page numbers, but OFFSET 50000 degrades performance because PostgreSQL still scans preceding rows. For high-volume tables, we transitioned to cursor-based pagination using the last seen record ID and created a composite index on (category, difficulty, id) to ensure index-only scans.'",
+    "kp": [
+      "Offset-limit vs cursor-based pagination trade-offs",
+      "Indexing strategy for combined filtering and sorting",
+      "PostgreSQL ILIKE vs full-text search (tsvector)",
+      "Preventing full table scans on large tables"
+    ],
+    "cm": [
+      "Running unindexed SELECT * queries with OFFSET 100000",
+      "Fetching all records into Python memory and slicing them in code",
+      "Not providing pagination on endpoints returning dynamic collections"
+    ],
+    "fu": [
+      "When would you prefer cursor-based pagination over page numbers in UI?",
+      "How does an inverted index speed up text search queries?"
+    ],
+    "tags": [
+      "pagination",
+      "sql-optimization",
+      "indexing",
+      "search"
+    ]
+  },
+  {
+    "q": "How did you manage database connection pooling and prevent connection leaks?",
+    "sub": "Database Connections",
+    "d": "Intermediate",
+    "ans": "Interviewer is assessing: backend resource management and database server health. Explain connection pooling (SQLAlchemy QueuePool), pool size and overflow parameters, contextual session management (context managers), and pool pre-pinging to avoid stale dropped connections. Illustrative example (replace with your actual project details): 'We configured SQLAlchemy\\'s QueuePool with a pool size of 10 and max overflow of 20 to prevent exhausting PostgreSQL connection limits. We ensured all database sessions were managed via context managers or FastAPI dependency injection (get_db) with yield, guaranteeing connections are returned to the pool even when endpoint exceptions occur.'",
+    "kp": [
+      "Connection pooling benefits over creating new connections per request",
+      "Pool size, timeout, and max overflow settings",
+      "Guaranteed session cleanup via context managers / finally blocks",
+      "pool_pre_ping to detect disconnected sockets"
+    ],
+    "cm": [
+      "Creating a new database engine or direct socket connection per HTTP call",
+      "Forgetting to close sessions in error paths, causing pool starvation",
+      "Not knowing PostgreSQL default maximum connection limits (max_connections)"
+    ],
+    "fu": [
+      "What error message does an application throw when the connection pool is exhausted?",
+      "How does pool_pre_ping work under the hood in SQLAlchemy?"
+    ],
+    "tags": [
+      "connection-pool",
+      "sqlalchemy",
+      "postgresql",
+      "resource-management"
+    ]
+  },
+  {
+    "q": "What third-party APIs or external libraries did you integrate, and how did you isolate your app from their failures?",
+    "sub": "API Integration",
+    "d": "Intermediate",
+    "ans": "Interviewer is assessing: defensive programming and fault tolerance. External APIs can time out, return 500s, or hit rate limits. Discuss timeouts, exponential backoff retries, circuit breakers, and fallback responses to prevent cascading outages. Illustrative example (replace with your actual project details): 'We integrated Groq\\'s API for evaluation. Because external AI endpoints can occasionally throttle or experience latency spikes, we wrapped the HTTP client with a 15-second timeout, tenacity-based exponential backoff for HTTP 429 rate limits, and fallback logic that safely stores candidate answers without losing user input if the API fails.'",
+    "kp": [
+      "Strict timeout configurations on all external network calls",
+      "Retry policies with exponential backoff and jitter",
+      "Preserving user state during upstream failures",
+      "Graceful degradation without 500 server crashes"
+    ],
+    "cm": [
+      "Making network calls without any timeout (hanging indefinitely)",
+      "Infinite immediate retries that exacerbate upstream rate limiting",
+      "Crashing the entire user session when a secondary third-party API fails"
+    ],
+    "fu": [
+      "What is the difference between a retry mechanism and a circuit breaker?",
+      "How did you test your application\\'s behavior when the third-party API was completely down?"
+    ],
+    "tags": [
+      "api-integration",
+      "fault-tolerance",
+      "resilience",
+      "retry-pattern"
+    ]
+  },
+  {
+    "q": "How did you ensure responsive UI design and cross-device accessibility in your frontend?",
+    "sub": "Frontend Accessibility",
+    "d": "Beginner",
+    "ans": "Interviewer is assessing: UI/UX engineering rigor, mobile responsiveness, and WCAG accessibility awareness. Discuss mobile-first CSS breakpoints, semantic HTML tags, keyboard navigation, color contrast ratios, and screen-reader accessibility (ARIA attributes). Illustrative example (replace with your actual project details): 'We implemented a mobile-first responsive layout using Tailwind CSS breakpoint utilities (sm, md, lg). We used semantic elements (<main>, <nav>, <article>) rather than nested divs, ensured all interactive buttons had aria-labels, and audited contrast ratios with Chrome DevTools to meet WCAG AA standards in both light and dark modes.'",
+    "kp": [
+      "Mobile-first responsive design principles",
+      "Semantic HTML elements over generic div tags",
+      "Keyboard focusability and ARIA accessibility",
+      "WCAG AA color contrast compliance"
+    ],
+    "cm": [
+      "Designing exclusively on a desktop screen and ignoring mobile views",
+      "Using non-semantic clickable elements like <div onClick=...>",
+      "Poor color contrast that makes text unreadable in dark mode"
+    ],
+    "fu": [
+      "How did you verify accessibility using automated or manual auditing tools?",
+      "How does mobile-first CSS differ from desktop-first CSS?"
+    ],
+    "tags": [
+      "accessibility",
+      "responsive-design",
+      "frontend",
+      "tailwind",
+      "ui-ux"
+    ]
+  },
+  {
+    "q": "How did you handle CORS (Cross-Origin Resource Sharing) between your frontend client and backend server?",
+    "sub": "CORS & Networking",
+    "d": "Beginner",
+    "ans": "Interviewer is assessing: browser security models and HTTP cross-origin protocols. Explain why browsers enforce Same-Origin Policy, how preflight OPTIONS requests work, and how CORS middleware is configured to permit only trusted origin domains in production while allowing localhost in development. Illustrative example (replace with your actual project details): 'Because our React frontend was hosted on port 5173 and FastAPI on 8000, browsers blocked cross-origin fetch requests by default. We added FastAPI\\'s CORSMiddleware, specifying allowed origins from an environment variable. In development, we allowed localhost:5173, while in production we restricted origins strictly to our production domain, preventing unauthorized domains from making credentialed requests.'",
+    "kp": [
+      "Same-Origin Policy rationale in browsers",
+      "Preflight HTTP OPTIONS request role",
+      "Explicit allowed origins configuration (avoiding wildcard * with credentials)",
+      "Environment-specific CORS policies"
+    ],
+    "cm": [
+      "Using allow_origins=[\"*\"] with allow_credentials=True in production",
+      "Assuming CORS is a backend security barrier rather than a browser protection",
+      "Not knowing what constitutes a different origin (protocol, domain, port)"
+    ],
+    "fu": [
+      "Why does Postman work fine with an API even when CORS fails in Chrome?",
+      "What headers are exchanged during a browser CORS preflight check?"
+    ],
+    "tags": [
+      "cors",
+      "networking",
+      "browser-security",
+      "http"
+    ]
+  },
+  {
+    "q": "How did you manage form state, client-side validation, and feedback errors in your frontend?",
+    "sub": "Form Handling",
+    "d": "Beginner",
+    "ans": "Interviewer is assessing: user input handling, schema validation, and form UX. Explain using React Hook Form with Zod schema validation to eliminate unnecessary component re-renders while providing immediate, inline field-level feedback to users. Illustrative example (replace with your actual project details): 'We used React Hook Form combined with Zod schema resolvers for our registration and onboarding forms. This allowed us to manage form state without re-rendering the entire page on every keystroke. Zod validated email formats, minimum password complexity, and required fields, displaying clean inline error messages before network requests were initiated.'",
+    "kp": [
+      "Uncontrolled vs controlled form inputs and re-render optimization",
+      "Schema validation via Zod or Yup",
+      "Immediate inline user feedback before form submission",
+      "Synchronizing client validation with backend validation rules"
+    ],
+    "cm": [
+      "Submitting invalid forms and relying solely on slow backend error responses",
+      "Re-rendering heavy page trees on every single character keystroke",
+      "Displaying raw JSON error blobs to the end user"
+    ],
+    "fu": [
+      "Why is client-side validation alone insufficient for web security?",
+      "How did you handle disabled submit buttons during active network requests?"
+    ],
+    "tags": [
+      "forms",
+      "react-hook-form",
+      "zod",
+      "validation",
+      "frontend"
+    ]
+  },
+  {
+    "q": "Did you implement any caching layer in your project, and how did you handle cache invalidation?",
+    "sub": "Caching Strategies",
+    "d": "Intermediate",
+    "ans": "Interviewer is assessing: caching patterns and cache consistency. Discuss in-memory caching (lru_cache) or distributed caching (Redis), cache keys, TTL (Time-to-Live) expiration, and explicit cache invalidation when records are updated or deleted. Illustrative example (replace with your actual project details): 'We cached static reference questions and rubric definitions in Redis using a key format of questions:{category}:{id} with a 1-hour TTL. When an admin updated or soft-deleted a question via the admin API, we explicitly invalidated the corresponding Redis cache key and cleared category list caches, ensuring users never saw stale data.'",
+    "kp": [
+      "Cache-aside (read-through) pattern",
+      "TTL-based expiration vs event-driven invalidation",
+      "Consistent and descriptive cache key naming conventions",
+      "Cache stampede prevention basics"
+    ],
+    "cm": [
+      "Caching data indefinitely without any TTL or invalidation mechanism",
+      "Caching user-specific or sensitive data in shared public caches",
+      "Assuming caching solves poorly indexed database queries"
+    ],
+    "fu": [
+      "What is the difference between Cache-Aside and Write-Through caching?",
+      "What happens during a cache stampede and how do you mitigate it?"
+    ],
+    "tags": [
+      "caching",
+      "redis",
+      "performance",
+      "architecture"
+    ]
+  },
+  {
+    "q": "How did you design your project so that it could be easily handed over to another developer?",
+    "sub": "Documentation & Maintainability",
+    "d": "Beginner",
+    "ans": "Interviewer is assessing: engineering empathy, code documentation, and team professionalism. Discuss comprehensive README setup guides, Docker one-command spinups, docstrings, type annotations, and automated API documentation (Swagger/OpenAPI). Illustrative example (replace with your actual project details): 'We structured the repository so a new developer could run docker compose up --build after copying .env.example. We wrote clean README documentation with prerequisite listings, step-by-step local setup, and testing commands. All backend endpoints were typed with Pydantic and auto-generated Swagger UI docs at /docs with sample payloads.'",
+    "kp": [
+      "One-command setup via Docker or automated scripts",
+      "Clear README with architecture overview and prerequisite list",
+      "Type hints and self-documenting code",
+      "Auto-generated OpenAPI / Swagger documentation"
+    ],
+    "cm": [
+      "No README or outdated setup instructions that fail on fresh machines",
+      "Hardcoded absolute file paths tied to a personal laptop",
+      "Undocumented environment variables required for startup"
+    ],
+    "fu": [
+      "If a new teammate joined tomorrow, what would be their biggest hurdle in understanding your code?",
+      "How do you decide between writing inline comments versus refactoring code for readability?"
+    ],
+    "tags": [
+      "documentation",
+      "maintainability",
+      "docker",
+      "onboarding"
+    ]
+  },
+  {
+    "q": "What was the most rewarding moment during your project journey, and what did you learn about yourself as an engineer?",
+    "sub": "Reflection & Growth",
+    "d": "Beginner",
+    "ans": "Interviewer is assessing: passion, grit, and professional self-reflection. Share a genuine milestone—such as the first time an end-to-end flow worked, seeing a real user test the product successfully, or solving a stubborn bug after days of debugging—and reflect on how it shaped your engineering work ethic. Illustrative example (replace with your actual project details): 'The most rewarding moment was seeing a junior batchmate complete an entire mock interview session and receive structured feedback that helped them correct a vague answer. It transformed code from an abstract assignment into a tool that genuinely helped someone. It taught me that I am driven by building practical, working software that delivers verifiable user value.'",
+    "kp": [
+      "Specific, memorable engineering milestone",
+      "Shift from theoretical code to user impact",
+      "Self-awareness about personal motivation and engineering drive",
+      "Authentic and humble tone"
+    ],
+    "cm": [
+      "Saying 'getting an A grade from the professor' as the sole reward",
+      "Sounding detached or indifferent about your own project",
+      "Exaggerating emotional reactions"
+    ],
+    "fu": [
+      "How has this project influenced the kinds of engineering roles you are targeting?",
+      "What habit did you form during this project that you carry into your next codebase?"
+    ],
+    "tags": [
+      "reflection",
+      "growth",
+      "motivation",
+      "engineering-mindset"
+    ]
+  }
+]

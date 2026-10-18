@@ -1,0 +1,559 @@
+[
+  {
+    "q": "Write a Python function to check whether a given string is a palindrome, ignoring non-alphanumeric characters and casing.",
+    "sub": "String Algorithms",
+    "d": "Beginner",
+    "ans": "A palindrome reads identical forwards and backwards. The optimal two-pointer approach cleans the string or skips non-alphanumeric characters in a single pass without extra memory allocation:\n\n```python\ndef is_palindrome(s: str) -> bool:\n    left, right = 0, len(s) - 1\n    while left < right:\n        while left < right and not s[left].isalnum():\n            left += 1\n        while left < right and not s[right].isalnum():\n            right -= 1\n        if s[left].lower() != s[right].lower():\n            return False\n        left += 1\n        right -= 1\n    return True\n```\n\nSample Input: `\"A man, a plan, a canal: Panama\"` -> Expected Output: `True`. Sample Input: `\"race a car\"` -> Expected Output: `False`. Time Complexity: O(n) single pass. Space Complexity: O(1) auxiliary space.",
+    "kp": [
+      "Two-pointer approach converges inward from string boundaries",
+      "Filter non-alphanumeric characters with `.isalnum()` and normalize with `.lower()`",
+      "Time Complexity: O(n) linear scan",
+      "Space Complexity: O(1) in-place without creating filtered copies"
+    ],
+    "cm": [
+      "Creating filtered intermediate strings `[c for c in s if c.isalnum()]`, consuming O(n) unnecessary space",
+      "Not handling empty strings or single-character strings (both are valid palindromes)",
+      "Case sensitivity bugs by forgetting `.lower()`"
+    ],
+    "fu": [
+      "How would you solve this recursively?",
+      "How do you check if an integer is a palindrome without converting it to a string?"
+    ],
+    "tags": [
+      "coding",
+      "palindrome",
+      "two-pointers",
+      "strings",
+      "algorithms"
+    ]
+  },
+  {
+    "q": "Write a Python function to check whether an integer is a palindrome without converting it to a string.",
+    "sub": "Mathematical Algorithms",
+    "d": "Intermediate",
+    "ans": "To check integer palindromes without string conversion, reverse the second half of the number mathematically and compare it with the first half:\n\n```python\ndef is_palindrome_int(x: int) -> bool:\n    if x < 0 or (x % 10 == 0 and x != 0):\n        return False\n    reversed_half = 0\n    while x > reversed_half:\n        reversed_half = reversed_half * 10 + x % 10\n        x //= 10\n    return x == reversed_half or x == reversed_half // 10\n```\n\nSample Input: `121` -> Expected Output: `True`. Sample Input: `-121` -> Expected Output: `False`. Sample Input: `10` -> Expected Output: `False`. Negative numbers cannot be palindromes due to leading `-`. Reversing only half the digits prevents integer overflow. Time Complexity: O(log10(n)) proportional to digit count. Space Complexity: O(1) constant.",
+    "kp": [
+      "Negative numbers and non-zero multiples of 10 can never be palindromes",
+      "Reverse only the second half of the integer to avoid potential overflow",
+      "Middle digit in odd-length numbers is handled via `reversed_half // 10`",
+      "Time Complexity: O(log10(n)); Space Complexity: O(1)"
+    ],
+    "cm": [
+      "Converting integer to string `str(x) == str(x)[::-1]`, which violates the interview constraint",
+      "Forgetting that numbers ending in 0 (like 10, 100) are not palindromes except 0 itself",
+      "Reversing the entire 32-bit integer, risking overflow in languages like C/Java"
+    ],
+    "fu": [
+      "Why does reversing only half the digits prevent integer overflow in C/Java?",
+      "What is the time complexity in terms of the number of digits d?"
+    ],
+    "tags": [
+      "coding",
+      "math",
+      "palindrome",
+      "integer-reversal",
+      "algorithms"
+    ]
+  },
+  {
+    "q": "Write a Python function to reverse the words in a sentence string while preserving single spaces.",
+    "sub": "String Algorithms",
+    "d": "Beginner",
+    "ans": "To reverse words in a sentence while trimming extra spaces:\n\n```python\ndef reverse_words(s: str) -> str:\n    words = s.split()\n    return ' '.join(reversed(words))\n```\n\n`s.split()` without arguments automatically handles arbitrary whitespace, trimming leading/trailing spaces and collapsing consecutive spaces into single tokens. `reversed(words)` reverses the list in O(n) time, and `' '.join()` constructs the final normalized string. Sample Input: `\"  the sky   is blue  \"` -> Expected Output: `\"blue is sky the\"`. Time Complexity: O(n) where n is string length. Space Complexity: O(n) to hold split words.",
+    "kp": [
+      "`s.split()` without arguments splits on whitespace and collapses consecutive spaces",
+      "`reversed(words)` or `words[::-1]` reverses word order",
+      "`' '.join(...)` produces single-spaced output",
+      "Time Complexity: O(n); Space Complexity: O(n)"
+    ],
+    "cm": [
+      "Using `s.split(' ')` with an explicit space delimiter, which retains empty strings from multiple spaces",
+      "Reversing character-by-character instead of word-by-word",
+      "Failing to strip leading and trailing whitespace"
+    ],
+    "fu": [
+      "How would you reverse words in-place if the input was a mutable character array `list[str]`?",
+      "What is the three-step reversal algorithm (reverse entire array, then reverse each word)?"
+    ],
+    "tags": [
+      "coding",
+      "strings",
+      "reverse-words",
+      "two-pointers"
+    ]
+  },
+  {
+    "q": "Write a Python function to find the maximum sum of a contiguous subarray using Kadane's Algorithm.",
+    "sub": "Array Algorithms",
+    "d": "Intermediate",
+    "ans": "Kadane's Algorithm computes the maximum contiguous subarray sum in a single linear pass:\n\n```python\ndef max_subarray_sum(nums: list[int]) -> int:\n    if not nums:\n        raise ValueError(\"List cannot be empty\")\n    max_current = max_global = nums[0]\n    for num in nums[1:]:\n        max_current = max(num, max_current + num)\n        if max_current > max_global:\n            max_global = max_current\n    return max_global\n```\n\nAt each index, we decide whether to extend the previous running subarray (`max_current + num`) or start a fresh subarray at `num` (`max(num, max_current + num)`). Sample Input: `[-2, 1, -3, 4, -1, 2, 1, -5, 4]` -> Expected Output: `6` (subarray `[4, -1, 2, 1]`). Time Complexity: O(n). Space Complexity: O(1).",
+    "kp": [
+      "Recurrence relation: `max_current = max(num, max_current + num)`",
+      "Initializes with `nums[0]` to handle arrays containing all negative numbers",
+      "Time Complexity: O(n) single pass; Space Complexity: O(1) in-place",
+      "Returns optimal contiguous subarray sum"
+    ],
+    "cm": [
+      "Initializing `max_global` to 0, which fails on arrays of all negative integers (e.g., `[-3, -1, -2]`)",
+      "Using O(n^2) nested loops checking every subarray combination",
+      "Confusing contiguous subarrays with non-contiguous subsequences"
+    ],
+    "fu": [
+      "How would you return the starting and ending indices of the maximal subarray?",
+      "Can Kadane's algorithm be adapted to find the maximum product subarray?"
+    ],
+    "tags": [
+      "coding",
+      "kadanes-algorithm",
+      "arrays",
+      "dynamic-programming"
+    ]
+  },
+  {
+    "q": "Write a Python function to solve the Two Sum problem: return 0-based indices of two numbers that add up to a target.",
+    "sub": "Hash Map Algorithms",
+    "d": "Beginner",
+    "ans": "Using a hash map allows solving Two Sum in a single O(n) pass by storing each number's index as we iterate:\n\n```python\ndef two_sum(nums: list[int], target: int) -> list[int]:\n    seen = {}\n    for i, num in enumerate(nums):\n        diff = target - num\n        if diff in seen:\n            return [seen[diff], i]\n        seen[num] = i\n    return []\n```\n\nFor each number, we calculate its required complement (`target - num`). If the complement exists in our dictionary `seen`, we return the pair of indices `[seen[diff], i]`. If not, we store `seen[num] = i`. Sample Input: `nums = [2, 7, 11, 15], target = 9` -> Expected Output: `[0, 1]`. Time Complexity: O(n) average hash table lookups. Space Complexity: O(n) auxiliary map.",
+    "kp": [
+      "Single-pass hash table lookup achieves O(n) linear time",
+      "Tracks required complement `target - num`",
+      "Key is array element; Value is its original 0-based index",
+      "Time Complexity: O(n); Space Complexity: O(n)"
+    ],
+    "cm": [
+      "Using brute-force nested loops taking O(n^2) time",
+      "Populating the entire dictionary before checking, causing duplicate numbers to overwrite indices",
+      "Returning array values instead of array indices"
+    ],
+    "fu": [
+      "How do you solve Two Sum if the input array is already sorted in O(1) space?",
+      "How would you return all unique pairs that sum to target without duplicate pairs?"
+    ],
+    "tags": [
+      "coding",
+      "two-sum",
+      "hash-map",
+      "arrays",
+      "algorithms"
+    ]
+  },
+  {
+    "q": "Write a Python function to move all zeros in an integer list to the end in-place while maintaining relative order of non-zeros.",
+    "sub": "Two-Pointer Algorithms",
+    "d": "Beginner",
+    "ans": "Using a two-pointer approach moves zeros to the end in-place without allocating a second array:\n\n```python\ndef move_zeroes(nums: list[int]) -> None:\n    insert_pos = 0\n    for i in range(len(nums)):\n        if nums[i] != 0:\n            nums[insert_pos], nums[i] = nums[i], nums[insert_pos]\n            insert_pos += 1\n```\n\n`insert_pos` tracks where the next non-zero element belongs. When `nums[i] != 0`, we swap `nums[insert_pos]` and `nums[i]`, and advance `insert_pos`. Non-zero elements retain their relative ordering, and zeros migrate toward the end. Sample Input: `[0, 1, 0, 3, 12]` -> Output: `[1, 3, 12, 0, 0]`. Time Complexity: O(n). Space Complexity: O(1) strictly in-place.",
+    "kp": [
+      "Two-pointer partition pattern swaps non-zero elements forward",
+      "Maintains relative order of all non-zero elements",
+      "Time Complexity: O(n) single pass; Space Complexity: O(1) in-place",
+      "Avoids creating a new list"
+    ],
+    "cm": [
+      "Using `nums.remove(0)` followed by `nums.append(0)` in a loop (O(n^2) time due to element shifting)",
+      "Allocating a new list `[x for x in nums if x != 0] + [0]*zeros` when in-place modification is required",
+      "Losing relative order of non-zero elements"
+    ],
+    "fu": [
+      "What is the minimum number of write operations needed if the array has mostly zeros?",
+      "How does this algorithm relate to the partitioning step of QuickSort?"
+    ],
+    "tags": [
+      "coding",
+      "two-pointers",
+      "arrays",
+      "in-place",
+      "algorithms"
+    ]
+  },
+  {
+    "q": "Write a Python function to remove duplicates from a sorted integer array in-place and return the new length.",
+    "sub": "Two-Pointer Algorithms",
+    "d": "Beginner",
+    "ans": "Since the array is already sorted, duplicate elements are contiguous. We use two pointers: a write pointer `write_idx` and a scan pointer `read_idx`:\n\n```python\ndef remove_duplicates_sorted(nums: list[int]) -> int:\n    if not nums:\n        return 0\n    write_idx = 1\n    for read_idx in range(1, len(nums)):\n        if nums[read_idx] != nums[read_idx - 1]:\n            nums[write_idx] = nums[read_idx]\n            write_idx += 1\n    return write_idx\n```\n\nWe overwrite elements in-place only when the current element differs from the preceding element. Elements beyond `write_idx` are ignored. Sample Input: `[0, 0, 1, 1, 1, 2, 2, 3, 3, 4]` -> Returns: `5`, with `nums[:5] = [0, 1, 2, 3, 4]`. Time Complexity: O(n). Space Complexity: O(1) in-place.",
+    "kp": [
+      "Capitalizes on sorted property: duplicates are adjacent",
+      "Slow pointer `write_idx` overwrites unique values",
+      "Returns length of unique prefix without allocating extra memory",
+      "Time Complexity: O(n); Space Complexity: O(1)"
+    ],
+    "cm": [
+      "Using `set(nums)` and reassigning, which creates a new object and may lose sorted order",
+      "Deleting elements using `nums.pop(i)` or `del nums[i]` inside a loop (O(n^2) list shifting)",
+      "Off-by-one errors on edge cases with 0 or 1 element"
+    ],
+    "fu": [
+      "How would you allow at most two duplicates (Remove Duplicates from Sorted Array II)?",
+      "Why is in-place array modification preferred in embedded or high-throughput systems?"
+    ],
+    "tags": [
+      "coding",
+      "two-pointers",
+      "arrays",
+      "sorted-array",
+      "in-place"
+    ]
+  },
+  {
+    "q": "Write a Python function to find the missing number in an array containing distinct integers from 0 to n.",
+    "sub": "Mathematical & Bitwise",
+    "d": "Beginner",
+    "ans": "An array of length n contains distinct numbers from the range `[0, n]`. Exactly one number is missing. Method 1 (Summation formula): compute expected sum `n * (n + 1) // 2` and subtract the actual array sum in O(n) time and O(1) space. Method 2 (XOR bitwise approach): XOR all indices `0` to `n` with all array values; since `x ^ x = 0` and `x ^ 0 = x`, all pairs cancel out, leaving the missing number:\n\n```python\ndef missing_number_xor(nums: list[int]) -> int:\n    n = len(nums)\n    missing = n\n    for i, num in enumerate(nums):\n        missing ^= i ^ num\n    return missing\n```\n\nSample Input: `[3, 0, 1]` -> Output: `2`. Sample Input: `[9,6,4,2,3,5,7,0,1]` -> Output: `8`. Time Complexity: O(n). Space Complexity: O(1). XOR avoids potential arithmetic overflow.",
+    "kp": [
+      "Gauss sum formula: `n * (n + 1) // 2` gives expected sum in O(1)",
+      "XOR property: `a ^ a = 0` and `a ^ 0 = a` cancels duplicates",
+      "XOR bitwise approach prevents integer overflow in fixed-width integer languages",
+      "Time Complexity: O(n); Space Complexity: O(1)"
+    ],
+    "cm": [
+      "Sorting the array first (O(n log n) time penalty)",
+      "Using a hash set lookup, consuming O(n) unnecessary auxiliary memory",
+      "Off-by-one errors in determining n (`len(nums)`)"
+    ],
+    "fu": [
+      "What if two numbers are missing instead of one? How do you partition with XOR?",
+      "How does XOR encryption work in cryptography?"
+    ],
+    "tags": [
+      "coding",
+      "dsa",
+      "algorithms",
+      "problem-solving",
+      "python"
+    ]
+  },
+  {
+    "q": "Write a Python function to determine if two input strings are valid anagrams of each other.",
+    "sub": "String Algorithms",
+    "d": "Beginner",
+    "ans": "Two strings are anagrams if they have the identical character frequency counts. Optimal solution uses `collections.Counter` or an integer frequency array of size 26 for ASCII lowercase:\n\n```python\nfrom collections import Counter\n\ndef is_anagram(s: str, t: str) -> bool:\n    if len(s) != len(t):\n        return False\n    return Counter(s) == Counter(t)\n```\n\nEarly exit: return `False` immediately if string lengths differ. `Counter(s) == Counter(t)` constructs and compares frequency hash maps in O(n) time and O(k) space (where k is unique characters). Sorting `sorted(s) == sorted(t)` runs in O(n log n) time. Sample Input: `s = \"anagram\", t = \"nagaram\"` -> Output: `True`. Sample Input: `s = \"rat\", t = \"car\"` -> Output: `False`.",
+    "kp": [
+      "Early exit check: if lengths differ, return False immediately",
+      "Hash map frequency counting via `collections.Counter` runs in O(n) time",
+      "Sorting approach `sorted(s) == sorted(t)` runs in O(n log n) time",
+      "Time Complexity: O(n); Space Complexity: O(1) if alphabet is fixed (26 chars)"
+    ],
+    "cm": [
+      "Calling `s.count(c)` inside a loop over characters, causing O(n^2) quadratic time",
+      "Forgetting early exit on unequal string lengths",
+      "Not considering Unicode or case normalization if required by question constraints"
+    ],
+    "fu": [
+      "How would you solve Group Anagrams across a list of 100,000 strings in O(N * K) time?",
+      "How do you implement an array of size 26 using `ord(c) - ord('a')`?"
+    ],
+    "tags": [
+      "coding",
+      "anagram",
+      "strings",
+      "hash-map",
+      "counter"
+    ]
+  },
+  {
+    "q": "Write a Python function to implement Binary Search on a sorted list. Return the index or -1 if not found.",
+    "sub": "Search Algorithms",
+    "d": "Beginner",
+    "ans": "Binary search repeatedly divides a sorted search interval in half:\n\n```python\ndef binary_search(nums: list[int], target: int) -> int:\n    low, high = 0, len(nums) - 1\n    while low <= high:\n        mid = (low + high) // 2\n        if nums[mid] == target:\n            return mid\n        elif nums[mid] < target:\n            low = mid + 1\n        else:\n            high = mid - 1\n    return -1\n```\n\nMaintain search bounds `low` and `high`. Calculate `mid`. If `nums[mid] == target`, target is found. If `nums[mid] < target`, search the right half (`low = mid + 1`); otherwise search the left half (`high = mid - 1`). Sample Input: `nums = [-1, 0, 3, 5, 9, 12], target = 9` -> Output: `4`. Time Complexity: O(log n). Space Complexity: O(1) iterative.",
+    "kp": [
+      "Precondition: input array must be sorted in ascending order",
+      "Loop condition `low <= high` ensures single-element intervals are checked",
+      "Pointer updates: `low = mid + 1` and `high = mid - 1` prevent infinite loops",
+      "Time Complexity: O(log n); Space Complexity: O(1)"
+    ],
+    "cm": [
+      "Using `low < high` instead of `low <= high`, missing target when it sits at array boundaries",
+      "Applying binary search on unsorted collections or linked lists",
+      "Recursive binary search without tail-call optimization, consuming O(log n) call stack space"
+    ],
+    "fu": [
+      "How do you find the first and last position of an element in a sorted array with duplicates?",
+      "How does binary search find the peak element in a mountain array?"
+    ],
+    "tags": [
+      "coding",
+      "binary-search",
+      "algorithms",
+      "searching",
+      "arrays"
+    ]
+  },
+  {
+    "q": "Write a Python function to validate whether a string of brackets `()[]{}` is properly balanced and closed.",
+    "sub": "Stack Algorithms",
+    "d": "Intermediate",
+    "ans": "Using a Last-In-First-Out (LIFO) stack ensures opening brackets are matched with the correct closing brackets in proper nested order:\n\n```python\ndef is_valid_parentheses(s: str) -> bool:\n    mapping = {')': '(', '}': '{', ']': '['}\n    stack = []\n    for char in s:\n        if char in mapping:\n            top = stack.pop() if stack else '#'\n            if mapping[char] != top:\n                return False\n        else:\n            stack.append(char)\n    return not stack\n```\n\nWhen encountering an opening bracket, push it to the stack. When encountering a closing bracket, pop the top of the stack and check if it matches the closing bracket's pair. If mismatched or stack was empty, return `False`. After scanning, return `True` only if stack is empty. Sample Input: `\"()[]{}\"` -> `True`. Sample Input: `\"([)]\"` -> `False`. Time Complexity: O(n). Space Complexity: O(n).",
+    "kp": [
+      "Stack data structure enforces Last-In-First-Out matching order",
+      "Map closing brackets to opening brackets in a lookup dictionary",
+      "Pop and compare on closing brackets; return False on mismatch or empty stack",
+      "Final check: stack must be empty (`return not stack`)"
+    ],
+    "cm": [
+      "Using simple integer counters, which fails on mixed nested brackets like `\"([)]\"`",
+      "Calling `stack.pop()` without checking if stack is empty (causes IndexError)",
+      "Forgetting the final `not stack` check, incorrectly returning True for unclosed openers like `\"((\"`"
+    ],
+    "fu": [
+      "How would you return the length of the longest valid parentheses substring?",
+      "How do web browsers use stacks to validate HTML opening and closing tags?"
+    ],
+    "tags": [
+      "coding",
+      "stack",
+      "parentheses",
+      "data-structures",
+      "algorithms"
+    ]
+  },
+  {
+    "q": "Write a Python function to find the length of the longest substring without repeating characters using the sliding window technique.",
+    "sub": "Sliding Window",
+    "d": "Intermediate",
+    "ans": "Using a sliding window with a dictionary storing the most recent index of each character allows computing the longest unique substring in a single linear pass:\n\n```python\ndef length_of_longest_substring(s: str) -> int:\n    char_index = {}\n    max_len = 0\n    start = 0\n    for end, char in enumerate(s):\n        if char in char_index and char_index[char] >= start:\n            start = char_index[char] + 1\n        char_index[char] = end\n        max_len = max(max_len, end - start + 1)\n    return max_len\n```\n\nWhen a duplicate character is encountered inside the current window (`char_index[char] >= start`), we shift the window `start` just past the duplicate's prior position. Sample Input: `s = \"abcabcbb\"` -> Output: `3` (\"abc\"). Sample Input: `s = \"bbbbb\"` -> Output: `1` (\"b\"). Sample Input: `s = \"pwwkew\"` -> Output: `3` (\"wke\"). Time Complexity: O(n) linear scan. Space Complexity: O(min(m, n)) where m is character set size.",
+    "kp": [
+      "Sliding window pattern with two pointers `start` and `end`",
+      "Hash map tracks character -> most recent index to skip repeated characters in O(1)",
+      "Condition `char_index[char] >= start` ensures we only shift forward if repeated char is inside the active window",
+      "Time Complexity: O(n); Space Complexity: O(min(m, n))"
+    ],
+    "cm": [
+      "Brute force checking all O(n^2) substrings with set validation in O(n^3) time",
+      "Forgetting to check `char_index[char] >= start`, accidentally shifting `start` backwards on old characters",
+      "Failing on empty string or single-character string edge cases"
+    ],
+    "fu": [
+      "How would you return the actual longest unique substring instead of just its length?",
+      "How does this pattern adapt to at most K distinct characters?"
+    ],
+    "tags": [
+      "coding",
+      "sliding-window",
+      "strings",
+      "hash-map",
+      "longest-substring"
+    ]
+  },
+  {
+    "q": "Write an efficient Python function to calculate the N-th Fibonacci number. Compare iterative vs recursive approaches.",
+    "sub": "Dynamic Programming",
+    "d": "Beginner",
+    "ans": "Naive recursion `fib(n-1) + fib(n-2)` has exponential O(2^n) time complexity due to redundant recalculations. The optimal iterative approach runs in O(n) time and O(1) space by maintaining only the previous two terms:\n\n```python\ndef fibonacci(n: int) -> int:\n    if n < 0:\n        raise ValueError(\"n must be non-negative\")\n    if n <= 1:\n        return n\n    prev2, prev1 = 0, 1\n    for _ in range(2, n + 1):\n        prev2, prev1 = prev1, prev2 + prev1\n    return prev1\n```\n\nSample Input: `n = 0` -> `0`. Sample Input: `n = 1` -> `1`. Sample Input: `n = 10` -> `55`. Time Complexity: O(n) linear loop. Space Complexity: O(1) constant memory. Python automatically supports arbitrary-precision integers, preventing overflow.",
+    "kp": [
+      "Naive recursion causes exponential O(2^n) time and stack overflow",
+      "Iterative state tracking computes N-th Fibonacci in O(n) time and O(1) space",
+      "Base cases: `fib(0) = 0`, `fib(1) = 1`",
+      "Space optimization: only the last two values (`prev1`, `prev2`) are retained in memory"
+    ],
+    "cm": [
+      "Using naive recursion for n > 35, freezing the program",
+      "Allocating an entire list of size n when only the last two values are needed",
+      "Off-by-one errors on base cases n=0 and n=1"
+    ],
+    "fu": [
+      "How does `@functools.lru_cache` optimize the recursive implementation to O(n)?",
+      "How can Fibonacci be computed in O(log n) time using 2x2 matrix exponentiation?"
+    ],
+    "tags": [
+      "coding",
+      "fibonacci",
+      "dynamic-programming",
+      "math",
+      "algorithms"
+    ]
+  },
+  {
+    "q": "Write a Python function to check whether a given integer N is prime in O(sqrt(N)) time.",
+    "sub": "Mathematical Algorithms",
+    "d": "Beginner",
+    "ans": "A prime number is an integer greater than 1 divisible only by 1 and itself. We optimize trial division to O(sqrt(n)) because factors appear in pairs `(a, b)` where `a * b = n`; at least one factor must be `<= sqrt(n)`:\n\n```python\ndef is_prime(n: int) -> bool:\n    if n <= 1:\n        return False\n    if n <= 3:\n        return True\n    if n % 2 == 0 or n % 3 == 0:\n        return False\n    i = 5\n    while i * i <= n:\n        if n % i == 0 or n % (i + 2) == 0:\n            return False\n        i += 6\n    return True\n```\n\nChecking `6k ± 1` skips all multiples of 2 and 3, reducing division checks by two-thirds. Sample Input: `11` -> `True`. Sample Input: `25` -> `False`. Sample Input: `1` -> `False`. Time Complexity: O(sqrt(n)). Space Complexity: O(1).",
+    "kp": [
+      "Primes are strictly integers > 1",
+      "Trial division up to `sqrt(n)` runs in O(sqrt(n)) time",
+      "6k ± 1 optimization skips multiples of 2 and 3",
+      "Time Complexity: O(sqrt(n)); Space Complexity: O(1)"
+    ],
+    "cm": [
+      "Checking factors up to n instead of sqrt(n), causing unnecessary iterations",
+      "Classifying 0 or 1 as prime numbers (neither is prime)",
+      "Using floating point `math.sqrt(n)` without adding 1, causing precision truncations"
+    ],
+    "fu": [
+      "What is the Sieve of Eratosthenes and how does it find all primes up to N in O(N log log N) time?",
+      "What is the Fermat Little Theorem test for probabilistic primality testing?"
+    ],
+    "tags": [
+      "coding",
+      "primes",
+      "math",
+      "algorithms",
+      "number-theory"
+    ]
+  },
+  {
+    "q": "Write a Python function to calculate the factorial of a non-negative integer N iteratively and recursively.",
+    "sub": "Mathematical Algorithms",
+    "d": "Beginner",
+    "ans": "Factorial of N (`N!`) is the product of all positive integers `<= N`; `0!` is defined as `1`. 1) Iterative implementation (O(n) time, O(1) space):\n\n```python\ndef factorial_iterative(n: int) -> int:\n    if n < 0:\n        raise ValueError(\"Factorial undefined for negative numbers\")\n    result = 1\n    for i in range(2, n + 1):\n        result *= i\n    return result\n```\n\n2) Recursive implementation: `return 1 if n <= 1 else n * factorial_recursive(n - 1)`. Sample Input: `5` -> `120`. Sample Input: `0` -> `1`. Iterative is preferred because it avoids Python's recursion limit for large inputs. In production, `math.factorial(n)` is C-optimized and significantly faster.",
+    "kp": [
+      "0! is defined as 1; negative numbers have undefined factorial",
+      "Iterative approach runs in O(n) time and O(1) space without call stack limits",
+      "Recursive approach runs in O(n) time and O(n) stack frames",
+      "Standard library `math.factorial(n)` is C-optimized"
+    ],
+    "cm": [
+      "Forgetting base case `0! = 1`",
+      "Not validating negative inputs (should raise ValueError)",
+      "Hitting recursion depth limit on large numbers in recursive version"
+    ],
+    "fu": [
+      "How does Python handle arbitrary-precision integers without overflow during large factorial calculations?",
+      "What is Stirling's approximation formula for estimating large factorials?"
+    ],
+    "tags": [
+      "coding",
+      "factorial",
+      "math",
+      "recursion",
+      "algorithms"
+    ]
+  },
+  {
+    "q": "Write a Python function to perform basic String Compression (Run-Length Encoding) using counts of repeated characters.",
+    "sub": "String Algorithms",
+    "d": "Intermediate",
+    "ans": "Run-length encoding compresses consecutive duplicate characters into character-count pairs (e.g., `\"aabcccccaaa\"` -> `\"a2b1c5a3\"`). Return original string if compressed string is not shorter:\n\n```python\ndef compress_string(s: str) -> str:\n    if not s:\n        return \"\"\n    compressed = []\n    count = 1\n    for i in range(1, len(s)):\n        if s[i] == s[i - 1]:\n            count += 1\n        else:\n            compressed.append(f\"{s[i - 1]}{count}\")\n            count = 1\n    compressed.append(f\"{s[-1]}{count}\")\n    result = \"\".join(compressed)\n    return result if len(result) < len(s) else s\n```\n\nSample Input: `\"aabcccccaaa\"` -> Output: `\"a2b1c5a3\"`. Sample Input: `\"abcdef\"` -> Output: `\"abcdef\"` (compressed `\"a1b1c1d1e1f1\"` is longer). Time Complexity: O(n). Space Complexity: O(n).",
+    "kp": [
+      "Appends characters and run counts using a list before `\"\".join()` for O(n) time",
+      "Handles trailing character group after loop terminates",
+      "Returns original string if compressed length is not strictly shorter",
+      "Time Complexity: O(n); Space Complexity: O(n)"
+    ],
+    "cm": [
+      "Using string concatenation `res += char + str(count)` in a loop (O(n^2) time)",
+      "Missing the final run group of characters after loop exits",
+      "Returning compressed string even when it is longer than original (e.g., 'a' -> 'a1')"
+    ],
+    "fu": [
+      "How would you decompress a run-length encoded string in O(n) time?",
+      "When is Run-Length Encoding effective vs ineffective for image compression (e.g., BMP vs JPEG)?"
+    ],
+    "tags": [
+      "coding",
+      "strings",
+      "run-length-encoding",
+      "compression",
+      "algorithms"
+    ]
+  },
+  {
+    "q": "Write a Python function to rotate a list of N integers to the right by K steps in-place.",
+    "sub": "Array Algorithms",
+    "d": "Intermediate",
+    "ans": "Rotating an array right by K steps can be achieved in O(n) time and O(1) space using the Three-Step Array Reversal algorithm: 1) Normalize `k = k % len(nums)`, 2) Reverse the entire array, 3) Reverse the first `k` elements, 4) Reverse the remaining `n - k` elements:\n\n```python\ndef rotate(nums: list[int], k: int) -> None:\n    n = len(nums)\n    k = k % n\n    def reverse(start: int, end: int) -> None:\n        while start < end:\n            nums[start], nums[end] = nums[end], nums[start]\n            start += 1\n            end -= 1\n    reverse(0, n - 1)      # Reverse entire array\n    reverse(0, k - 1)      # Reverse first k elements\n    reverse(k, n - 1)      # Reverse remaining elements\n```\n\nSample Input: `nums = [1,2,3,4,5,6,7], k = 3` -> Output: `[5,6,7,1,2,3,4]`. Time Complexity: O(n). Space Complexity: O(1) strictly in-place.",
+    "kp": [
+      "Normalize k: `k = k % n` handles k larger than array length",
+      "Three-step reversal: reverse all -> reverse first k -> reverse remainder",
+      "Time Complexity: O(n); Space Complexity: O(1) in-place",
+      "Avoids allocating auxiliary array"
+    ],
+    "cm": [
+      "Rotating 1 step k times sequentially in a loop, resulting in O(n * k) slow time",
+      "Forgetting `k = k % n`, causing IndexError when k exceeds array length",
+      "Allocating a new sliced list `nums[-k:] + nums[:-k]` when in-place modification is required"
+    ],
+    "fu": [
+      "How does cyclic replacements (Juggling algorithm) rotate an array in O(n) using GCD?",
+      "How do you rotate an array to the left instead of right using reversal?"
+    ],
+    "tags": [
+      "coding",
+      "arrays",
+      "array-rotation",
+      "reversal-algorithm",
+      "in-place"
+    ]
+  },
+  {
+    "q": "Write a Python function to find the longest common prefix string among an array of strings.",
+    "sub": "String Algorithms",
+    "d": "Beginner",
+    "ans": "Vertical scanning compares characters column by column across all strings:\n\n```python\ndef longest_common_prefix(strs: list[str]) -> str:\n    if not strs:\n        return \"\"\n    for i, char in enumerate(strs[0]):\n        for string in strs[1:]:\n            if i == len(string) or string[i] != char:\n                return strs[0][:i]\n    return strs[0]\n```\n\nIterate through characters of the first string `strs[0]`. For each character at index `i`, check if any other string is either shorter (`i == len(string)`) or has a mismatched character (`string[i] != char`). If so, return `strs[0][:i]`. If loop completes, `strs[0]` is the common prefix. Sample Input: `[\"flower\",\"flow\",\"flight\"]` -> Output: `\"fl\"`. Sample Input: `[\"dog\",\"racecar\",\"car\"]` -> Output: `\"\"`. Time Complexity: O(S) where S is sum of characters. Space Complexity: O(1).",
+    "kp": [
+      "Vertical scanning compares characters across all words column-by-column",
+      "Terminates early on first mismatch or when shortest string is exhausted",
+      "Handles empty input list or single-string inputs",
+      "Time Complexity: O(S) where S is total characters; Space: O(1)"
+    ],
+    "cm": [
+      "Comparing strings pairwise horizontally without early termination on empty prefix",
+      "Index out of bounds errors when checking strings shorter than the first string",
+      "Sorting the array first (O(N log N * M)) when linear vertical scan is faster"
+    ],
+    "fu": [
+      "How can a Trie (Prefix Tree) be used to solve longest common prefix?",
+      "How does binary search over prefix lengths compare in performance?"
+    ],
+    "tags": [
+      "coding",
+      "strings",
+      "longest-common-prefix",
+      "algorithms"
+    ]
+  },
+  {
+    "q": "Write a Python function to merge two sorted integer lists into a single sorted list in O(n + m) time.",
+    "sub": "Merge Algorithms",
+    "d": "Beginner",
+    "ans": "Using two pointers achieves optimal O(n + m) linear time without sorting:\n\n```python\ndef merge_sorted_lists(l1: list[int], l2: list[int]) -> list[int]:\n    merged = []\n    i = j = 0\n    while i < len(l1) and j < len(l2):\n        if l1[i] <= l2[j]:\n            merged.append(l1[i])\n            i += 1\n        else:\n            merged.append(l2[j])\n            j += 1\n    merged.extend(l1[i:])\n    merged.extend(l2[j:])\n    return merged\n```\n\nCompare current elements `l1[i]` and `l2[j]`. Append the smaller element to `merged` and advance its pointer. Once one list is exhausted, append remaining elements of the other list. This is the core merge step of MergeSort. Sample Input: `l1 = [1, 2, 4], l2 = [1, 3, 4]` -> Output: `[1, 1, 2, 3, 4, 4]`. Time Complexity: O(n + m). Space Complexity: O(n + m).",
+    "kp": [
+      "Two-pointer comparison traverses both lists simultaneously",
+      "Appends remaining elements via `.extend()` after one list is exhausted",
+      "Core merge routine used in Merge Sort and external sorting",
+      "Time Complexity: O(n + m); Space Complexity: O(n + m)"
+    ],
+    "cm": [
+      "Concatenating lists and calling `sorted(l1 + l2)` (O((n+m) log(n+m)) time penalty)",
+      "Missing elements from the longer list when the while loop terminates",
+      "Using `<=` comparison preserves sorting stability for equal elements"
+    ],
+    "fu": [
+      "How do you merge two sorted arrays in-place if array 1 has trailing buffer space (LeetCode 88)?",
+      "How does `heapq.merge(*iterables)` merge multiple sorted streams lazily in O(N log K)?"
+    ],
+    "tags": [
+      "coding",
+      "merge-sort",
+      "arrays",
+      "two-pointers",
+      "sorting"
+    ]
+  },
+  {
+    "q": "Write a Python function to detect a cycle in a Singly Linked List using Floyd's Cycle-Finding Algorithm (Tortoise and Hare).",
+    "sub": "Linked List Algorithms",
+    "d": "Intermediate",
+    "ans": "Floyd's Cycle-Finding Algorithm uses two pointers moving at different speeds to detect cycles in O(n) time and O(1) space:\n\n```python\nclass ListNode:\n    def __init__(self, val=0, next=None):\n        self.val = val\n        self.next = next\n\ndef has_cycle(head: ListNode | None) -> bool:\n    slow = fast = head\n    while fast and fast.next:\n        slow = slow.next          # 1 step\n        fast = fast.next.next     # 2 steps\n        if slow is fast:\n            return True\n    return False\n```\n\n`slow` advances 1 node per iteration; `fast` advances 2 nodes. If no cycle exists, `fast` reaches the end (`None`). If a cycle exists, `fast` enters the loop and catches up to `slow` from behind. Time Complexity: O(n). Space Complexity: O(1) constant memory.",
+    "kp": [
+      "Slow pointer moves 1 step; Fast pointer moves 2 steps",
+      "Fast pointer catches up to slow pointer if a cycle exists",
+      "Fast pointer reaches None if no cycle exists",
+      "Time Complexity: O(n); Space Complexity: O(1) in-place"
+    ],
+    "cm": [
+      "Checking `fast.next` without checking `fast` first, raising AttributeError",
+      "Using a hash set to store seen nodes, consuming O(n) extra space instead of O(1)",
+      "Modifying node values destructively to mark visited nodes"
+    ],
+    "fu": [
+      "How do you find the exact node where the cycle begins (Floyd's algorithm phase 2)?",
+      "How does cycle detection apply to detecting deadlocks in operating systems?"
+    ],
+    "tags": [
+      "coding",
+      "dsa",
+      "algorithms",
+      "problem-solving",
+      "python"
+    ]
+  }
+]

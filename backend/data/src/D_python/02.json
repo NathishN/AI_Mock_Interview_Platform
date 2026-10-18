@@ -1,0 +1,557 @@
+[
+  {
+    "q": "How do you reverse a string in Python using slicing? What are the time and space complexities?",
+    "sub": "String Algorithms",
+    "d": "Beginner",
+    "ans": "The most pythonic and efficient way to reverse a string `s` is using extended slice notation with a negative step: `reversed_s = s[::-1]`. The slice syntax takes `[start:stop:step]`; omitting start and stop while setting step to `-1` traverses the entire string from right to left. The time complexity is O(n), where n is the length of the string, as every character is copied. The space complexity is O(n) because strings are immutable in Python, requiring a new string object to be allocated in memory. Alternative approaches include `''.join(reversed(s))` which also runs in O(n) time and O(n) auxiliary space.",
+    "kp": [
+      "Pythonic syntax: `s[::-1]` uses extended slice with step=-1",
+      "Time complexity: O(n) to copy all characters",
+      "Space complexity: O(n) due to string immutability in Python",
+      "Alternative: `''.join(reversed(s))` using reverse iterator"
+    ],
+    "cm": [
+      "Assuming strings can be reversed in place like arrays",
+      "Writing manual for-loops with string concatenation (`res += char`), which is O(n^2) due to repeated allocations",
+      "Off-by-one errors in manual index loops"
+    ],
+    "fu": [
+      "Why is string concatenation inside a loop `res += char` quadratic O(n^2) in time?",
+      "How would you check if a string is a palindrome using this slicing technique?"
+    ],
+    "tags": [
+      "python",
+      "strings",
+      "slicing",
+      "time-complexity"
+    ]
+  },
+  {
+    "q": "Write a pythonic function to count the number of vowels in a given string, ignoring case.",
+    "sub": "String Manipulation",
+    "d": "Beginner",
+    "ans": "A clean, pythonic solution uses a generator expression passed to the built-in `sum()` function, checking against a set of vowels for O(1) membership lookups:\n\n```python\ndef count_vowels(text: str) -> int:\n    vowels = set('aeiouAEIOU')\n    return sum(1 for char in text if char in vowels)\n```\n\nThis approach runs in O(n) time, where n is string length, and O(1) auxiliary space because a set of 10 characters has constant size and the generator streams characters without creating intermediate lists. Alternatively, `collections.Counter` can tally character frequencies across the entire string.",
+    "kp": [
+      "Convert vowels to a set (`set('aeiouAEIOU')`) for O(1) lookups",
+      "Use generator expression with `sum()` for O(1) space efficiency",
+      "Time complexity O(n) linear scan",
+      "Case handling via set containing both cases or calling `.lower()`"
+    ],
+    "cm": [
+      "Checking vowels against a list in a loop (`if char in ['a', 'e', ...]`), which has higher overhead than a set",
+      "Creating a full list comprehension in memory instead of a generator expression",
+      "Forgetting uppercase vowels or forgetting `.lower()`"
+    ],
+    "fu": [
+      "How would you modify the function to return a dictionary of individual vowel counts?",
+      "What is the computational benefit of using `set('aeiou')` over `'aeiou'` for membership checks?"
+    ],
+    "tags": [
+      "python",
+      "strings",
+      "vowels",
+      "generator-expression"
+    ]
+  },
+  {
+    "q": "How do you determine if two strings are anagrams of each other in Python?",
+    "sub": "String Algorithms",
+    "d": "Beginner",
+    "ans": "Two strings are anagrams if they contain the exact same characters with identical frequencies, possibly in a different order. The most optimal approach uses `collections.Counter` to compare character frequency distributions in O(n) time and O(k) space (where k is alphabet size):\n\n```python\nfrom collections import Counter\n\ndef is_anagram(s1: str, s2: str) -> bool:\n    return Counter(s1.replace(' ', '').lower()) == Counter(s2.replace(' ', '').lower())\n```\n\nAn alternative approach is sorting both strings: `sorted(s1) == sorted(s2)`, which takes O(n log n) time and O(n) space. The Counter approach is preferred for large strings due to its linear time complexity.",
+    "kp": [
+      "Optimal approach: `Counter(s1) == Counter(s2)` runs in O(n) time",
+      "Sorting approach: `sorted(s1) == sorted(s2)` runs in O(n log n) time",
+      "Sanitize inputs: strip whitespace and normalize casing if required",
+      "Early exit: return False immediately if sanitized lengths differ"
+    ],
+    "cm": [
+      "Using nested loops with `s1.count(char)`, resulting in O(n^2) quadratic time",
+      "Forgetting to normalize case or handle spaces",
+      "Sorting very large texts when a linear frequency hash map is faster"
+    ],
+    "fu": [
+      "What is the Unicode complexity if strings contain accents or combined glyphs?",
+      "How would you implement anagram grouping across a list of 100,000 words?"
+    ],
+    "tags": [
+      "python",
+      "anagrams",
+      "strings",
+      "collections-counter",
+      "algorithms"
+    ]
+  },
+  {
+    "q": "How do you swap two variables in Python without using a temporary variable? How does it work under the hood?",
+    "sub": "Python Idioms",
+    "d": "Beginner",
+    "ans": "In Python, two variables are swapped using tuple packing and unpacking syntax: `a, b = b, a`. This executes in a single line without temporary variable identifiers. Under the hood, Python's bytecode compiler first packs the right-hand expressions into a tuple on the interpreter stack (`b, a`), and then unpacks the tuple elements into the left-hand targets (`a` and `b`) from left to right. This eliminates temporary variables in Python code, avoids arithmetic overflow pitfalls found in XOR/addition tricks, and is optimized at the CPython bytecode level with `ROT_TWO` (in older versions) or stack operations.",
+    "kp": [
+      "Syntax: `a, b = b, a` uses tuple packing and unpacking",
+      "Right-hand side evaluated completely into a tuple before assignment occurs",
+      "Safe against arithmetic overflow and type mismatches",
+      "Can be extended to multiple variables: `a, b, c = c, a, b`"
+    ],
+    "cm": [
+      "Using manual XOR swap tricks (`a ^= b`) in Python, which hurts readability and fails on non-integers",
+      "Attempting sequential assignment `a = b; b = a`, which overwrites `a`'s value",
+      "Not understanding that right-hand side is evaluated first"
+    ],
+    "fu": [
+      "Can you swap list elements in place using `arr[i], arr[j] = arr[j], arr[i]`?",
+      "What bytecode instructions are generated for `a, b = b, a`?"
+    ],
+    "tags": [
+      "python",
+      "tuple-unpacking",
+      "idiomatic-python",
+      "variables"
+    ]
+  },
+  {
+    "q": "How do you find the second largest element in a list in Python in O(n) time without sorting?",
+    "sub": "List Algorithms",
+    "d": "Intermediate",
+    "ans": "Sorting the list takes O(n log n) time. To achieve optimal O(n) linear time and O(1) space, iterate through the list maintaining two variables, `largest` and `second_largest`, initialized to `-float('inf')`:\n\n```python\ndef find_second_largest(nums: list[int]) -> int | None:\n    if len(nums) < 2:\n        return None\n    largest = second = -float('inf')\n    for n in nums:\n        if n > largest:\n            second = largest\n            largest = n\n        elif largest > n > second:\n            second = n\n    return second if second != -float('inf') else None\n```\n\nThis single-pass algorithm handles duplicates properly (e.g., `[10, 10, 9]` correctly identifies 9) and handles negative numbers.",
+    "kp": [
+      "Single-pass O(n) time complexity and O(1) constant auxiliary space",
+      "Initialize tracking variables to negative infinity (`-float('inf')`)",
+      "Correctly handle duplicates where multiple identical max elements exist",
+      "Validate edge cases: lists with fewer than two unique elements"
+    ],
+    "cm": [
+      "Sorting the list `sorted(nums)[-2]`, which fails on duplicates like `[10, 10, 5]` and takes O(n log n)",
+      "Initializing tracking variables to 0, which fails on lists of negative integers",
+      "Not handling empty lists or single-element inputs"
+    ],
+    "fu": [
+      "How would you extend this pattern to find the K-th largest element using `heapq`?",
+      "What is the time complexity of `heapq.nlargest(2, nums)`?"
+    ],
+    "tags": [
+      "python",
+      "algorithms",
+      "arrays",
+      "time-complexity"
+    ]
+  },
+  {
+    "q": "How do you remove duplicates from a list in Python while preserving the original element order?",
+    "sub": "List Manipulation",
+    "d": "Beginner",
+    "ans": "Using `list(set(items))` removes duplicates in O(n) time, but destroys the original order because sets are unordered. Since Python 3.7, dictionaries maintain insertion order, allowing an idiomatic one-liner that preserves order in O(n) time and O(n) space:\n\n```python\ndef remove_duplicates_ordered(items: list) -> list:\n    return list(dict.fromkeys(items))\n```\n\n`dict.fromkeys()` inserts keys sequentially while discarding duplicates, and converting keys back to a list preserves original order. For unhashable elements (like nested dicts or lists), a manual loop using a custom seen tracker is necessary.",
+    "kp": [
+      "`list(dict.fromkeys(items))` removes duplicates and preserves insertion order",
+      "O(n) linear time complexity and O(n) auxiliary space",
+      "`list(set(items))` removes duplicates but discards insertion order",
+      "Requires elements to be hashable"
+    ],
+    "cm": [
+      "Using `list(set(items))` and assuming it will preserve order",
+      "Using a nested loop `if item not in seen_list: seen_list.append(item)`, which is O(n^2) quadratic time",
+      "Applying `dict.fromkeys()` on lists containing unhashable objects (like dicts)"
+    ],
+    "fu": [
+      "How do you preserve order when elements are unhashable (e.g., list of dicts)?",
+      "Why is `dict.fromkeys()` faster than a Python for-loop appending to a set and list?"
+    ],
+    "tags": [
+      "python",
+      "lists",
+      "duplicates",
+      "dictionaries",
+      "performance"
+    ]
+  },
+  {
+    "q": "How do you find the missing number in an array containing numbers from 1 to N in O(n) time and O(1) space?",
+    "sub": "Mathematical Algorithms",
+    "d": "Beginner",
+    "ans": "Given an array of length N-1 containing distinct integers in the range [1, N], the missing number can be found using the Gauss summation formula `expected_sum = N * (N + 1) // 2`. Subtracting the actual sum of array elements from the expected sum yields the missing integer:\n\n```python\ndef find_missing_number(nums: list[int]) -> int:\n    n = len(nums) + 1\n    expected_sum = n * (n + 1) // 2\n    return expected_sum - sum(nums)\n```\n\nThis runs in O(n) time and O(1) auxiliary space. An alternative bitwise approach uses XOR: XORing all indices from 1 to N with all array elements cancels out duplicates, leaving the missing number, which avoids arithmetic overflow in languages without arbitrary-precision integers.",
+    "kp": [
+      "Math formula: `N * (N + 1) // 2` gives expected sum in O(1)",
+      "Time complexity: O(n) for single pass `sum(nums)`",
+      "Auxiliary space: O(1) constant memory",
+      "Alternative bitwise XOR approach cancels pairs"
+    ],
+    "cm": [
+      "Sorting the array first, which degrades time to O(n log n)",
+      "Using a hash set lookup, which uses O(n) unnecessary extra memory",
+      "Off-by-one errors in determining N (`len(nums) + 1`)"
+    ],
+    "fu": [
+      "How does the XOR bitwise approach prevent integer overflow in C/Java?",
+      "What if two numbers are missing instead of one? How does the approach change?"
+    ],
+    "tags": [
+      "python",
+      "algorithms",
+      "math",
+      "bitwise",
+      "arrays"
+    ]
+  },
+  {
+    "q": "Explain binary search in Python. What are the preconditions, time complexity, and edge cases?",
+    "sub": "Search Algorithms",
+    "d": "Intermediate",
+    "ans": "Binary search is an efficient search algorithm on a sorted array that works by repeatedly dividing the search interval in half. Precondition: the collection must be sorted and support O(1) random indexing. Algorithm: maintain two pointers, `low` and `high`. Compute `mid = (low + high) // 2`. If `target == arr[mid]`, return mid. If `target < arr[mid]`, search left (`high = mid - 1`); if `target > arr[mid]`, search right (`low = mid + 1`). Continue while `low <= high`. Time complexity is O(log n) because the search space halves at every step; space complexity is O(1) iterative. Python provides the built-in `bisect` module for binary search insertions.",
+    "kp": [
+      "Precondition: sequence must be sorted with O(1) random access",
+      "Time complexity: O(log n); Space complexity: O(1) iterative",
+      "Pointer updates: `high = mid - 1` and `low = mid + 1` to prevent infinite loops",
+      "Python standard library module: `bisect` (`bisect_left`, `bisect_right`)"
+    ],
+    "cm": [
+      "Applying binary search on an unsorted collection or linked list",
+      "Calculating mid as `low + high // 2` due to missing parentheses",
+      "Using `low < high` instead of `low <= high`, missing target when it sits at array edges"
+    ],
+    "fu": [
+      "How does `bisect.bisect_left` differ from `bisect.bisect_right` when elements are duplicated?",
+      "Why does integer overflow in `(low + high) // 2` occur in C/Java but not in Python?"
+    ],
+    "tags": [
+      "python",
+      "binary-search",
+      "algorithms",
+      "time-complexity",
+      "bisect"
+    ]
+  },
+  {
+    "q": "What is the difference between `sort()` and `sorted()` in Python? What algorithm does Python use?",
+    "sub": "Sorting",
+    "d": "Beginner",
+    "ans": "`list.sort()` is an in-place method that modifies the original list and returns `None`. `sorted(iterable)` is a built-in function that accepts any iterable and returns a new sorted list, leaving the original sequence unchanged. Both take optional `key` and `reverse` arguments. Python uses Timsort, a hybrid, stable sorting algorithm derived from Merge Sort and Insertion Sort designed by Tim Peters. Timsort identifies natural contiguous ordered segments ('runs') in real-world data and merges them efficiently. Its worst-case and average-case time complexity is O(n log n), and best-case on already sorted data is O(n). Being a stable sort, it preserves the relative order of elements with equal keys.",
+    "kp": [
+      "`list.sort()`: in-place modification, returns None, works only on lists",
+      "`sorted(iterable)`: returns a new sorted list, works on any iterable",
+      "Algorithm: Timsort (hybrid of Merge Sort and Insertion Sort)",
+      "Time complexity: O(n log n) average/worst, O(n) best case; Stable sort"
+    ],
+    "cm": [
+      "Assigning the result of `list.sort()` to a variable (`my_list = my_list.sort()`), which sets it to None",
+      "Assuming sorting is unstable and changes relative order of equivalent items",
+      "Calling `sort()` on non-list iterables like strings or tuples"
+    ],
+    "fu": [
+      "What does it mean that a sorting algorithm is 'stable'?",
+      "How does Timsort achieve O(n) time complexity on nearly sorted arrays?"
+    ],
+    "tags": [
+      "python",
+      "sorting",
+      "timsort",
+      "algorithms",
+      "lists"
+    ]
+  },
+  {
+    "q": "How do you count the frequency of all elements in a list using standard library tools?",
+    "sub": "Data Counting",
+    "d": "Beginner",
+    "ans": "The most pythonic, optimized way is using `collections.Counter`:\n\n```python\nfrom collections import Counter\ncounts = Counter(my_list)\n```\n\n`Counter` is a dictionary subclass that tallies element occurrences in O(n) time and O(u) space (where u is unique elements). It provides convenient helper methods like `counts.most_common(k)` to retrieve the top-k most frequent elements. Without Counter, the idiomatic dictionary approach uses `dict.get()`: `for item in my_list: counts[item] = counts.get(item, 0) + 1` or `defaultdict(int)`. Avoid calling `my_list.count(x)` inside a loop, as that results in O(n^2) quadratic time.",
+    "kp": [
+      "Use `collections.Counter(my_list)` for idiomatic O(n) counting",
+      "Provides `.most_common(k)` for top-k frequency queries",
+      "Manual idiom: `counts[x] = counts.get(x, 0) + 1` or `defaultdict(int)`",
+      "Avoid `my_list.count()` inside loops to prevent O(n^2) bottleneck"
+    ],
+    "cm": [
+      "Calling `my_list.count(item)` in a loop or comprehension (O(n^2) performance disaster)",
+      "Using manual try-except KeyError blocks when `get()` or `defaultdict` is cleaner",
+      "Not knowing Counter handles arithmetic operations like addition and subtraction"
+    ],
+    "fu": [
+      "What is the time complexity of `Counter.most_common(k)`?",
+      "Can `Counter` be used to find multiset intersections between two collections?"
+    ],
+    "tags": [
+      "python",
+      "collections",
+      "counter",
+      "frequency",
+      "algorithms"
+    ]
+  },
+  {
+    "q": "How do you implement the Two Sum problem in Python in O(n) time using a dictionary?",
+    "sub": "Dictionary Algorithms",
+    "d": "Intermediate",
+    "ans": "The Two Sum problem asks for indices of two numbers in an array that add up to a target sum. A brute-force nested loop takes O(n^2) time. We achieve optimal O(n) time and O(n) space using a hash map to track complements in a single pass:\n\n```python\ndef two_sum(nums: list[int], target: int) -> list[int]:\n    seen = {}\n    for i, num in enumerate(nums):\n        complement = target - num\n        if complement in seen:\n            return [seen[complement], i]\n        seen[num] = i\n    return []\n```\n\nFor every number, we check if `target - num` already exists in `seen`. If found, we return the stored index and current index. If not, we record `seen[num] = i`. Hash lookups are O(1) average, making total time linear.",
+    "kp": [
+      "Single-pass hash table achieves O(n) time complexity",
+      "Look up `target - current_number` in dictionary in O(1) average time",
+      "Store number as key and array index as value",
+      "Space complexity is O(n) for the hash map"
+    ],
+    "cm": [
+      "Brute-force nested loops `for i ... for j ...` taking O(n^2) time",
+      "Storing elements in dictionary before checking, causing identical elements to overwrite each other",
+      "Returning values instead of indices when indices are requested"
+    ],
+    "fu": [
+      "How does the solution change if the input array is already sorted (Two Pointers approach)?",
+      "How do you handle the 3Sum problem in O(n^2) time?"
+    ],
+    "tags": [
+      "python",
+      "two-sum",
+      "hash-map",
+      "algorithms",
+      "arrays"
+    ]
+  },
+  {
+    "q": "How do you move all zeros to the end of an array in place while maintaining relative order of non-zero elements?",
+    "sub": "Array Algorithms",
+    "d": "Intermediate",
+    "ans": "To move zeros to the end in place in O(n) time and O(1) auxiliary space, use a two-pointer approach:\n\n```python\ndef move_zeroes(nums: list[int]) -> None:\n    insert_pos = 0\n    for i in range(len(nums)):\n        if nums[i] != 0:\n            nums[insert_pos], nums[i] = nums[i], nums[insert_pos]\n            insert_pos += 1\n```\n\nAs we iterate through the array, whenever we encounter a non-zero element, we swap it with the element at `insert_pos` and increment `insert_pos`. All non-zero elements stay in their original relative order, and zeros naturally migrate toward the end. No new list is allocated.",
+    "kp": [
+      "Two-pointer in-place swap strategy",
+      "Time complexity: O(n) single pass",
+      "Space complexity: O(1) constant in-place memory",
+      "Preserves relative order of non-zero elements"
+    ],
+    "cm": [
+      "Using `nums.remove(0)` and `nums.append(0)` in a loop, which is O(n^2) due to list shifting",
+      "Creating a new filtered list when the problem mandates in-place modification",
+      "Losing original relative ordering of non-zero elements"
+    ],
+    "fu": [
+      "Why is `nums.remove(0)` inside a loop computationally expensive?",
+      "What is the minimum number of write operations needed to move zeros?"
+    ],
+    "tags": [
+      "python",
+      "two-pointers",
+      "arrays",
+      "in-place",
+      "algorithms"
+    ]
+  },
+  {
+    "q": "How do you check if a string contains balanced parentheses `()`, brackets `[]`, and braces `{}` in Python?",
+    "sub": "Stack Algorithms",
+    "d": "Intermediate",
+    "ans": "Use a stack (implemented with a Python list). Scan the string character by character. When encountering an opening bracket `(`, `[`, `{`, push it onto the stack. When encountering a closing bracket `)`, `]`, `}`, check if the stack is non-empty and whether the popped top matches the opening counterpart via a mapping dictionary. If it does not match or the stack was empty, return `False`. After processing, the string is balanced if and only if the stack is completely empty.\n\n```python\ndef is_balanced(s: str) -> bool:\n    mapping = {')': '(', ']': '[', '}': '{'}\n    stack = []\n    for char in s:\n        if char in mapping.values():\n            stack.append(char)\n        elif char in mapping:\n            if not stack or stack.pop() != mapping[char]:\n                return False\n    return len(stack) == 0\n```\nTime is O(n) and space is O(n).",
+    "kp": [
+      "Stack data structure handles Last-In-First-Out (LIFO) matching",
+      "Map closing brackets to opening brackets in a dictionary",
+      "Push opening symbols; pop and verify closing symbols",
+      "Final check: stack must be empty (`len(stack) == 0`)"
+    ],
+    "cm": [
+      "Using simple counters instead of a stack (fails on mixed interleaving like `[(])`)",
+      "Forgetting to check if stack is empty before popping (raises IndexError)",
+      "Forgetting the final `len(stack) == 0` check, missing unclosed openers"
+    ],
+    "fu": [
+      "Why can a simple integer counter balance `()` but fail on multiple bracket types?",
+      "How do compilers use stack-based parsing for syntax validation?"
+    ],
+    "tags": [
+      "python",
+      "stack",
+      "algorithms",
+      "parentheses",
+      "data-structures"
+    ]
+  },
+  {
+    "q": "Explain recursion in Python. What is the recursion limit and how do you handle base cases?",
+    "sub": "Recursion",
+    "d": "Beginner",
+    "ans": "Recursion is a programming technique where a function calls itself to solve smaller subproblems of the same problem. Every recursive function requires two core components: 1) One or more base cases that terminate recursion without making further self-calls, and 2) A recursive step that reduces the problem size toward the base case. Without a proper base case, infinite recursion occurs, exhausting the call stack and raising `RecursionError: maximum recursion depth exceeded`. In Python, CPython sets a default recursion limit (typically 1000 stack frames) to prevent C stack overflow, inspectable via `sys.getrecursionlimit()`.",
+    "kp": [
+      "Base case: termination condition that halts recursion",
+      "Recursive step: reduces problem size toward base case",
+      "RecursionError raised when stack depth exceeds limit (default ~1000)",
+      "Inspect and set via `sys.getrecursionlimit()` and `sys.setrecursionlimit()`"
+    ],
+    "cm": [
+      "Missing base case, causing infinite loop and stack overflow",
+      "Not moving arguments closer to base case in recursive calls",
+      "Using naive recursion for overlapping subproblems (e.g., Fibonacci) without memoization"
+    ],
+    "fu": [
+      "Does Python support Tail Call Optimization (TCO)? Why or why not?",
+      "How does `@functools.cache` convert exponential recursive algorithms into linear time?"
+    ],
+    "tags": [
+      "python",
+      "recursion",
+      "call-stack",
+      "algorithms"
+    ]
+  },
+  {
+    "q": "Write an efficient function to compute the N-th Fibonacci number. Compare naive recursion, memoization, and iteration.",
+    "sub": "Dynamic Programming",
+    "d": "Intermediate",
+    "ans": "1) Naive recursion `fib(n-1) + fib(n-2)` has exponential O(2^n) time complexity because it recalculates overlapping subtrees repeatedly. 2) Memoization via `@functools.cache` caches results, reducing time to O(n) with O(n) stack memory. 3) Iteration is the most optimal, running in O(n) time and O(1) space by tracking only the last two values:\n\n```python\ndef fibonacci(n: int) -> int:\n    if n < 0:\n        raise ValueError(\"n must be non-negative\")\n    if n <= 1:\n        return n\n    a, b = 0, 1\n    for _ in range(2, n + 1):\n        a, b = b, a + b\n    return b\n```\nIterative approach avoids both stack overflow and memory allocation overhead.",
+    "kp": [
+      "Naive recursion: O(2^n) exponential time due to duplicate subproblems",
+      "Memoization: O(n) time and O(n) memory via cache",
+      "Iterative: O(n) time and O(1) constant memory",
+      "Validate input boundaries for negative numbers"
+    ],
+    "cm": [
+      "Writing naive recursion for N > 35, causing the program to freeze",
+      "Allocating an entire list of length N when only last two numbers are needed",
+      "Off-by-one errors on N=0 and N=1"
+    ],
+    "fu": [
+      "What is the closed-form Binet's formula for Fibonacci and what are its floating-point limits?",
+      "Can Fibonacci be computed in O(log n) time using matrix exponentiation?"
+    ],
+    "tags": [
+      "python",
+      "fibonacci",
+      "dynamic-programming",
+      "memoization",
+      "algorithms"
+    ]
+  },
+  {
+    "q": "How do you check if a number is prime in Python? What is the trial division optimization up to sqrt(n)?",
+    "sub": "Mathematical Algorithms",
+    "d": "Beginner",
+    "ans": "A prime number is an integer greater than 1 with no positive divisors other than 1 and itself. A naive check tests divisors from 2 to n-1 in O(n) time. We optimize to O(sqrt(n)) because if n has a factor larger than sqrt(n), its corresponding pair factor must be smaller than sqrt(n):\n\n```python\ndef is_prime(n: int) -> bool:\n    if n <= 1:\n        return False\n    if n <= 3:\n        return True\n    if n % 2 == 0 or n % 3 == 0:\n        return False\n    i = 5\n    while i * i <= n:\n        if n % i == 0 or n % (i + 2) == 0:\n            return False\n        i += 6\n    return True\n```\nChecking up to sqrt(n) with step 6 (testing 6k ± 1) eliminates multiples of 2 and 3, reducing check operations significantly.",
+    "kp": [
+      "Prime definition: integer > 1 divisible only by 1 and self",
+      "Trial division up to sqrt(n) runs in O(sqrt(n)) time",
+      "6k ± 1 optimization skips multiples of 2 and 3",
+      "Early exits: numbers <= 1 are not prime; 2 and 3 are prime"
+    ],
+    "cm": [
+      "Checking up to n instead of sqrt(n), causing unnecessary O(n) iterations",
+      "Considering negative numbers, 0, or 1 as prime",
+      "Using `range(2, int(math.sqrt(n)))` without adding 1, missing exact squares"
+    ],
+    "fu": [
+      "How does the Sieve of Eratosthenes find all primes up to N in O(N log log N) time?",
+      "What is the Fermat or Miller-Rabin primality test used in cryptography?"
+    ],
+    "tags": [
+      "python",
+      "primes",
+      "math",
+      "algorithms",
+      "number-theory"
+    ]
+  },
+  {
+    "q": "How do you calculate the factorial of a number in Python? Discuss iterative, recursive, and math.factorial approaches.",
+    "sub": "Mathematical Algorithms",
+    "d": "Beginner",
+    "ans": "Factorial of n (n!) is the product of all positive integers <= n; 0! is defined as 1. 1) Recursive: `n * fact(n-1)` with base case `n <= 1: return 1`, running in O(n) time and O(n) stack frames. 2) Iterative: a simple loop accumulating `res *= i` in O(n) time and O(1) space. 3) Standard library: `math.factorial(n)` is implemented in optimized C in CPython, making it significantly faster and safe against recursion limits. Python's arbitrary-precision integers automatically prevent integer overflow, allowing calculation of very large factorials (e.g., 1000!).",
+    "kp": [
+      "0! is defined as 1; negative numbers have undefined factorial",
+      "Iterative: O(n) time, O(1) space",
+      "Recursive: O(n) time, O(n) call stack",
+      "Standard library: `math.factorial(n)` is C-optimized and preferred in production"
+    ],
+    "cm": [
+      "Forgetting base case 0! = 1 in recursive implementations",
+      "Not validating negative inputs (raises ValueError in math.factorial)",
+      "Assuming integer overflow occurs in Python as it does in C/Java"
+    ],
+    "fu": [
+      "How does Python handle arbitrarily large integers without integer overflow?",
+      "What is Stirling's approximation for estimating large factorials?"
+    ],
+    "tags": [
+      "python",
+      "factorial",
+      "math",
+      "recursion",
+      "algorithms"
+    ]
+  },
+  {
+    "q": "How do you implement Kadane's algorithm to find the maximum subarray sum in Python?",
+    "sub": "Array Algorithms",
+    "d": "Intermediate",
+    "ans": "Kadane's algorithm finds the contiguous subarray with the largest sum in O(n) linear time and O(1) auxiliary space, improving over O(n^2) brute force:\n\n```python\ndef max_sub_array(nums: list[int]) -> int:\n    max_current = max_global = nums[0]\n    for x in nums[1:]:\n        max_current = max(x, max_current + x)\n        if max_current > max_global:\n            max_global = max_current\n    return max_global\n```\n\nAt each index, we decide whether to add the current number to the running subarray (`max_current + x`) or start a fresh subarray at `x` (`max(x, max_current + x)`). `max_global` tracks the highest sum seen so far. Initializing with `nums[0]` correctly handles arrays containing all negative numbers.",
+    "kp": [
+      "Kadane's algorithm achieves O(n) time and O(1) space",
+      "Core recurrence: `max_current = max(x, max_current + x)`",
+      "Initializes with `nums[0]` to correctly handle all-negative arrays",
+      "Returns maximum contiguous sum"
+    ],
+    "cm": [
+      "Initializing max_global to 0, which fails on arrays of all negative numbers (e.g., `[-5, -2, -8]`)",
+      "Using O(n^2) nested loops checking every subarray pair",
+      "Confusing contiguous subarray with non-contiguous subsequence"
+    ],
+    "fu": [
+      "How would you modify Kadane's algorithm to return the starting and ending indices of the subarray?",
+      "Can Kadane's algorithm be applied to circular arrays?"
+    ],
+    "tags": [
+      "python",
+      "kadanes-algorithm",
+      "dynamic-programming",
+      "arrays",
+      "algorithms"
+    ]
+  },
+  {
+    "q": "What is the difference between `@classmethod`, `@staticmethod`, and instance methods in Python?",
+    "sub": "OOP Methods",
+    "d": "Intermediate",
+    "ans": "1) Instance method: default method receiving `self` as the first argument; has access to instance attributes and class state via `self.__class__`. 2) Class method (`@classmethod`): receives the class `cls` as the first argument instead of an instance; used for alternative constructors (e.g., `from_dict`, `from_json`) and modifying class-level state across all instances. 3) Static method (`@staticmethod`): receives neither `self` nor `cls`; behaves like a plain function scoped inside the class namespace for logical grouping, with no access to instance or class state.",
+    "kp": [
+      "Instance method: receives `self`, accesses and mutates instance state",
+      "Class method: receives `cls`, used for alternative constructors and class state",
+      "Static method: receives neither `self` nor `cls`, utility function bound to namespace",
+      "Defined via `@classmethod` and `@staticmethod` decorators"
+    ],
+    "cm": [
+      "Using `@staticmethod` when the function needs to inspect or create instances of `cls`",
+      "Forgetting `cls` parameter in class methods or `self` in instance methods",
+      "Calling instance methods on classes without an instance object"
+    ],
+    "fu": [
+      "How do alternative constructors like `datetime.fromtimestamp()` use `@classmethod`?",
+      "When is it better to put a utility function in a module rather than using `@staticmethod`?"
+    ],
+    "tags": [
+      "python",
+      "oop",
+      "decorators",
+      "classmethod",
+      "staticmethod"
+    ]
+  },
+  {
+    "q": "How does Python's `zip()` function work, and what is `itertools.zip_longest()`?",
+    "sub": "Built-in Functions",
+    "d": "Beginner",
+    "ans": "`zip(*iterables)` aggregates elements from each of the provided iterables into tuples and returns an iterator. By default, `zip()` stops when the shortest input iterable is exhausted (truncating longer inputs). In Python 3.10+, `strict=True` can be passed to raise a `ValueError` if the iterables are not of equal length. When you want to continue until the longest iterable is exhausted, `itertools.zip_longest(*iterables, fillvalue=None)` pads shorter iterables with the specified `fillvalue`. Unpacking with zip `zip(*zipped)` reverses the operation.",
+    "kp": [
+      "`zip()` pairs elements from multiple iterables into tuples lazily",
+      "Stops at the shortest iterable by default",
+      "Python 3.10+ `zip(..., strict=True)` enforces equal lengths",
+      "`itertools.zip_longest()` continues until longest iterable with `fillvalue` padding"
+    ],
+    "cm": [
+      "Silent data loss when zipping unequal-length lists without knowing it truncates",
+      "Loading zipped results into memory as a list when simple iteration suffices",
+      "Attempting to index a zip object without converting to list or tuple"
+    ],
+    "fu": [
+      "How do you transpose a 2D matrix in one line using `zip(*matrix)`?",
+      "How do you create a dictionary from two separate lists of keys and values using `zip()`?"
+    ],
+    "tags": [
+      "python",
+      "zip",
+      "itertools",
+      "built-in-functions",
+      "iterables"
+    ]
+  }
+]

@@ -1,0 +1,560 @@
+[
+  {
+    "q": "What are Python's `*args` and `**kwargs` scoping rules inside inner wrapper functions?",
+    "sub": "Advanced Decorators",
+    "d": "Intermediate",
+    "ans": "When writing inner wrapper functions for decorators, standard practice is to accept `*args, **kwargs` and pass them to the wrapped function: `return func(*args, **kwargs)`. This allows the wrapper to be completely agnostic to the wrapped function's signature, handling functions with zero, positional, keyword, or default arguments. Scoping: the inner function forms a closure over `func`, retaining access to the outer function's arguments. If variables in the enclosing scope need to be modified inside the wrapper, the `nonlocal` keyword is required.",
+    "kp": [
+      "Signature agnosticism: `*args, **kwargs` accepts any parameter combination",
+      "Unpacking with `*` and `**` forwards arguments accurately",
+      "Closures allow wrappers to retain reference to wrapped `func`",
+      "`nonlocal` keyword permits modifying enclosing scope variables"
+    ],
+    "cm": [
+      "Defining wrapper with fixed arguments, breaking when decorated on functions with different signatures",
+      "Forgetting to return the result of `func(*args, **kwargs)` from the wrapper",
+      "Confusing `global` with `nonlocal` in nested function closures"
+    ],
+    "fu": [
+      "What is the difference between `global` and `nonlocal` variable declarations?",
+      "How do you inspect a wrapped function's original signature using `inspect.signature()`?"
+    ],
+    "tags": [
+      "python",
+      "decorators",
+      "closures",
+      "scoping",
+      "args-kwargs"
+    ]
+  },
+  {
+    "q": "Explain the difference between `__init__` and `__new__` in Python class instantiation.",
+    "sub": "Metaprogramming & Instantiation",
+    "d": "Advanced",
+    "ans": "Class instantiation in Python is a two-step process: 1) `__new__(cls, *args, **kwargs)` is the actual constructor method that allocates and returns a new, uninitialized instance of the class in memory. It is a static method that takes `cls` as its first parameter. 2) `__init__(self, *args, **kwargs)` is the initializer method that receives the newly created instance as `self` and sets up instance attributes. `__new__` is overridden in specialized scenarios, such as implementing Singletons, creating custom metaclasses, or subclassing immutable built-in types (int, str, tuple) where values must be set before object creation.",
+    "kp": [
+      "`__new__`: creates and returns the new instance object in memory",
+      "`__init__`: initializes attributes on the instance returned by `__new__`",
+      "`__new__` takes `cls` as first argument; `__init__` takes `self`",
+      "Override `__new__` for Singletons and subclassing immutable types"
+    ],
+    "cm": [
+      "Attempting to return a value other than None from `__init__` (raises TypeError)",
+      "Overriding `__new__` and forgetting to return `super().__new__(cls)`",
+      "Using `__new__` for ordinary attribute setup where `__init__` is standard"
+    ],
+    "fu": [
+      "How do you implement the Singleton pattern using `__new__`?",
+      "What happens if `__new__` does not return an instance of `cls`?"
+    ],
+    "tags": [
+      "python",
+      "dunder-methods",
+      "oop",
+      "metaprogramming",
+      "singleton"
+    ]
+  },
+  {
+    "q": "What are descriptors in Python, and how do `@property`, `@classmethod`, and ORMs rely on them?",
+    "sub": "Descriptors",
+    "d": "Advanced",
+    "ans": "A descriptor is any object that defines at least one of the methods `__get__()`, `__set__()`, or `__delete__()` in the descriptor protocol. Descriptors customize attribute access, assignment, and deletion on owner classes. Python's attribute lookup checks descriptors before falling back to instance `__dict__`. Built-in features like `@property`, `@classmethod`, `@staticmethod`, and SQLAlchemy ORM model columns are all implemented as descriptors. For example, `@property` creates a descriptor that maps attribute access to getter and setter functions transparently.",
+    "kp": [
+      "Descriptor protocol: `__get__`, `__set__`, `__delete__`",
+      "Data descriptors define `__set__`; non-data descriptors define only `__get__`",
+      "Attribute lookup order checks data descriptors before instance `__dict__`",
+      "Powers `@property`, method binding, and ORM column mappings"
+    ],
+    "cm": [
+      "Instantiating a descriptor on an instance instead of as a class attribute",
+      "Confusing data descriptors with non-data descriptors",
+      "Modifying instance dictionaries directly and bypassing descriptor validation"
+    ],
+    "fu": [
+      "What is the exact attribute lookup precedence in Python when resolving `obj.attr`?",
+      "How does an ORM like SQLAlchemy use descriptors to track dirty column changes?"
+    ],
+    "tags": [
+      "python",
+      "descriptors",
+      "properties",
+      "metaprogramming",
+      "orm"
+    ]
+  },
+  {
+    "q": "How do Python generators support two-way communication using `.send()`, `.throw()`, and `.close()`?",
+    "sub": "Advanced Generators",
+    "d": "Advanced",
+    "ans": "While generators commonly produce data via `yield`, they can also consume data, acting as coroutines. 1) `.send(value)` resumes the generator and yields a value while passing `value` into the generator as the result of the `yield` expression: `received = yield output`. 2) `.throw(typ, val, tb)` raises an exception at the generator's current yield point, allowing the generator to handle or cleanup via `except`. 3) `.close()` raises `GeneratorExit` at the yield point to terminate the generator cleanly. Two-way generator communication laid the historical foundation for Python's asyncio event loop.",
+    "kp": [
+      "`yield` can be an expression that receives values: `val = yield expr`",
+      "`.send(val)` sends data into the generator at the yield suspension point",
+      "`.throw()` injects exceptions; `.close()` terminates via `GeneratorExit`",
+      "Historical foundation for asyncio coroutines prior to `async/await` syntax"
+    ],
+    "cm": [
+      "Calling `.send(value)` on a freshly created generator before priming it with `next()` or `.send(None)`",
+      "Catching `GeneratorExit` and attempting to yield further values (raises RuntimeError)",
+      "Ignoring generator cleanup in streaming pipelines"
+    ],
+    "fu": [
+      "Why must a generator be 'primed' with `next()` or `.send(None)` before sending data?",
+      "How did PEP 380's `yield from` syntax enable subgenerator delegation?"
+    ],
+    "tags": [
+      "python",
+      "generators",
+      "coroutines",
+      "async-foundations"
+    ]
+  },
+  {
+    "q": "Explain `asyncio`, event loops, coroutines, and the difference between synchronous and asynchronous code.",
+    "sub": "Asynchronous Programming",
+    "d": "Advanced",
+    "ans": "Synchronous code executes sequentially; blocking operations (like network I/O or sleep) halt the entire execution thread. `asyncio` provides cooperative multitasking using an event loop on a single thread. Coroutines are declared with `async def` and paused at non-blocking I/O points with `await`. While one coroutine awaits network data, the event loop runs other ready tasks, achieving high concurrency without multi-thread context-switching overhead. Asynchronous programming is ideal for I/O-bound operations (e.g., handling 10,000 concurrent HTTP requests in FastAPI), but does not speed up CPU-bound operations.",
+    "kp": [
+      "Event loop manages and distributes execution of cooperative tasks",
+      "`async def` defines a coroutine; `await` yields control back to event loop",
+      "Non-blocking concurrency on a single thread eliminates thread switching overhead",
+      "Ideal for I/O-bound workloads; does not accelerate CPU-bound tasks"
+    ],
+    "cm": [
+      "Using blocking synchronous calls like `time.sleep()` or `requests.get()` inside async functions",
+      "Forgetting to `await` a coroutine, resulting in an unexecuted coroutine object",
+      "Expecting asyncio to speed up heavy mathematical CPU calculations"
+    ],
+    "fu": [
+      "What happens when a synchronous blocking call is executed inside an asyncio event loop?",
+      "How does `asyncio.to_thread()` offload blocking operations to a threadpool?"
+    ],
+    "tags": [
+      "python",
+      "asyncio",
+      "concurrency",
+      "event-loop",
+      "fastapi"
+    ]
+  },
+  {
+    "q": "What is `__slots__` in Python classes? What are its memory benefits and trade-offs?",
+    "sub": "Memory Optimization",
+    "d": "Intermediate",
+    "ans": "By default, Python instances store attributes in a dynamic dictionary `__dict__`, allowing arbitrary attribute addition at runtime but incurring memory overhead. Declaring `__slots__ = ('name', 'age')` tells Python to allocate a fixed-size array of descriptors for the specified attributes and suppress the creation of `__dict__` and `__weakref__`. This reduces per-instance memory consumption by 40-70%, which is significant when instantiating millions of small objects. Trade-offs: prevents dynamic addition of attributes not listed in slots, complicates multiple inheritance, and requires derived subclasses to also declare `__slots__`.",
+    "kp": [
+      "`__slots__` suppresses default per-instance `__dict__` creation",
+      "Substantial memory savings (40-70%) for millions of small objects",
+      "Fast attribute access via fixed array offsets",
+      "Trade-offs: cannot add undeclared attributes dynamically; inheritance complexities"
+    ],
+    "cm": [
+      "Using `__slots__` prematurely for small numbers of objects with negligible memory impact",
+      "Forgetting to declare `__slots__` in subclasses, which causes Python to generate `__dict__` anyway",
+      "Attempting to assign new attributes at runtime not listed in `__slots__`"
+    ],
+    "fu": [
+      "How do dataclasses support slots in Python 3.10+ via `@dataclass(slots=True)`?",
+      "Does `__slots__` speed up attribute access times or only reduce memory?"
+    ],
+    "tags": [
+      "python",
+      "memory-optimization",
+      "slots",
+      "performance",
+      "oop"
+    ]
+  },
+  {
+    "q": "What is the difference between `@dataclass`, `namedtuple`, and standard classes in Python?",
+    "sub": "Data Containers",
+    "d": "Intermediate",
+    "ans": "1) Standard class: requires boilerplate for `__init__`, `__repr__`, and `__eq__`. 2) `namedtuple` (from `collections` or `typing.NamedTuple`): lightweight, immutable tuple with named field access; memory-efficient and iterable, but cannot be mutated. 3) `@dataclass` (PEP 557): code generator decorator that automatically writes `__init__`, `__repr__`, `__eq__`, and ordering methods based on type annotations. Dataclasses support mutability (or immutability via `frozen=True`), default values, inheritance, and `__post_init__` hooks. Use `NamedTuple` for simple immutable tuples; use `@dataclass` for rich, maintainable structured domain models.",
+    "kp": [
+      "`@dataclass` auto-generates `__init__`, `__repr__`, `__eq__` from type hints",
+      "`NamedTuple` provides lightweight immutable tuple with named access",
+      "Dataclasses support mutable fields, `frozen=True`, and `__post_init__` hooks",
+      "Standard classes preferred when complex custom instantiation is needed"
+    ],
+    "cm": [
+      "Writing 30 lines of boilerplate `__init__` and `__repr__` manually instead of using `@dataclass`",
+      "Attempting to mutate fields on an immutable `NamedTuple`",
+      "Using mutable defaults like `list` directly in dataclass fields without `field(default_factory=list)`"
+    ],
+    "fu": [
+      "Why must mutable defaults in dataclasses use `field(default_factory=list)`?",
+      "How does Pydantic build upon the dataclass pattern for runtime validation?"
+    ],
+    "tags": [
+      "python",
+      "dataclass",
+      "namedtuple",
+      "oop",
+      "type-hints"
+    ]
+  },
+  {
+    "q": "How do type hints and the `typing` module work in Python? Does Python enforce types at runtime?",
+    "sub": "Type Annotations",
+    "d": "Beginner",
+    "ans": "Type hints (PEP 484) allow developers to annotate variables, function parameters, and return types (e.g., `def greet(name: str) -> str:`). Python is dynamically typed and does NOT enforce type hints at runtime; passing an integer to a function expecting `str` will not raise a TypeError natively. Type hints are used by static analysis tools (mypy, pyright), IDEs for autocompletion, and libraries like Pydantic and FastAPI that perform runtime validation based on annotations. The `typing` module provides advanced constructs like `Union`, `Optional`, `Any`, `Callable`, `Generic`, and `Literal`.",
+    "kp": [
+      "Type hints are annotations; Python does NOT enforce them at runtime natively",
+      "Used by static type checkers (mypy) and IDEs to catch bugs before execution",
+      "Pydantic and FastAPI inspect type annotations for runtime parsing and validation",
+      "Syntax: `var: type = val` and `def func(param: type) -> return_type:`"
+    ],
+    "cm": [
+      "Assuming Python raises TypeErrors automatically when wrong types are passed",
+      "Using outdated `typing.List[int]` in Python 3.9+ instead of built-in `list[int]`",
+      "Ignoring static type checker warnings during development"
+    ],
+    "fu": [
+      "What is the difference between `Union[int, None]` and `int | None` in Python 3.10+?",
+      "How does `typing.cast()` instruct static type checkers without changing runtime objects?"
+    ],
+    "tags": [
+      "python",
+      "typing",
+      "type-hints",
+      "mypy",
+      "static-analysis"
+    ]
+  },
+  {
+    "q": "How does the `collections.defaultdict` differ from a standard dictionary in Python?",
+    "sub": "Collections",
+    "d": "Beginner",
+    "ans": "A standard dictionary raises a `KeyError` when attempting to access or modify a key that does not exist. `collections.defaultdict` takes a factory callable (e.g., `int`, `list`, `set`) upon initialization. When a missing key is accessed, it automatically invokes the factory with no arguments, inserts the returned default value into the dictionary for that key, and returns it without raising an error. For example, `d = defaultdict(list); d['fruits'].append('apple')` works immediately without checking `if 'fruits' not in d: d['fruits'] = []`. It inherits all standard dictionary methods.",
+    "kp": [
+      "Accepts a default factory callable (`int`, `list`, `set`)",
+      "Automatically initializes missing keys without raising KeyError",
+      "Eliminates boilerplate `if key not in d` checks",
+      "Subclass of dict; identical O(1) performance"
+    ],
+    "cm": [
+      "Passing an uncalled value instead of a callable factory (e.g., `defaultdict([])` instead of `defaultdict(list)`)",
+      "Accidentally creating keys by merely checking existence (`if d['missing_key']:`)",
+      "Confusing `defaultdict` with `dict.setdefault()`"
+    ],
+    "fu": [
+      "How does `dict.setdefault()` achieve similar behavior on standard dictionaries?",
+      "Why does checking `if d['key']:` on a defaultdict accidentally insert the key?"
+    ],
+    "tags": [
+      "python",
+      "collections",
+      "defaultdict",
+      "dictionaries"
+    ]
+  },
+  {
+    "q": "Explain string interning in Python. How does it optimize memory and comparison speed?",
+    "sub": "CPython Internals",
+    "d": "Advanced",
+    "ans": "String interning is an optimization in CPython where only one copy of distinct immutable string objects is stored in an internal lookup table. When strings are interned, multiple variables holding the identical string value point to the exact same memory address (`s1 is s2` evaluates to `True`). CPython automatically interns string constants that look like Python identifiers (alphanumeric plus underscores) and small compile-time strings. Interning saves memory by eliminating duplicate string allocations and accelerates comparisons from O(n) character-by-character scans to O(1) pointer identity checks. Manual interning is available via `sys.intern(s)`.",
+    "kp": [
+      "Single instance of distinct string values stored in CPython internal table",
+      "Allows O(1) pointer comparisons via `is` instead of O(n) character checks",
+      "CPython automatically interns identifier-like strings and string literals",
+      "Manual interning supported via `sys.intern()` for high-volume dictionary keys"
+    ],
+    "cm": [
+      "Relying on string interning behavior for program logic instead of using `==`",
+      "Assuming all strings, including user inputs or runtime concatenations, are interned automatically",
+      "Confusing string interning with small integer caching (-5 to 256)"
+    ],
+    "fu": [
+      "Why does CPython intern small integers in the range `[-5, 256]` at startup?",
+      "Why should application code always use `==` instead of `is` for string comparison?"
+    ],
+    "tags": [
+      "python",
+      "internals",
+      "string-interning",
+      "memory",
+      "optimization"
+    ]
+  },
+  {
+    "q": "What is the difference between `__getattr__` and `__getattribute__` in Python?",
+    "sub": "Metaprogramming",
+    "d": "Advanced",
+    "ans": "1) `__getattribute__(self, name)` is invoked unconditionally for EVERY attribute access on an object, regardless of whether the attribute exists in `__dict__` or not. Overriding it requires extreme caution, as accessing `self.attr` inside it triggers infinite recursion; developers must call `super().__getattribute__(name)`. 2) `__getattr__(self, name)` is a fallback invoked ONLY when the requested attribute was NOT found through normal mechanisms (`__getattribute__`, instance `__dict__`, class descriptors, or parent classes). `__getattr__` is commonly used for dynamic proxies, lazy attribute evaluation, and wrapping external APIs.",
+    "kp": [
+      "`__getattribute__`: called unconditionally for every single attribute access",
+      "`__getattr__`: called only as fallback when attribute is missing",
+      "Infinite recursion trap in `__getattribute__` requires `super().__getattribute__`",
+      "Use `__getattr__` for proxies, mocking, and dynamic attribute fallbacks"
+    ],
+    "cm": [
+      "Accidentally causing infinite recursion inside `__getattribute__` by referencing `self.x`",
+      "Using `__getattribute__` when the simpler `__getattr__` fallback suffices",
+      "Raising AttributeError incorrectly inside dynamic property accessors"
+    ],
+    "fu": [
+      "How do mock libraries like `unittest.mock.MagicMock` utilize `__getattr__`?",
+      "What is `__setattr__` and how do you prevent infinite recursion inside it?"
+    ],
+    "tags": [
+      "python",
+      "dunder-methods",
+      "metaprogramming",
+      "getattr",
+      "internals"
+    ]
+  },
+  {
+    "q": "How does Python's `itertools` module help write memory-efficient iteration pipelines?",
+    "sub": "Itertools",
+    "d": "Intermediate",
+    "ans": "The `itertools` module provides fast, memory-efficient C-implemented tools for creating iterators. Key utilities: 1) Infinite iterators: `count(start, step)`, `cycle(iterable)`, `repeat(elem)`. 2) Terminating iterators: `chain(*iterables)` concatenates sequences without creating intermediate lists; `islice(iterable, stop)` slices iterators lazily; `compress()`, `dropwhile()`, `takewhile()`. 3) Combinatoric iterators: `product()` (Cartesian product), `permutations()`, `combinations()`. All functions return lazy iterators that compute values on-the-fly, allowing developers to process massive data streams with constant O(1) memory.",
+    "kp": [
+      "High-performance C implementations of iterator algebra",
+      "Lazy evaluation avoids intermediate list allocations in memory",
+      "`chain` merges iterables sequentially without list copying",
+      "Combinatorics: `product`, `permutations`, `combinations`"
+    ],
+    "cm": [
+      "Converting itertools objects immediately to lists with `list()`, destroying memory benefits",
+      "Using nested for-loops instead of `itertools.product()`",
+      "Writing manual stateful generators when built-in itertools functions already exist"
+    ],
+    "fu": [
+      "How does `itertools.chain.from_iterable()` flatten a list of lists efficiently?",
+      "What is the difference between `combinations` and `permutations`?"
+    ],
+    "tags": [
+      "python",
+      "itertools",
+      "generators",
+      "memory",
+      "iterators"
+    ]
+  },
+  {
+    "q": "How do you write unit tests in Python using `pytest`? What are fixtures and parameterized tests?",
+    "sub": "Testing & QA",
+    "d": "Intermediate",
+    "ans": "`pytest` is Python's leading testing framework. Test functions are named with a `test_` prefix and use simple Python `assert` statements. Key features: 1) Fixtures (`@pytest.fixture`): modular setup and teardown dependencies injected into test functions by name, replacing bulky xUnit setup/teardown classes. Yield fixtures run teardown code after `yield`. 2) Parameterization (`@pytest.mark.parametrize`): runs the same test function across multiple input-output test cases without duplicating code. 3) Automatic test discovery, clean diff assertion reporting, and rich plugin ecosystem (e.g., pytest-cov, pytest-asyncio).",
+    "kp": [
+      "Test discovery: files `test_*.py`, functions `test_*`",
+      "Native `assert` statements with detailed introspection output",
+      "Fixtures (`@pytest.fixture`): modular setup/teardown dependency injection",
+      "Parameterization (`@pytest.mark.parametrize`): tests multiple cases cleanly"
+    ],
+    "cm": [
+      "Using `unittest.TestCase` assert methods (assertEqual) when pytest native assert suffices",
+      "Writing redundant copy-pasted test functions instead of using `@pytest.mark.parametrize`",
+      "Not cleaning up external resources (files, DB rows) in fixture teardown"
+    ],
+    "fu": [
+      "How do fixture scopes (`function`, `module`, `session`) affect performance?",
+      "How does `monkeypatch` or `unittest.mock.patch` mock external network calls in pytest?"
+    ],
+    "tags": [
+      "python",
+      "pytest",
+      "unit-testing",
+      "fixtures",
+      "qa"
+    ]
+  },
+  {
+    "q": "How do you inspect and debug Python code using the built-in `pdb` / `breakpoint()`?",
+    "sub": "Debugging",
+    "d": "Beginner",
+    "ans": "Python 3.7+ introduces the built-in `breakpoint()` function, which drops the runtime into an interactive debugger (by default `pdb`). Key commands in the pdb console: `n` (next line, steps over functions), `s` (step into function), `c` (continue execution until next breakpoint), `q` (quit execution), `p variable` or `pp variable` (print / pretty-print expression), `l` (list source code around current line), `w` (where: print stack trace), and `u`/`d` (up/down stack frames). Debugging with interactive breakpoints allows inspection of live variable state and local frames without littering code with ad-hoc print statements.",
+    "kp": [
+      "Built-in `breakpoint()` drops into interactive pdb session",
+      "Commands: `n` (next), `s` (step in), `c` (continue), `p` (print), `q` (quit)",
+      "Inspect local frame scope, variable values, and call stack (`w`)",
+      "Clean alternative to inserting temporary `print()` statements"
+    ],
+    "cm": [
+      "Leaving `breakpoint()` or `import pdb; pdb.set_trace()` calls in code committed to Git",
+      "Using print debugging exclusively for complex multi-layer bugs",
+      "Forgetting to quit `q` before running automated test suites, hanging CI runners"
+    ],
+    "fu": [
+      "How can you configure the `PYTHONBREAKPOINT` environment variable to disable breakpoints in production?",
+      "How do IDE graphical debuggers (VS Code / PyCharm) interface with Python's debugging hooks?"
+    ],
+    "tags": [
+      "python",
+      "debugging",
+      "pdb",
+      "breakpoint",
+      "troubleshooting"
+    ]
+  },
+  {
+    "q": "What is the difference between synchronous file I/O and asynchronous file I/O in Python?",
+    "sub": "File I/O & Concurrency",
+    "d": "Intermediate",
+    "ans": "Standard Python file operations (`open()`, `read()`, `write()`) are synchronous and blocking: the OS thread waits on physical disk I/O before executing subsequent instructions. While synchronous file I/O is simple and adequate for CLI scripts, executing blocking disk operations inside an asynchronous event loop blocks the entire loop, preventing other concurrent network requests from processing. Asynchronous file libraries like `aiofiles` offload disk I/O to a background threadpool using `asyncio.to_thread()`, allowing the main event loop to continue serving concurrent tasks while disk reads or writes complete.",
+    "kp": [
+      "Standard `open()` is synchronous and blocks the calling thread during disk I/O",
+      "Blocking I/O inside async event loops halts all concurrent network tasks",
+      "`aiofiles` offloads file operations to threadpools to maintain non-blocking concurrency",
+      "Memory-mapped files (`mmap`) provide efficient random access for massive files"
+    ],
+    "cm": [
+      "Using synchronous `open().read()` inside FastAPI async endpoints under heavy traffic",
+      "Forgetting to close file handles when not using `with` context managers",
+      "Loading multi-gigabyte files into a single in-memory string variable"
+    ],
+    "fu": [
+      "How does `mmap` (memory-mapped files) allow reading large files without loading them into RAM?",
+      "Why doesn't the Linux kernel provide fully non-blocking asynchronous disk I/O like epoll does for sockets?"
+    ],
+    "tags": [
+      "python",
+      "file-io",
+      "async",
+      "aiofiles",
+      "concurrency"
+    ]
+  },
+  {
+    "q": "Explain Python's scope resolution rule (LEGB rule) with an illustrative example.",
+    "sub": "Variable Scoping",
+    "d": "Beginner",
+    "ans": "Python resolves variable names using the LEGB rule, searching namespaces in order: 1) Local (L): names defined inside the current function. 2) Enclosing (E): names in the local scope of enclosing/outer functions (closures). 3) Global (G): names defined at the top level of the current module. 4) Built-in (B): pre-assigned built-in names (e.g., `len`, `range`, `print`). If a variable name is not found in any of these four scopes, Python raises a `NameError`. To reassign a global variable inside a local function, use `global var_name`; to reassign a variable from an enclosing outer function, use `nonlocal var_name`.",
+    "kp": [
+      "LEGB search order: Local -> Enclosing -> Global -> Built-in",
+      "NameError raised if variable is not found in any of the four scopes",
+      "`global` keyword binds assignment to module-level scope",
+      "`nonlocal` keyword binds assignment to nearest enclosing function scope"
+    ],
+    "cm": [
+      "Shadowing built-in names (e.g., naming a variable `list = [1, 2]` or `str = 'x'`)",
+      "UnboundLocalError: referencing a global variable locally before assigning to it without `global`",
+      "Confusing enclosing closure scope with global module scope"
+    ],
+    "fu": [
+      "Why does `UnboundLocalError: local variable referenced before assignment` occur?",
+      "How does Python determine if a variable is local at compile time?"
+    ],
+    "tags": [
+      "python",
+      "scoping",
+      "legb",
+      "closures",
+      "namespaces"
+    ]
+  },
+  {
+    "q": "What are metaclasses in Python? When would you use one versus class decorators?",
+    "sub": "Metaprogramming",
+    "d": "Advanced",
+    "ans": "In Python, classes are themselves objects, and their type is a metaclass. By default, the metaclass of all classes is `type`. A metaclass is a class whose instances are classes. Metaclasses define how classes are constructed by intercepting class creation via `__new__(mcs, name, bases, namespace)`. They are used in frameworks (like Django ORM or Pydantic v1) for automatic field registration, API validation, and enforcing architecture constraints. Rule of thumb: class decorators are simpler, more readable, and preferred for modifying classes; metaclasses are reserved when deep inheritance hooks or pre-creation interception is strictly necessary.",
+    "kp": [
+      "Classes are instances of metaclasses; default metaclass is `type`",
+      "Defined by inheriting from `type`: `class Meta(type):`",
+      "Customizes class creation by intercepting `__new__` and `__init__`",
+      "Class decorators are simpler and preferred unless inheritance hooks are required"
+    ],
+    "cm": [
+      "Using metaclasses for simple tasks solvable with class decorators or `__init_subclass__`",
+      "Tim Peters rule: 'If you wonder whether you need them, you don't'",
+      "Introducing incompatible metaclass conflicts in multiple inheritance"
+    ],
+    "fu": [
+      "How does `__init_subclass__` in Python 3.6+ replace many common metaclass use cases?",
+      "How does `type(name, bases, dict)` dynamically create classes at runtime?"
+    ],
+    "tags": [
+      "python",
+      "metaclasses",
+      "metaprogramming",
+      "oop",
+      "advanced"
+    ]
+  },
+  {
+    "q": "How does Python's `hash()` function determine hashability? Why can lists not be hashed?",
+    "sub": "Hashability & Dunder",
+    "d": "Intermediate",
+    "ans": "An object is hashable if it has a hash value that remains constant during its lifetime (implements `__hash__()`) and can be compared to other objects for equality (implements `__eq__()`). Hashable objects are required as dictionary keys and set elements. Mutable containers like lists, dicts, and sets are unhashable because modifying their contents changes their semantic equality; if their hash changed while stored in a hash table bucket, they could never be retrieved. By default, custom class instances are hashable based on their object identity id, but implementing `__eq__` without `__hash__` makes them unhashable.",
+    "kp": [
+      "Hashable objects require invariant hash code across lifetime and `__eq__` comparison",
+      "Lists and dicts are mutable and unhashable, raising `TypeError: unhashable type`",
+      "Dictionary keys and set elements must be hashable for hash table bucket lookups",
+      "Custom classes implementing `__eq__` must explicitly implement `__hash__`"
+    ],
+    "cm": [
+      "Attempting to use a list as a dictionary key instead of a tuple",
+      "Implementing `__eq__` on a custom class without implementing `__hash__`, breaking set inclusion",
+      "Assuming tuples are always hashable (tuples containing lists are unhashable)"
+    ],
+    "fu": [
+      "What happens if two unequal objects produce the same hash value (hash collision)?",
+      "Why does Python randomize hash seeds (`PYTHONHASHSEED`) across process starts?"
+    ],
+    "tags": [
+      "python",
+      "hashability",
+      "hash-table",
+      "dictionaries",
+      "sets"
+    ]
+  },
+  {
+    "q": "What is the difference between string concatenation with `+`, `.join()`, and f-strings?",
+    "sub": "String Performance",
+    "d": "Beginner",
+    "ans": "1) Concatenation with `+`: creates a new string object on every operation; chaining `+` inside a loop takes O(n^2) quadratic time due to repeated memory allocations. 2) `''.join(iterable)`: precalculates total memory length needed for all strings in the iterable and allocates a single destination buffer in C, running in optimal O(n) linear time. 3) f-strings (PEP 498): formatted string literals evaluated at runtime using optimized `BUILD_STRING` bytecode; faster and far more readable than `%` formatting or `.format()`. For joining lists of strings, use `join()`; for template interpolation, use f-strings.",
+    "kp": [
+      "`+` in loops causes quadratic O(n^2) time due to string immutability",
+      "`''.join(iterable)` pre-allocates memory and runs in linear O(n) time",
+      "f-strings provide fast, readable expression interpolation at runtime",
+      "Avoid `%` formatting and `.format()` in modern Python code"
+    ],
+    "cm": [
+      "Accumulating strings inside a loop with `result += chunk`",
+      "Converting non-strings manually before `join()` instead of using generator expressions",
+      "Complex logic expressions inside f-strings that damage readability"
+    ],
+    "fu": [
+      "How does CPython's `BUILD_STRING` bytecode make f-strings faster than `str.format()`?",
+      "Can f-strings execute arbitrary Python expressions inside `{}`?"
+    ],
+    "tags": [
+      "python",
+      "strings",
+      "f-strings",
+      "performance",
+      "join"
+    ]
+  },
+  {
+    "q": "What are weak references in Python, and how does the `weakref` module help prevent memory leaks?",
+    "sub": "Memory Management",
+    "d": "Advanced",
+    "ans": "A weak reference (`weakref` module) allows referencing an object without increasing its reference count (`ob_refcnt`). When the only remaining references to an object are weak references, CPython's garbage collector deallocates the object and frees its memory immediately. Weak references are used to implement in-memory caches, observer patterns, and circular references (like parent-child graph nodes) without causing circular reference leaks. `weakref.ref(obj)` creates a callable weak reference, while `weakref.WeakValueDictionary` automatically removes entries when their values are garbage collected.",
+    "kp": [
+      "Weak references do not increment object reference counts",
+      "Object is deallocated when all strong references are removed",
+      "Prevents memory leaks in parent-child circular relationships and caches",
+      "Provided by `weakref` module (`ref`, `WeakValueDictionary`, `WeakKeyDictionary`)"
+    ],
+    "cm": [
+      "Attempting to create weak references to built-in types (like int or list) without subclassing",
+      "Not checking if the dereferenced weak reference is None before accessing attributes",
+      "Using standard dictionaries for caching without eviction, leaking memory over time"
+    ],
+    "fu": [
+      "What does calling a weak reference object `ref()` return when the target object has been deleted?",
+      "How does `weakref.WeakKeyDictionary` differ from `weakref.WeakValueDictionary`?"
+    ],
+    "tags": [
+      "python",
+      "weakref",
+      "memory-management",
+      "garbage-collection",
+      "caching"
+    ]
+  }
+]

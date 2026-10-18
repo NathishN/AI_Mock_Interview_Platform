@@ -1,0 +1,550 @@
+[
+  {
+    "q": "What is the core difference between mutable and immutable data types in Python? Give examples of each.",
+    "sub": "Data Types & Mutability",
+    "d": "Beginner",
+    "ans": "In Python, mutability defines whether an object's state or contents can be altered in place after creation without changing its memory identity (id). Mutable types allow in-place modification (e.g., list, dict, set, bytearray). Immutable types cannot be altered once created; any modification produces a completely new object in memory (e.g., int, float, str, tuple, frozenset, bool, bytes). For example, appending to a list keeps the same id(my_list), whereas appending to a string creates a new string object with a different id. Understanding this distinction is vital to prevent unintentional side effects when passing objects as function arguments.",
+    "kp": [
+      "Mutable objects can be modified in place with unchanged id()",
+      "Immutable objects create a new memory object on modification",
+      "Mutable examples: list, dict, set; Immutable: int, float, str, tuple",
+      "Function argument side effects differ based on mutability"
+    ],
+    "cm": [
+      "Believing tuples are mutable if they contain lists",
+      "Confusing variable reassignment with in-place mutation",
+      "Using mutable default arguments in functions"
+    ],
+    "fu": [
+      "What happens if an immutable tuple contains a mutable list element?",
+      "How does Python optimize small integers and short strings in memory via interning?"
+    ],
+    "tags": [
+      "python",
+      "mutability",
+      "data-types",
+      "memory"
+    ]
+  },
+  {
+    "q": "Why is using a mutable default argument like `def func(x=[])` considered a dangerous anti-pattern in Python?",
+    "sub": "Functions & Scoping",
+    "d": "Intermediate",
+    "ans": "In Python, default parameter expressions are evaluated once at function definition time (when the module is loaded), not each time the function is invoked. If a mutable object like a list `[]` or dictionary `{}` is used as a default, that single object instance is shared across all subsequent invocations that do not explicitly supply an argument. Calling `func(1)` and then `func(2)` will cause the list to accumulate both values: `[1, 2]`. The idiomatic and safe pattern is to use `None` as the default sentinel and initialize a new container inside the function body: `def func(x=None): if x is None: x = []`.",
+    "kp": [
+      "Default arguments evaluated once at definition time, not call time",
+      "Mutable defaults persist state across function calls",
+      "Can cause severe unintended side effects and bugs",
+      "Safe idiom: use None as default and instantiate inside function body"
+    ],
+    "cm": [
+      "Believing a new list is created on every function invocation",
+      "Using dict or set literals as default arguments",
+      "Relying on shared default state as a hacky cache"
+    ],
+    "fu": [
+      "How can you inspect a function's default arguments using the `__defaults__` attribute?",
+      "Are there any rare cases where mutable defaults are used intentionally?"
+    ],
+    "tags": [
+      "python",
+      "functions",
+      "anti-patterns",
+      "scoping"
+    ]
+  },
+  {
+    "q": "Compare lists, tuples, sets, and dictionaries in Python in terms of ordering, indexing, and lookup complexity.",
+    "sub": "Data Structures",
+    "d": "Beginner",
+    "ans": "Lists and tuples are ordered sequences; lists are mutable with O(1) indexed lookup and O(n) membership search, whereas tuples are immutable with the same complexity but lower memory footprint and hashability. Sets are unordered, mutable collections of unique, hashable elements; they provide average O(1) membership testing and insertion via hash tables. Dictionaries are ordered (since Python 3.7) key-value mappings requiring unique hashable keys; they offer average O(1) key retrieval, insertion, and deletion. Choosing the right structure depends on requirements for order, uniqueness, mutability, and fast search.",
+    "kp": [
+      "List: ordered, mutable, indexed, O(n) search",
+      "Tuple: ordered, immutable, indexed, hashable if items are hashable",
+      "Set: unordered, unique elements, hash-based O(1) lookup",
+      "Dict: key-value pairs, insertion-ordered, hash-based O(1) lookup"
+    ],
+    "cm": [
+      "Using a list for frequent membership checks (`if item in collection`) instead of a set",
+      "Attempting to use unhashable lists as dictionary keys",
+      "Assuming sets maintain element insertion order like lists"
+    ],
+    "fu": [
+      "Why do sets and dicts provide O(1) lookups whereas lists require O(n)?",
+      "What causes hash collisions in Python dictionaries and how does Python resolve them?"
+    ],
+    "tags": [
+      "python",
+      "data-structures",
+      "time-complexity",
+      "hash-table"
+    ]
+  },
+  {
+    "q": "What is the difference between shallow copy and deep copy in Python? How do you implement each?",
+    "sub": "Memory & Copying",
+    "d": "Intermediate",
+    "ans": "A shallow copy creates a new compound object, but populates it with references to the child objects found in the original. Consequently, mutating a nested mutable child inside a shallow copy reflects in the original object. A deep copy, created via `copy.deepcopy()`, recursively clones both the compound object and all child objects it contains, ensuring complete memory isolation. Shallow copies can be created using `copy.copy()`, slicing `[:]`, or constructors `list(orig)`. Deep copies require the `copy` module. Deep copying has higher memory and computational overhead and may encounter recursion limits with circular references.",
+    "kp": [
+      "Shallow copy creates new outer container with shared child references",
+      "Deep copy recursively copies all nested objects for full isolation",
+      "Shallow copy methods: copy.copy(), [:], list() constructor",
+      "Deep copy method: copy.deepcopy()"
+    ],
+    "cm": [
+      "Assuming list.copy() or slicing [:] creates a deep copy of nested lists",
+      "Using deepcopy unnecessarily when shallow copy suffices, wasting CPU/memory",
+      "Not realizing that simple variable assignment (b = a) creates no copy at all"
+    ],
+    "fu": [
+      "What happens when deepcopy encounters a self-referential or cyclic data structure?",
+      "How does the `__deepcopy__` dunder method allow custom copying behavior?"
+    ],
+    "tags": [
+      "python",
+      "shallow-copy",
+      "deep-copy",
+      "memory"
+    ]
+  },
+  {
+    "q": "How does Python handle memory management and garbage collection under the hood?",
+    "sub": "Memory Management",
+    "d": "Advanced",
+    "ans": "CPython manages memory primarily through reference counting supplemented by a generational cyclic garbage collector. Every object contains an internal reference counter (`ob_refcnt`) tracking how many references point to it. When an object's reference count drops to zero, its memory is deallocated immediately. However, reference counting fails on circular references (e.g., Object A references B, and B references A). To reclaim circular references, CPython's cyclic garbage collector (`gc` module) periodically inspects objects divided into three generations (Gen 0, 1, 2). Younger generations are collected more frequently using reachability graph traversal.",
+    "kp": [
+      "Primary mechanism: Reference counting with immediate deallocation at count zero",
+      "Secondary mechanism: Generational cyclic garbage collection (3 generations)",
+      "Circular references resolved via reachability graph traversal",
+      "Python small object allocator (PyMalloc) optimizes allocations <= 512 bytes"
+    ],
+    "cm": [
+      "Believing Python only uses a Java-style mark-and-sweep garbage collector",
+      "Assuming del object immediately frees memory without considering lingering references",
+      "Ignoring memory leaks caused by circular references holding external resources"
+    ],
+    "fu": [
+      "How can you inspect an object's current reference count using `sys.getrefcount()`?",
+      "How does the `weakref` module help prevent cyclic reference memory leaks?"
+    ],
+    "tags": [
+      "python",
+      "garbage-collection",
+      "memory",
+      "cpython",
+      "internals"
+    ]
+  },
+  {
+    "q": "What is the Global Interpreter Lock (GIL) in CPython, and how does it affect multithreading vs multiprocessing?",
+    "sub": "Concurrency & GIL",
+    "d": "Advanced",
+    "ans": "The Global Interpreter Lock (GIL) is a mutex in CPython that restricts execution of Python bytecode to a single OS thread at a time, even on multi-core processors. It protects CPython's memory management and reference counting from race conditions. As a result, standard multithreading (`threading` module) does not achieve CPU parallelism for CPU-bound tasks like mathematical computation or image processing. However, multithreading is highly effective for I/O-bound tasks (network requests, disk I/O, database queries) because threads release the GIL while waiting on I/O. For CPU-bound tasks, multiprocessing (`multiprocessing` module) bypasses the GIL by spawning separate OS processes with dedicated interpreter instances and memory spaces.",
+    "kp": [
+      "GIL ensures only one thread executes Python bytecode at any moment",
+      "Protects CPython reference counting and internal memory state",
+      "Multithreading accelerates I/O-bound tasks by releasing GIL during I/O waits",
+      "Multiprocessing achieves true multi-core CPU parallelism by using separate processes"
+    ],
+    "cm": [
+      "Assuming multithreading will speed up CPU-heavy mathematical loops in Python",
+      "Believing the GIL prevents race conditions in application-level shared data",
+      "Ignoring inter-process communication (IPC) serialization overhead in multiprocessing"
+    ],
+    "fu": [
+      "Why does Python 3.13 introduce experimental free-threaded (no-GIL) Python?",
+      "When would you prefer asyncio over threading for high-concurrency network services?"
+    ],
+    "tags": [
+      "python",
+      "gil",
+      "multithreading",
+      "multiprocessing",
+      "concurrency"
+    ]
+  },
+  {
+    "q": "Explain the difference between an iterable, an iterator, and a generator in Python.",
+    "sub": "Iterators & Generators",
+    "d": "Intermediate",
+    "ans": "An iterable is any object capable of returning its members one at a time; it implements the `__iter__()` method (e.g., list, str, dict). An iterator is a stateful object that produces successive values via the `__next__()` method and raises `StopIteration` when exhausted; it also implements `__iter__()` returning self. A generator is a specialized, concise iterator written either as a function using the `yield` keyword or as a generator expression `(x for x in data)`. When a generator function yields, its execution frame and local variable state are suspended and resumed on subsequent `next()` calls, enabling lazy, memory-efficient streaming of large sequences.",
+    "kp": [
+      "Iterable implements `__iter__()` returning an iterator",
+      "Iterator implements `__next__()` and raises `StopIteration` when done",
+      "Generator functions use `yield` to pause and resume execution",
+      "Lazy evaluation avoids loading entire datasets into memory at once"
+    ],
+    "cm": [
+      "Attempting to call next() directly on a list iterable without calling iter() first",
+      "Thinking generator functions execute completely upon initial call rather than on next()",
+      "Trying to reuse an exhausted iterator or generator"
+    ],
+    "fu": [
+      "What is the memory difference between `[x*2 for x in range(1000000)]` and `(x*2 for x in range(1000000))`?",
+      "How does the `yield from` syntax simplify nested generator delegation?"
+    ],
+    "tags": [
+      "python",
+      "iterators",
+      "generators",
+      "yield",
+      "lazy-evaluation"
+    ]
+  },
+  {
+    "q": "What is a decorator in Python, and how does `functools.wraps` preserve metadata?",
+    "sub": "Decorators",
+    "d": "Intermediate",
+    "ans": "A decorator is a callable that takes another function as an argument, extends or modifies its behavior without modifying its source code, and returns a callable. Decorators are applied using the `@decorator` syntax. Common use cases include logging, authentication, caching, and execution timing. Because the inner wrapper function replaces the original function, metadata such as `__name__`, `__doc__`, and parameter signatures are overwritten by the wrapper. Applying `@functools.wraps(func)` to the inner wrapper copies the original function's attributes, ensuring docstrings, debugging tools, and reflection work correctly.",
+    "kp": [
+      "Decorators wrap functions to extend behavior without modifying source",
+      "Syntax `@dec` is syntactic sugar for `func = dec(func)`",
+      "Decorators take a function, define an inner wrapper, and return the wrapper",
+      "functools.wraps preserves `__name__`, `__doc__`, and signature metadata"
+    ],
+    "cm": [
+      "Forgetting to use @functools.wraps, losing original function docstrings and names",
+      "Forgetting to return the inner wrapper from the outer decorator function",
+      "Not accepting *args and **kwargs in the wrapper, breaking varied argument signatures"
+    ],
+    "fu": [
+      "How do you write a decorator that accepts its own configuration arguments (e.g., `@repeat(num=3)`)?",
+      "In what order are stacked decorators evaluated and executed?"
+    ],
+    "tags": [
+      "python",
+      "decorators",
+      "functools",
+      "meta-programming"
+    ]
+  },
+  {
+    "q": "Explain `*args` and `**kwargs` in Python function definitions and how argument unpacking works.",
+    "sub": "Functions & Arguments",
+    "d": "Beginner",
+    "ans": "`*args` allows a function to accept an arbitrary number of positional arguments as a tuple, while `**kwargs` allows it to accept an arbitrary number of keyword arguments as a dictionary. The identifiers `args` and `kwargs` are conventions; the preceding asterisks `*` and `**` perform the syntactic unpacking. In function definitions, parameter order must be: standard positional parameters, `*args`, keyword-only parameters, and finally `**kwargs`. In function calls, `*iterable` unpacks sequence items into separate positional arguments, and `**dict` unpacks key-value pairs into keyword arguments.",
+    "kp": [
+      "`*args` collects extra positional arguments into a tuple",
+      "`**kwargs` collects extra keyword arguments into a dictionary",
+      "Order: positional -> `*args` -> keyword-only -> `**kwargs`",
+      "Can be used in function calls to unpack iterables and dictionaries"
+    ],
+    "cm": [
+      "Placing positional arguments after `*args` without treating them as keyword-only",
+      "Using `**kwargs` before `*args` in function signatures (causes SyntaxError)",
+      "Thinking the words must strictly be 'args' and 'kwargs' instead of the asterisk prefix"
+    ],
+    "fu": [
+      "What are keyword-only arguments and how do you define them using a bare `*`?",
+      "How can dictionary unpacking `**` be used to merge two dictionaries in Python 3.5+?"
+    ],
+    "tags": [
+      "python",
+      "functions",
+      "args-kwargs",
+      "unpacking"
+    ]
+  },
+  {
+    "q": "How does Object-Oriented Programming in Python implement inheritance, polymorphism, and encapsulation?",
+    "sub": "OOP Fundamentals",
+    "d": "Intermediate",
+    "ans": "Python implements OOP through classes: 1) Inheritance allows a child class to inherit attributes and methods from a parent class using `class Child(Parent):`, with `super()` used to call parent methods. 2) Polymorphism enables different classes to implement methods with the same name, allowing uniform treatment via duck typing ('if it walks like a duck and quacks like a duck, it is a duck'). 3) Encapsulation restricts direct access to internal state through naming conventions: a single leading underscore `_attr` signals a protected attribute (by convention), while a double leading underscore `__attr` triggers name mangling (`_ClassName__attr`) to prevent accidental subclass overrides. Python does not enforce private attributes with hard keywords.",
+    "kp": [
+      "Inheritance via `class Sub(Super):` and `super().__init__()`",
+      "Polymorphism achieved through duck typing and uniform method interfaces",
+      "Encapsulation via naming conventions: `_protected` and `__private` (name mangling)",
+      "No strict private keywords; Python favors the 'consenting adults' philosophy"
+    ],
+    "cm": [
+      "Assuming double underscore `__` provides absolute cryptographic privacy",
+      "Failing to call super().__init__() in derived class constructors",
+      "Overusing deep inheritance hierarchies instead of object composition"
+    ],
+    "fu": [
+      "How does Method Resolution Order (MRO) and the C3 linearization algorithm work in multiple inheritance?",
+      "What is the role of the `@property` decorator in pythonic encapsulation?"
+    ],
+    "tags": [
+      "python",
+      "oop",
+      "inheritance",
+      "polymorphism",
+      "encapsulation"
+    ]
+  },
+  {
+    "q": "What is the difference between `__str__` and `__repr__` in Python? When should you implement each?",
+    "sub": "Dunder Methods",
+    "d": "Intermediate",
+    "ans": "Both are special dunder methods that return string representations of an object. `__repr__` is intended for developers; its goal is to be unambiguous, detailed, and ideally valid Python code that could recreate the object (e.g., `Car(make='Toyota', year=2022)`). It is invoked by `repr()`, interactive shells, and inside container displays. `__str__` is intended for end users; its goal is to be readable, concise, and clean (e.g., `Toyota (2022)`). It is invoked by `str()` and `print()`. If `__str__` is not defined on a class, Python falls back automatically to `__repr__`. Therefore, best practice is to always implement `__repr__` first.",
+    "kp": [
+      "`__repr__`: unambiguous, developer-focused, used by debugger and interactive REPL",
+      "`__str__`: readable, user-friendly, used by print() and str()",
+      "Python falls back to `__repr__` if `__str__` is absent",
+      "Rule of thumb: always define `__repr__` at minimum"
+    ],
+    "cm": [
+      "Defining `__str__` while leaving `__repr__` undefined, causing lists of objects to show default memory pointers",
+      "Returning non-string types from either method, which raises TypeError",
+      "Writing overly long, unreadable repr strings"
+    ],
+    "fu": [
+      "Why does printing a list of custom objects `[obj]` call `__repr__` on each element instead of `__str__`?",
+      "How does the `!r` format specifier work in f-strings like `f'{val!r}'`?"
+    ],
+    "tags": [
+      "python",
+      "dunder-methods",
+      "oop",
+      "debugging"
+    ]
+  },
+  {
+    "q": "How do list comprehensions differ from generator expressions in performance and memory usage?",
+    "sub": "Comprehensions",
+    "d": "Beginner",
+    "ans": "A list comprehension `[expr for item in iterable if condition]` evaluates eagerly, constructing and allocating the entire list in memory immediately. It offers fast iteration speed because bytecode operations are optimized in C, but consumes O(n) memory proportional to the collection size. A generator expression `(expr for item in iterable if condition)` evaluates lazily, producing values on-demand one item at a time via the iterator protocol with O(1) constant memory overhead. Use list comprehensions when you need multiple passes, indexing, or len(); use generator expressions when streaming large data sequences, pipelines, or feeding single-pass reductions like `sum()` or `any()`.",
+    "kp": [
+      "List comprehension: eager evaluation, O(n) memory allocation, fast multiple-pass access",
+      "Generator expression: lazy evaluation, O(1) memory, computes on demand",
+      "Syntax: brackets `[...]` vs parentheses `(...)`",
+      "Generator expressions ideal for streaming and memory-constrained environments"
+    ],
+    "cm": [
+      "Loading multi-gigabyte files into memory using list comprehensions",
+      "Attempting to index or check len() on a generator expression",
+      "Nesting 3+ comprehensions together, destroying code readability"
+    ],
+    "fu": [
+      "Can you write a dictionary comprehension and set comprehension example?",
+      "Why is `sum(x for x in data)` memory-superior to `sum([x for x in data])`?"
+    ],
+    "tags": [
+      "python",
+      "list-comprehension",
+      "generators",
+      "memory-optimization"
+    ]
+  },
+  {
+    "q": "How does Python's `try...except...else...finally` block work? When does the `else` clause execute?",
+    "sub": "Exception Handling",
+    "d": "Beginner",
+    "ans": "Python's exception handling structure has four distinct parts: 1) `try` contains code that may raise an exception. 2) `except` catches and handles specific matching exceptions. 3) `else` runs strictly if the `try` block completed without raising any exceptions; it separates normal follow-up code from code that requires try-catching, preventing accidental handling of unexpected errors. 4) `finally` runs unconditionally before exiting the construct, regardless of whether exceptions were raised, caught, or unhandled—even if return statements occur inside try or except blocks. `finally` is used for guaranteed resource cleanup (closing files, releasing locks).",
+    "kp": [
+      "`try`: wraps risky code",
+      "`except`: catches specific exception types (never bare except)",
+      "`else`: executes only if try succeeded with zero exceptions",
+      "`finally`: executes guaranteed cleanup under all circumstances"
+    ],
+    "cm": [
+      "Using bare `except:` or `except Exception:` blindly, hiding syntax and interrupt errors",
+      "Placing all code inside `try` instead of using `else` for code that shouldn't throw",
+      "Assuming `finally` can be skipped by putting a `return` in `try`"
+    ],
+    "fu": [
+      "What happens if both `try` and `finally` contain `return` statements?",
+      "Why is catching `BaseException` directly strongly discouraged?"
+    ],
+    "tags": [
+      "python",
+      "exception-handling",
+      "control-flow",
+      "error-handling"
+    ]
+  },
+  {
+    "q": "What are context managers in Python? How does the `with` statement work and how do you write a custom one?",
+    "sub": "Context Managers",
+    "d": "Intermediate",
+    "ans": "Context managers govern runtime context for code blocks, ensuring deterministic acquisition and release of resources (e.g., file descriptors, database connections, locks). The `with` statement triggers the context management protocol: it calls `__enter__()` before the block executes and guarantees `__exit__(exc_type, exc_val, exc_tb)` is called when leaving the block, even if an exception occurs. To build a custom context manager, you can implement a class with `__enter__` and `__exit__`, or write a generator function decorated with `@contextlib.contextmanager`, placing setup before `yield` and teardown in a `finally` block.",
+    "kp": [
+      "Deterministic resource cleanup via `__enter__` and `__exit__` protocol",
+      "`with` statement eliminates manual try-finally cleanup blocks",
+      "Custom creation via class protocol or `@contextlib.contextmanager` decorator",
+      "`__exit__` receives exception details and can suppress errors by returning True"
+    ],
+    "cm": [
+      "Forgetting to close opened file handles when avoiding `with` blocks",
+      "Not placing teardown logic inside `finally` when using `@contextmanager`",
+      "Accidentally suppressing all exceptions by returning a truthy value in `__exit__`"
+    ],
+    "fu": [
+      "How does `__exit__` suppress an exception versus letting it propagate upward?",
+      "What is `contextlib.ExitStack` and when is it useful for managing dynamic resources?"
+    ],
+    "tags": [
+      "python",
+      "context-manager",
+      "with-statement",
+      "resource-management"
+    ]
+  },
+  {
+    "q": "What is the difference between `is` and `==` in Python? Give an example where they produce different results.",
+    "sub": "Operators & Identity",
+    "d": "Beginner",
+    "ans": "`==` checks for equality of value (whether two objects hold equivalent contents according to `__eq__`), whereas `is` checks for identity of memory (whether both variables point to the exact same memory address according to `id(a) == id(b)`). For instance, two independently created lists `a = [1, 2, 3]` and `b = [1, 2, 3]` evaluate `a == b` as `True` (same values), but `a is b` as `False` (distinct memory allocations). Conversely, `c = a` makes `c is a` evaluate to `True`. The `is` operator should primarily be reserved for singleton checks, most notably `if val is None:`.",
+    "kp": [
+      "`==` compares value / state equality via `__eq__`",
+      "`is` compares memory identity / object reference via `id()`",
+      "Two distinct objects can be equal in value (`==`) but not identical (`is`)",
+      "Always use `is None` or `is not None` for checking singleton None"
+    ],
+    "cm": [
+      "Using `if val == None` instead of idiomatic `if val is None`",
+      "Relying on `is` for integers or strings due to accidental Python interning behavior",
+      "Assuming identical values guarantee identical object memory locations"
+    ],
+    "fu": [
+      "Why does `x = 256; y = 256; x is y` evaluate to True, but `x = 257; y = 257; x is y` may evaluate to False?",
+      "What is integer interning and string interning in CPython?"
+    ],
+    "tags": [
+      "python",
+      "identity",
+      "equality",
+      "operators"
+    ]
+  },
+  {
+    "q": "What is the difference between a function and a method in Python? What does `self` represent?",
+    "sub": "OOP & Functions",
+    "d": "Beginner",
+    "ans": "A function is an independent, callable block of code defined using `def` outside of a class; it takes explicit arguments and lives in a module namespace. A method is a function defined inside a class body that is bound to an object instance (or class). When an instance method is called via `obj.method()`, Python's descriptor protocol automatically passes the object instance as the first argument, conventionally named `self`. `self` is not a language keyword, but an explicit parameter name representing the current object instance, allowing methods to read and modify the instance's attributes.",
+    "kp": [
+      "Function: standalone callable defined in a module scope",
+      "Method: callable bound to a class or instance via descriptor protocol",
+      "`self`: explicit reference to the current instance object passed as first parameter",
+      "Self allows instance-specific attribute access and method dispatch"
+    ],
+    "cm": [
+      "Forgetting `self` in instance method definitions, causing TypeError when called",
+      "Thinking `self` is a reserved language keyword like `this` in Java/C++",
+      "Confusing instance methods, `@classmethod` (`cls`), and `@staticmethod`"
+    ],
+    "fu": [
+      "What is the difference between `@classmethod` and `@staticmethod`?",
+      "How does Python's descriptor protocol transform a function into a bound method?"
+    ],
+    "tags": [
+      "python",
+      "oop",
+      "methods",
+      "functions",
+      "self"
+    ]
+  },
+  {
+    "q": "What are lambda functions in Python? What are their limitations and idiomatic use cases?",
+    "sub": "Lambda Functions",
+    "d": "Beginner",
+    "ans": "Lambda functions in Python are small, anonymous, single-expression functions created using the syntax `lambda arguments: expression`. They implicitly return the value of their single expression without an explicit `return` keyword. Idiomatic use cases include short, throwaway callback functions, such as sorting keys: `sorted(users, key=lambda u: u['age'])` or functional transformations with `map()` and `filter()`. Limitations: they can only contain a single expression (no statements, loops, assignments, or docstrings allowed). If a lambda requires assignment to a variable or multi-line logic, defining a standard named function with `def` is preferred for readability and better traceback debugging.",
+    "kp": [
+      "Syntax: `lambda args: expression` with implicit return",
+      "Anonymous and defined inline without a name identifier",
+      "Strictly limited to a single expression (no statements or loops)",
+      "Idiomatic for sorting keys and simple functional arguments"
+    ],
+    "cm": [
+      "Assigning lambdas to variable names (`f = lambda x: x*2`) instead of writing a standard def",
+      "Cramming complex ternary logic into lambdas, making code unreadable",
+      "Using lambdas when standard built-in functions (like `str.lower` or `operator.itemgetter`) suffice"
+    ],
+    "fu": [
+      "How does `operator.itemgetter('key')` provide a faster alternative to `lambda d: d['key']`?",
+      "Why do tracebacks with lambda functions make debugging harder in production?"
+    ],
+    "tags": [
+      "python",
+      "lambda",
+      "functional-programming",
+      "sorting"
+    ]
+  },
+  {
+    "q": "How do you achieve method overriding and multiple inheritance in Python? What is MRO?",
+    "sub": "Inheritance & MRO",
+    "d": "Intermediate",
+    "ans": "Method overriding occurs when a subclass defines a method with the same signature as its superclass, replacing the parent implementation. The subclass can extend the parent method by calling `super().method_name(*args)`. Multiple inheritance allows a class to inherit from multiple parents: `class Sub(ParentA, ParentB):`. To resolve which parent method executes when names collide (the 'Diamond Problem'), Python uses Method Resolution Order (MRO) computed via the C3 Linearization algorithm. MRO enforces monotonicity and respects subclass-before-parent ordering. You can inspect a class's MRO using `Class.mro()` or `Class.__mro__`.",
+    "kp": [
+      "Method overriding replaces parent method; `super()` calls parent implementation",
+      "Multiple inheritance allows classes to inherit from multiple base classes",
+      "Diamond problem resolved deterministically using C3 Linearization algorithm",
+      "MRO inspectable via `Class.mro()`"
+    ],
+    "cm": [
+      "Hardcoding parent class names `Parent.__init__(self)` instead of using cooperative `super()`",
+      "Creating contradictory inheritance hierarchies that cause MRO TypeError",
+      "Deep multi-inheritance hierarchies that introduce fragile base class problems"
+    ],
+    "fu": [
+      "What is cooperative multiple inheritance and why does `super()` depend on it?",
+      "What algorithm does Python use to compute MRO?"
+    ],
+    "tags": [
+      "python",
+      "inheritance",
+      "mro",
+      "oop",
+      "c3-linearization"
+    ]
+  },
+  {
+    "q": "Explain Python's duck typing philosophy and how `collections.abc` / Protocols formalize interfaces.",
+    "sub": "Duck Typing & Protocols",
+    "d": "Intermediate",
+    "ans": "Duck typing is Python's dynamic typing philosophy: an object's suitability is determined by the presence of specific methods and properties, rather than its explicit class inheritance hierarchy ('if it walks like a duck and quacks like a duck, it is a duck'). For example, any object implementing `__len__` and `__getitem__` behaves as a sequence. To formalize interfaces without rigid inheritance, Python provides `collections.abc` (Abstract Base Classes) for runtime checks (`isinstance(x, Iterable)`) and `typing.Protocol` (PEP 544) for static duck typing, enabling mypy and IDEs to verify structural subtyping without explicit subclassing.",
+    "kp": [
+      "Duck typing evaluates capabilities/methods rather than nominal class type",
+      "Promotes flexible, decoupled APIs that accept any compatible object",
+      "`collections.abc` provides abstract base classes for standard container protocols",
+      "`typing.Protocol` enables static structural subtyping (compile-time duck typing)"
+    ],
+    "cm": [
+      "Strictly checking `type(x) == list` instead of accepting general iterables",
+      "Over-engineering complex class hierarchies when simple duck typing suffices",
+      "Ignoring runtime AttributeError when expected duck-typed methods are absent"
+    ],
+    "fu": [
+      "What is the difference between nominal subtyping and structural subtyping?",
+      "How does `abc.ABCMeta` register virtual subclasses without inheritance?"
+    ],
+    "tags": [
+      "python",
+      "duck-typing",
+      "interfaces",
+      "typing",
+      "protocols"
+    ]
+  },
+  {
+    "q": "How do you profile Python code to identify execution bottlenecks, and how do you optimize them?",
+    "sub": "Profiling & Optimization",
+    "d": "Intermediate",
+    "ans": "Profiling identifies where a program spends CPU time or memory. Standard profiling tools include `cProfile` (built-in deterministic C extension), `timeit` for micro-benchmarking snippets, and `memory_profiler` for tracking RAM usage per line. Running `python -m cProfile -s tottime script.py` pinpoints functions consuming the highest cumulative time. Optimization techniques follow an order of impact: 1) Algorithm and data structure improvements (e.g., O(n) to O(1) via set/dict), 2) Built-in C functions (map, list comprehensions, itertools), 3) Caching via `@functools.lru_cache`, and 4) JIT compilers (PyPy) or vectorization (NumPy) for intensive numeric code.",
+    "kp": [
+      "Use `cProfile` to measure function call counts and cumulative execution time",
+      "Use `timeit` for accurate micro-benchmarks",
+      "Prioritize algorithmic complexity improvements over micro-optimizations",
+      "Leverage built-in C-optimized functions, sets, and `@lru_cache`"
+    ],
+    "cm": [
+      "Guessing bottlenecks without empirical profiling measurements",
+      "Optimizing code that accounts for less than 1% of total runtime",
+      "Sacrificing readability for negligible micro-optimizations"
+    ],
+    "fu": [
+      "What is the difference between `tottime` and `cumtime` in cProfile output?",
+      "How does `@functools.lru_cache` optimize recursive functions like Fibonacci?"
+    ],
+    "tags": [
+      "python",
+      "profiling",
+      "cprofile",
+      "optimization",
+      "performance"
+    ]
+  }
+]

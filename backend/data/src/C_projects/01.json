@@ -1,0 +1,542 @@
+[
+  {
+    "q": "Walk me through the best technical project on your resume from problem to deployment.",
+    "sub": "Project Walkthrough",
+    "d": "Intermediate",
+    "ans": "Interviewer is assessing: full lifecycle ownership, clarity, and architectural awareness. Structure your answer in four distinct phases: the core problem and why it mattered, your high-level architecture and technology stack, your specific implementation contributions, and the final deployment and verifiable results. Avoid getting lost in minor syntax details. Illustrative example (replace with your actual project details): 'For my project [Project Name], the problem was [Problem Statement]. I designed an architecture comprising [Frontend/Backend/Database/Model]. My primary contribution was [Specific Feature/Module], and we deployed it using [Docker/Cloud/Vercel], resulting in [Measurable Metric or User Outcome].'",
+    "kp": [
+      "Clear problem statement and motivation",
+      "Architectural overview without jargon",
+      "Precise individual contribution",
+      "Deployment strategy and measurable outcome"
+    ],
+    "cm": [
+      "Listing technologies without explaining why they were chosen",
+      "Using 'we' without clarifying your personal role",
+      "Focusing on UI only while ignoring backend/architecture",
+      "No measurable outcome or testing mentioned"
+    ],
+    "fu": [
+      "What was the most difficult architectural decision you had to make?",
+      "How did you measure that the project actually solved the user problem?"
+    ],
+    "tags": [
+      "project-walkthrough",
+      "architecture",
+      "resume",
+      "fresher"
+    ]
+  },
+  {
+    "q": "What was the core problem your final-year capstone project aimed to solve, and who was the intended user?",
+    "sub": "Problem Statement",
+    "d": "Beginner",
+    "ans": "Interviewer is assessing: problem-solving mindset, empathy for end-users, and product thinking. Clearly state who the target users were, the exact pain point they experienced, why existing solutions were inadequate, and how your project addressed that gap. Show that you built something for a real purpose, not just for academic marks. Illustrative example (replace with your actual project details): 'The intended users were [Target Users], who struggled with [Specific Pain Point]. Existing tools were either [Limitation 1] or [Limitation 2]. Our application addressed this by [Core Value Proposition], which allowed users to [Key Benefit].'",
+    "kp": [
+      "Specific target audience identified",
+      "Clear pain point articulated",
+      "Comparison with existing alternatives",
+      "Direct link between problem and technical features"
+    ],
+    "cm": [
+      "Vague target audience like 'everyone'",
+      "Describing features before explaining the problem",
+      "Building a clone without explaining any unique value or purpose"
+    ],
+    "fu": [
+      "Did you validate this problem with any real users before building?",
+      "If you commercialized this today, what would be your biggest challenge?"
+    ],
+    "tags": [
+      "problem-statement",
+      "product-thinking",
+      "capstone",
+      "fresher"
+    ]
+  },
+  {
+    "q": "Why did you choose your specific technology stack for your main project over popular alternatives?",
+    "sub": "Technology Choices",
+    "d": "Intermediate",
+    "ans": "Interviewer is assessing: engineering trade-off analysis and technical decision-making. Explain the criteria that guided your choice—such as development speed, library ecosystem, performance, scalability, or learning curve. Contrast your chosen stack with at least one viable alternative and justify why your choice was the most suitable for the project's constraints. Illustrative example (replace with your actual project details): 'We selected FastAPI over Django because our application was primarily API-driven with asynchronous I/O requirements for machine learning inferences. While Django provides an out-of-the-box admin panel, FastAPI gave us native async support, automatic OpenAPI documentation, and minimal overhead.'",
+    "kp": [
+      "Comparison against viable alternatives",
+      "Objective criteria: speed, async, libraries, constraints",
+      "Understanding of chosen stack's strengths and weaknesses",
+      "No blind adherence to hype"
+    ],
+    "cm": [
+      "Saying 'I chose it because it is popular' or 'it was the only one I knew'",
+      "Not acknowledging trade-offs or weaknesses of the stack",
+      "Attacking alternative technologies unfairly"
+    ],
+    "fu": [
+      "If you had to scale this application 10x, where would this stack bottle-neck first?",
+      "What would make you choose the alternative framework on your next project?"
+    ],
+    "tags": [
+      "tech-stack",
+      "trade-offs",
+      "architecture",
+      "engineering-decisions"
+    ]
+  },
+  {
+    "q": "What was your exact individual contribution in your team project, and how did you collaborate with teammates?",
+    "sub": "Personal Contribution",
+    "d": "Beginner",
+    "ans": "Interviewer is assessing: honesty, accountability, and team collaboration. Explicitly delineate what modules, APIs, or database schemas you personally designed and wrote versus what your teammates handled. Mention how you managed version control, code reviews, task tracking, and interface contracts. Illustrative example (replace with your actual project details): 'Our team had four members. I took complete ownership of the authentication subsystem, the PostgreSQL database schema design, and the RESTful endpoints for order processing. We used Git feature branches, conducted peer pull request reviews, and documented API contracts in Swagger so the frontend team could develop concurrently.'",
+    "kp": [
+      "Exact boundaries of personal contribution",
+      "Ownership of specific modules and codebases",
+      "Collaboration tools: Git, branches, PRs, API contracts",
+      "Support provided to unblock teammates"
+    ],
+    "cm": [
+      "Taking 100% credit for a multi-member project",
+      "Using vague phrases like 'I contributed to everything'",
+      "Blaming teammates for delays or weak areas"
+    ],
+    "fu": [
+      "What happened when your backend contracts changed unexpectedly for the frontend?",
+      "Which part of your teammate's code did you review most critically?"
+    ],
+    "tags": [
+      "teamwork",
+      "ownership",
+      "git",
+      "collaboration"
+    ]
+  },
+  {
+    "q": "What was the single most difficult technical bug or challenge you encountered in your project, and how did you debug it?",
+    "sub": "Technical Challenges",
+    "d": "Intermediate",
+    "ans": "Interviewer is assessing: systematic debugging, resilience, and root-cause analysis. Use a structured explanation: describe the unexpected symptom, the hypotheses you formed, the diagnostic tools or logging you used to isolate the issue, the root cause discovered, and the permanent fix applied. Illustrative example (replace with your actual project details): 'While integrating our payment gateway, webhooks intermittently failed with 400 Bad Request errors. I initially suspected network latency. By inspecting raw HTTP payloads and server logs, I discovered that our request body parser was mutating JSON keys before cryptographic signature verification. Rewriting the webhook handler to inspect raw byte streams resolved the bug completely.'",
+    "kp": [
+      "Clear distinction between symptom and root cause",
+      "Methodical hypothesis-driven debugging process",
+      "Use of logs, debuggers, or network inspect tools",
+      "Permanent preventive solution implemented"
+    ],
+    "cm": [
+      "Describing a superficial syntax error as a major challenge",
+      "Saying 'I Googled it and copied from Stack Overflow' without understanding",
+      "Unable to explain why the bug occurred"
+    ],
+    "fu": [
+      "How did you prevent similar regressions in future builds?",
+      "Did you write an automated test to capture this edge case?"
+    ],
+    "tags": [
+      "debugging",
+      "problem-solving",
+      "troubleshooting",
+      "resilience"
+    ]
+  },
+  {
+    "q": "How did you test your application to ensure it was reliable and free of major edge-case bugs?",
+    "sub": "Testing & Validation",
+    "d": "Intermediate",
+    "ans": "Interviewer is assessing: software engineering maturity and automated quality assurance. Discuss the levels of testing you employed: unit tests for core business logic, integration tests for API endpoints and database operations, and manual user testing for edge cases. Mention testing frameworks, mock fixtures, and validation tools used. Illustrative example (replace with your actual project details): 'I wrote unit tests using pytest for our scoring calculation engine and integration tests using FastAPI TestClient with an in-memory SQLite database. We tested edge cases such as empty input payloads, invalid JWT tokens, and concurrent requests. This caught an off-by-one pagination bug before demo day.'",
+    "kp": [
+      "Multi-tier testing: unit, integration, edge cases",
+      "Use of standard testing frameworks (pytest, Jest, JUnit)",
+      "Mocking external services and database isolation",
+      "Edge cases specifically tested"
+    ],
+    "cm": [
+      "Saying 'we tested manually in the browser by clicking around'",
+      "Not knowing what a unit test or mock fixture is",
+      "Claiming 100% test coverage without realistic evidence"
+    ],
+    "fu": [
+      "How did you test external third-party API dependencies without making live calls?",
+      "What was the most subtle edge case that slipped past your initial test suite?"
+    ],
+    "tags": [
+      "testing",
+      "qa",
+      "pytest",
+      "unit-tests"
+    ]
+  },
+  {
+    "q": "Did you measure the performance of your system, and what steps did you take to optimize it?",
+    "sub": "Performance Improvement",
+    "d": "Intermediate",
+    "ans": "Interviewer is assessing: profiling skills, latency awareness, and optimization principles. Share your baseline measurements, identify where the bottleneck lay (e.g., N+1 database queries, unindexed lookups, synchronous blocking calls, large payload sizes), and explain the exact optimization applied and the verified improvement. Illustrative example (replace with your actual project details): 'Our dashboard endpoint initially took 1.4 seconds to load when querying 10,000 records. Profiling revealed an N+1 query pattern where user details were fetched inside a loop. By rewriting the query using SQLAlchemy joinedload and adding a composite index on (user_id, created_at), response latency dropped to 180ms.'",
+    "kp": [
+      "Baseline latency or throughput measurement",
+      "Profiling to locate the exact bottleneck",
+      "Database indexing, query optimization, or caching applied",
+      "Measurable percentage or millisecond improvement"
+    ],
+    "cm": [
+      "Premature optimization without measurement",
+      "Generic claims like 'I made the code faster' with zero numbers",
+      "Confusing frontend rendering speed with backend response latency"
+    ],
+    "fu": [
+      "What trade-offs did your optimization introduce, such as increased memory or write overhead?",
+      "How would you monitor performance degradations in production?"
+    ],
+    "tags": [
+      "performance",
+      "optimization",
+      "profiling",
+      "database-indexing"
+    ]
+  },
+  {
+    "q": "How did you handle security, authentication, and user data privacy in your application?",
+    "sub": "Security & Privacy",
+    "d": "Intermediate",
+    "ans": "Interviewer is assessing: security awareness, OWASP familiarity, and responsible data handling. Discuss how you implemented password hashing (e.g., bcrypt), stateless token authentication (JWT with expiration and signature verification), CORS policies, SQL injection prevention via ORMs, and secure storage of environment secrets. Illustrative example (replace with your actual project details): 'We secured credentials using bcrypt with salt rounds of 12 and generated short-lived JWT access tokens alongside HTTP-only refresh tokens. We strictly sanitized inputs via Pydantic schemas to prevent injection attacks, configured CORS headers to restrict browser origins, and stored API keys in .env files ignored by version control.'",
+    "kp": [
+      "Password hashing (bcrypt/argon2, never plain text)",
+      "Token lifecycle (JWT, expiry, refresh tokens)",
+      "Input validation to prevent SQLi and XSS",
+      "Environment secrets management"
+    ],
+    "cm": [
+      "Storing plain text passwords or hardcoding API keys in GitHub",
+      "Not knowing how JWT tokens are signed or verified",
+      "Assuming HTTPS solves all application-layer security vulnerabilities"
+    ],
+    "fu": [
+      "How would you handle token invalidation if a user logs out before the JWT expires?",
+      "What precautions did you take against Cross-Site Scripting (XSS) on the frontend?"
+    ],
+    "tags": [
+      "security",
+      "jwt",
+      "authentication",
+      "owasp"
+    ]
+  },
+  {
+    "q": "How did you deploy your application, and what was your deployment architecture?",
+    "sub": "Deployment",
+    "d": "Intermediate",
+    "ans": "Interviewer is assessing: DevOps familiarity, containerization, and production mindset. Detail the deployment environment (e.g., Docker container, cloud VM, Render, AWS EC2, or Vercel), how the frontend and backend communicate, reverse proxy configuration (Nginx), and database hosting. Mention CI/CD pipelines if applicable. Illustrative example (replace with your actual project details): 'We containerized the FastAPI backend using a multi-stage Dockerfile to minimize image size. The frontend was built and deployed to Vercel, while the backend and PostgreSQL database ran via Docker Compose on an AWS EC2 t3.micro instance. We configured an Nginx reverse proxy with SSL termination via Let\\'s Encrypt.'",
+    "kp": [
+      "Containerization using Docker",
+      "Hosting platform and architecture components",
+      "Reverse proxy and SSL setup",
+      "Environment configuration and CI/CD basics"
+    ],
+    "cm": [
+      "Saying 'it runs on localhost:3000'",
+      "Not knowing the difference between development server and production server",
+      "Unable to explain how the frontend connects to backend in production"
+    ],
+    "fu": [
+      "How did you manage environment variables and secrets during deployment?",
+      "What happens to persistent database data when the Docker container restarts?"
+    ],
+    "tags": [
+      "deployment",
+      "docker",
+      "devops",
+      "cloud"
+    ]
+  },
+  {
+    "q": "Walk me through the database schema you designed for your project. How did you normalize it?",
+    "sub": "Database Design",
+    "d": "Intermediate",
+    "ans": "Interviewer is assessing: data modeling, entity relationships, and normalization knowledge. Explain your core entities, primary and foreign key relationships (one-to-many, many-to-many), normalization level (3NF), and why any deliberate denormalization was introduced. Illustrative example (replace with your actual project details): 'Our database modeled Users, Projects, and Evaluations. A User has many Projects, while each Project has multiple Turn evaluations. We normalized entities to 3rd Normal Form to eliminate redundancy, using junction tables with composite keys for many-to-many tag associations. Foreign keys enforced cascading deletions to prevent orphaned records.'",
+    "kp": [
+      "Key entities and their relationships (1:1, 1:N, N:M)",
+      "Normalization rationale (1NF, 2NF, 3NF)",
+      "Primary keys, foreign keys, and referential integrity",
+      "Judicious use of indexing or JSONB for unstructured fields"
+    ],
+    "cm": [
+      "Putting all data in a single massive flat table",
+      "Not knowing what 3NF or referential integrity means",
+      "Forgetting foreign keys and index constraints"
+    ],
+    "fu": [
+      "Why did you choose a relational SQL database over MongoDB or NoSQL?",
+      "How did you handle database schema migrations across deployments?"
+    ],
+    "tags": [
+      "database-design",
+      "sql",
+      "normalization",
+      "schema"
+    ]
+  },
+  {
+    "q": "How did you design your REST API endpoints? What conventions and status codes did you follow?",
+    "sub": "API Design",
+    "d": "Beginner",
+    "ans": "Interviewer is assessing: RESTful principles, HTTP protocol knowledge, and API contract clarity. Explain how you named resources hierarchically using plural nouns, mapped HTTP verbs (GET, POST, PUT, DELETE, PATCH) to CRUD operations, and returned appropriate HTTP status codes (200, 201, 204, 400, 401, 404, 422, 500) with uniform error payload structures. Illustrative example (replace with your actual project details): 'I designed our APIs following REST conventions, using plural resource nouns such as /api/v1/sessions and /api/v1/sessions/{id}/turns. We returned 201 Created on resource insertion with the created record, 204 No Content on soft delete, and 422 Unprocessable Entity for schema validation failures with detailed field-level error messages.'",
+    "kp": [
+      "Plural noun naming conventions (/users, /orders)",
+      "Correct HTTP verb usage (GET, POST, PUT, DELETE)",
+      "Accurate HTTP status codes (200, 201, 400, 401, 404, 422)",
+      "Consistent JSON response and error contracts"
+    ],
+    "cm": [
+      "Using verbs in endpoint paths like /getUsers or /deleteOrder",
+      "Returning 200 OK for errors with a message {status: 'error'}",
+      "Ignoring pagination on endpoints returning lists"
+    ],
+    "fu": [
+      "What is the difference between PUT and PATCH in your API design?",
+      "How did you implement pagination and filtering on list endpoints?"
+    ],
+    "tags": [
+      "api-design",
+      "rest",
+      "http",
+      "backend"
+    ]
+  },
+  {
+    "q": "What are the biggest limitations of your project in its current state?",
+    "sub": "Limitations",
+    "d": "Intermediate",
+    "ans": "Interviewer is assessing: critical self-awareness, technical honesty, and engineering maturity. Every real project has trade-offs and boundaries. State two or three genuine limitations—such as concurrency constraints, lack of caching, dependency on a single model provider, or simplified business rules—without diminishing your actual accomplishment. Illustrative example (replace with your actual project details): 'The primary limitation currently is scalability during traffic spikes: because we generate AI evaluations synchronously without a task queue, simultaneous users experience increased queueing latency. Additionally, our session state relies entirely on PostgreSQL queries without a Redis caching layer for rapid read retrieval.'",
+    "kp": [
+      "Honest, well-understood limitations",
+      "Rooted in architecture rather than superficial complaints",
+      "Shows awareness of production scale realities",
+      "Demonstrates technical self-awareness"
+    ],
+    "cm": [
+      "Claiming 'there are no limitations; it works perfectly'",
+      "Naming fatal flaws that suggest complete carelessness",
+      "Being overly apologetic or defensive"
+    ],
+    "fu": [
+      "If you had one more sprint, which of these limitations would you solve first?",
+      "How would you re-architect the system to eliminate that bottleneck?"
+    ],
+    "tags": [
+      "limitations",
+      "self-awareness",
+      "architecture",
+      "trade-offs"
+    ]
+  },
+  {
+    "q": "What major trade-offs did you make during project development, and why did you choose that path?",
+    "sub": "Trade-offs",
+    "d": "Intermediate",
+    "ans": "Interviewer is assessing: engineering pragmatism and decision-making under constraints. Software development requires balancing speed vs perfection, simplicity vs flexibility, and consistency vs latency. Explain a specific trade-off you faced, the two competing options, and why you settled on your decision. Illustrative example (replace with your actual project details): 'We traded off real-time WebSockets communication for HTTP polling in our first version. While WebSockets offer lower latency, standard REST endpoints simplified session reconnection, error retry handling, and load balancer setup, allowing us to ship a reliable MVP three weeks ahead of demo day.'",
+    "kp": [
+      "Identification of competing engineering priorities",
+      "Clear rationale for the chosen path",
+      "Awareness of what was sacrificed",
+      "Pragmatism aligned with project deadlines"
+    ],
+    "cm": [
+      "Saying there were no trade-offs",
+      "Choosing complex solutions just for resume buzzwords",
+      "Failing to explain why the alternative was rejected"
+    ],
+    "fu": [
+      "At what user volume would that trade-off no longer be acceptable?",
+      "Would you make the exact same choice in hindsight?"
+    ],
+    "tags": [
+      "trade-offs",
+      "engineering-decisions",
+      "architecture"
+    ]
+  },
+  {
+    "q": "If you had two more months to work on this project, what would you add or re-architect?",
+    "sub": "Future Improvements",
+    "d": "Intermediate",
+    "ans": "Interviewer is assessing: vision, technical ambition, and ongoing interest in the project. Outline a prioritized roadmap covering architecture improvements, new capabilities, and operational robustness (such as monitoring, automated CI/CD, or asynchronous processing). Illustrative example (replace with your actual project details): 'First, I would introduce Celery with Redis for asynchronous background evaluation to unblock the main web workers. Second, I would implement OpenTelemetry for request tracing and latency observability. Third, I would add a fine-tuned lightweight model on self-hosted vLLM to cut Groq inference costs for standard rubrics.'",
+    "kp": [
+      "Prioritized roadmap (architecture, features, observability)",
+      "Specific modern technologies mentioned with clear purpose",
+      "Focus on scalability, user experience, and cost",
+      "Shows genuine excitement about the engineering domain"
+    ],
+    "cm": [
+      "Saying 'I don't know, it's done for college'",
+      "Listing superficial UI color changes as top priority",
+      "Suggesting random unrelated hype technologies"
+    ],
+    "fu": [
+      "How would you prioritize between adding new features versus refactoring the backend?",
+      "What would be the estimated complexity of adding that asynchronous queue?"
+    ],
+    "tags": [
+      "future-improvements",
+      "roadmap",
+      "architecture",
+      "vision"
+    ]
+  },
+  {
+    "q": "Tell me about a feature in your project that failed or had to be scrapped completely. What happened?",
+    "sub": "Project Failure",
+    "d": "Intermediate",
+    "ans": "Interviewer is assessing: adaptability, humility, and ability to pivot when data contradicts assumptions. Describe what feature you attempted, the technical or user problem that made it unviable, how you recognized the failure early, and what you replaced it with or learned from it. Illustrative example (replace with your actual project details): 'We initially attempted to run a local 7B parameter open-source LLM directly on our free-tier cloud instance for real-time interview evaluation. The instance quickly suffered out-of-memory crashes, and response latency exceeded 45 seconds. Recognizing this unviability, we pivoted to Groq\\'s hosted API, reducing latency to 800ms while maintaining zero infrastructure costs within tier limits.'",
+    "kp": [
+      "Objective description of the failed initiative",
+      "Data-driven recognition of failure",
+      "Decisive pivot to an effective alternative",
+      "Mature reflection on the engineering lesson"
+    ],
+    "cm": [
+      "Claiming that nothing ever failed",
+      "Blaming cloud providers or teammates for the failure",
+      "Dwelling on frustration rather than the solution"
+    ],
+    "fu": [
+      "What early warning signs did you overlook before building that feature?",
+      "How has this experience changed how you evaluate third-party tools today?"
+    ],
+    "tags": [
+      "failure",
+      "pivot",
+      "learning",
+      "adaptability"
+    ]
+  },
+  {
+    "q": "How did you explain your technical project to non-technical stakeholders, professors, or business judges?",
+    "sub": "Communication",
+    "d": "Beginner",
+    "ans": "Interviewer is assessing: verbal clarity, audience adaptation, and ability to translate tech to business value. Explain how you avoided acronyms and low-level code details, grounded the explanation in the real-world problem and user workflow, used intuitive analogies, and highlighted business outcomes or time saved. Illustrative example (replace with your actual project details): 'When presenting to department evaluators who were unfamiliar with vector embeddings, I used the analogy of a smart library indexing system that finds books based on meaning rather than exact word matching. I focused on the practical problem—students failing HR interviews due to lack of feedback—and demonstrated the step-by-step user journey before showing the architecture diagram.'",
+    "kp": [
+      "Translating technical jargon into relatable analogies",
+      "Focusing on user value and real-world outcomes",
+      "Interactive demonstration over dry slides",
+      "Empathy for the non-technical listener"
+    ],
+    "cm": [
+      "Using dense jargon without explanation",
+      "Assuming non-technical stakeholders only care about UI colors",
+      "Becoming frustrated when asked simple questions"
+    ],
+    "fu": [
+      "How did you verify that the evaluator actually understood your concept?",
+      "If a business manager asked 'why not just use ChatGPT directly?', what would you say?"
+    ],
+    "tags": [
+      "communication",
+      "stakeholders",
+      "presentation",
+      "clarity"
+    ]
+  },
+  {
+    "q": "How did you manage source code, branch strategies, and pull requests in your GitHub repository?",
+    "sub": "Version Control",
+    "d": "Beginner",
+    "ans": "Interviewer is assessing: Git workflow, hygiene, and readiness for professional engineering teams. Explain your branching model (e.g., main/staging/feature branches), commit message conventions, PR review requirements, and merge conflict resolution. Illustrative example (replace with your actual project details): 'We adopted a GitHub Flow model: the main branch remained protected and deployable at all times. Every feature or bug fix was developed on a descriptive branch like feature/auth-jwt or fix/db-migration. Before merging, PRs required passing automated GitHub Actions tests and approval from at least one teammate. When conflicts arose, we rebased locally against main before updating the pull request.'",
+    "kp": [
+      "Branching strategy (main, feature branches)",
+      "Protected branches and pull request workflows",
+      "Descriptive atomic commit messages",
+      "Merge conflict handling via rebase or merge"
+    ],
+    "cm": [
+      "Committing directly to main branch",
+      "Vague commit messages like 'fixed stuff' or 'update 2'",
+      "Never using pull requests or peer review in a team setting"
+    ],
+    "fu": [
+      "What is the difference between git merge and git rebase?",
+      "How did you ensure sensitive environment variables were never accidentally committed?"
+    ],
+    "tags": [
+      "git",
+      "version-control",
+      "github",
+      "teamwork"
+    ]
+  },
+  {
+    "q": "Did your project involve any data collection, cleaning, or preprocessing? How did you ensure data quality?",
+    "sub": "Data Preparation",
+    "d": "Intermediate",
+    "ans": "Interviewer is assessing: data hygiene, preprocessing rigor, and garbage-in-garbage-out awareness. Describe where the raw data came from, common impurities encountered (nulls, duplicates, outliers, formatting discrepancies), the automated cleaning pipeline you implemented, and validation checks applied. Illustrative example (replace with your actual project details): 'We gathered 500 interview questions from academic and placement archives. The raw data contained inconsistencies like mixed case tags, duplicate questions with slight phrasing variations, and empty key points. I wrote an automated ingestion pipeline that parsed the JSON, normalized whitespace, computed SHA-256 hashes of stripped text to block duplicates, and applied token Jaccard similarity to eliminate near-duplicates.'",
+    "kp": [
+      "Data sources and raw characteristics",
+      "Handling missing values, duplicates, and outliers",
+      "Automated validation rules and normalization",
+      "Verification of final dataset integrity"
+    ],
+    "cm": [
+      "Manual copy-pasting without systematic validation",
+      "Ignoring duplicate records or near-duplicates",
+      "Not knowing the distribution or size of your data"
+    ],
+    "fu": [
+      "How did your pipeline handle corrupted or malformed input records?",
+      "What automated tests verified that data transformations were idempotent?"
+    ],
+    "tags": [
+      "data-cleaning",
+      "data-quality",
+      "preprocessing",
+      "validation"
+    ]
+  },
+  {
+    "q": "How did you handle environment variables, configuration settings, and secrets across development and production?",
+    "sub": "Configuration Management",
+    "d": "Beginner",
+    "ans": "Interviewer is assessing: 12-factor app principles and configuration security. Explain how configuration is separated from code using environment variables, typed settings schemas (e.g., Pydantic BaseSettings), .env file isolation, and production guards against weak default secrets. Illustrative example (replace with your actual project details): 'We adhered to 12-factor principles by loading configurations through Pydantic Settings. In development, settings loaded from a local .env file included in .gitignore. In production, variables like DATABASE_URL and JWT_SECRET_KEY were injected through the hosting platform environment. We added startup validators that refused to start the server in production if JWT_SECRET_KEY was under 32 characters.'",
+    "kp": [
+      "Separation of config from code (12-factor app)",
+      "Pydantic Settings / schema validation for env vars",
+      "Secret isolation with .gitignore and template .env.example",
+      "Production startup security validations"
+    ],
+    "cm": [
+      "Hardcoding secrets, API keys, or database URLs in source code",
+      "Committing .env files to public repositories",
+      "No default validation for missing critical variables"
+    ],
+    "fu": [
+      "What happens if a required environment variable is missing when the app boots?",
+      "How do you rotate secrets in production without service downtime?"
+    ],
+    "tags": [
+      "configuration",
+      "secrets",
+      "12-factor",
+      "security"
+    ]
+  },
+  {
+    "q": "What research or competitive benchmarking did you conduct before building your project?",
+    "sub": "Research & Benchmarking",
+    "d": "Intermediate",
+    "ans": "Interviewer is assessing: market awareness, analytical research, and deliberate engineering. Explain what existing commercial tools or open-source repositories you studied, their core strengths and deficits, and how your project was uniquely positioned for its intended audience. Illustrative example (replace with your actual project details): 'Before designing our platform, we evaluated existing solutions like LeetCode and generic ChatGPT prompts. While LeetCode is strong for DSA, it offers zero evaluation for HR, behavioral, or Indian campus placement patterns. Conversely, ChatGPT gives generic praise without structured marks or question bank alignment. We identified this gap to build an assessment engine with deterministic rubric scoring and role-specific Indian fresher questions.'",
+    "kp": [
+      "Systematic analysis of 2-3 existing solutions",
+      "Identified distinct gaps or unmet user needs",
+      "Informed feature prioritization based on research",
+      "Clear differentiation for target audience"
+    ],
+    "cm": [
+      "Saying 'no one has ever built anything like this in the world'",
+      "Ignorance of major industry competitors",
+      "Copying a competitor feature-for-feature with no rationale"
+    ],
+    "fu": [
+      "What is one feature from a competitor that you deliberately chose NOT to build?",
+      "How did your research influence your technical architecture?"
+    ],
+    "tags": [
+      "research",
+      "benchmarking",
+      "product-strategy",
+      "differentiation"
+    ]
+  }
+]

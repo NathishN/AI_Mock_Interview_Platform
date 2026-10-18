@@ -1,0 +1,536 @@
+[
+  {
+    "q": "Explain the difference between L1 (Lasso) and L2 (Ridge) Regularization. Why does L1 produce sparse weights?",
+    "sub": "Regularization",
+    "d": "Intermediate",
+    "ans": "Regularization adds a penalty term to the loss function to penalize model complexity and prevent overfitting: 1) L2 Regularization (Ridge): adds penalty `lambda * sum(w_i^2)`. It shrinks weights smoothly toward zero but rarely sets them exactly to zero. Ideal when many features correlate and all contribute to predictions. 2) L1 Regularization (Lasso): adds penalty `lambda * sum(|w_i|)`. It drives coefficients of uninformative features completely to zero, performing automatic feature selection and producing sparse models. Geometry: the L1 constraint region is a diamond with sharp corners along the coordinate axes; the loss function's elliptical contours intersect the diamond at its sharp vertices where coordinate weights equal zero.",
+    "kp": [
+      "L1 (Lasso) penalty: `lambda * sum(|w|)`; induces sparsity (feature selection)",
+      "L2 (Ridge) penalty: `lambda * sum(w^2)`; shrinks weights smoothly without zeroing",
+      "L1 diamond geometry has sharp axis corners where weights become exactly zero",
+      "ElasticNet combines both L1 and L2 penalties (`l1_ratio`)"
+    ],
+    "cm": [
+      "Believing L2 regularization performs feature selection by setting weights to zero",
+      "Applying L1 or L2 regularization without standardizing features first (distorts penalty scaling)",
+      "Setting regularization strength `lambda` so high that the model severely underfits"
+    ],
+    "fu": [
+      "Why is feature standardization strictly required before applying L1 or L2 regularization?",
+      "What is ElasticNet and why is it preferred when multiple features are highly collinear?"
+    ],
+    "tags": [
+      "regularization",
+      "lasso",
+      "ridge",
+      "sparsity"
+    ]
+  },
+  {
+    "q": "What is Principal Component Analysis (PCA) and how does it achieve dimensionality reduction?",
+    "sub": "Dimensionality Reduction",
+    "d": "Intermediate",
+    "ans": "Principal Component Analysis (PCA) is an unsupervised linear dimensionality reduction technique that transforms a high-dimensional dataset into a lower-dimensional space while preserving maximum variance: 1) Standardize features to mean 0 and variance 1. 2) Compute the Covariance Matrix of the features. 3) Perform Eigendecomposition (or SVD) on the covariance matrix to find Eigenvectors (principal components, which define orthogonal directions of maximum variance) and Eigenvalues (which quantify variance explained along each component). 4) Project original data onto the top-K eigenvectors. PCA eliminates multicollinearity, reduces computational overhead, and enables 2D/3D visualization of high-dimensional data.",
+    "kp": [
+      "Unsupervised linear technique maximizing preserved variance in fewer orthogonal dimensions",
+      "Principal components are orthogonal eigenvectors of the feature covariance matrix",
+      "Eigenvalues quantify the proportion of total variance explained by each component",
+      "Scree plots help determine the optimal number of components to retain (e.g., 95% variance)"
+    ],
+    "cm": [
+      "Applying PCA without standardizing features first, allowing large-scale features to dominate components",
+      "Using PCA on categorical variables (PCA assumes continuous linear variance)",
+      "Assuming PCA components maintain direct intuitive human interpretability"
+    ],
+    "fu": [
+      "What is t-SNE / UMAP and why are they preferred over PCA for non-linear visualization of high-dimensional clusters?",
+      "What is the difference between Eigendecomposition and Singular Value Decomposition (SVD) in PCA?"
+    ],
+    "tags": [
+      "pca",
+      "dimensionality-reduction",
+      "eigenvalues"
+    ]
+  },
+  {
+    "q": "How does K-Means Clustering work? How do you choose the optimal K using the Elbow Method and Silhouette Score?",
+    "sub": "Clustering Algorithms",
+    "d": "Beginner",
+    "ans": "K-Means is an unsupervised clustering algorithm that partitions data into K spherical clusters: 1) Initialize K cluster centroids randomly (or via K-Means++ to avoid poor local minima). 2) Assignment: assign each data point to its nearest centroid using Euclidean distance. 3) Update: recalculate centroids as the mean of all points assigned to that cluster. 4) Repeat until centroids stabilize. Choosing optimal K: a) Elbow Method: plot Within-Cluster Sum of Squares (WCSS / Inertia) against K; choose the 'elbow' point where the rate of WCSS decrease sharply flattens. b) Silhouette Score: measures how similar a point is to its own cluster compared to neighboring clusters (ranges from -1 to +1); choose K that maximizes average silhouette score.",
+    "kp": [
+      "Iterative EM algorithm: assign points to nearest centroid, update centroids as cluster means",
+      "K-Means++ initialization spreads initial centroids to ensure faster and better convergence",
+      "Elbow Method: finds inflection point in WCSS / Inertia curve",
+      "Silhouette Score: measures intra-cluster cohesion vs inter-cluster separation (-1 to 1)"
+    ],
+    "cm": [
+      "Applying K-Means on non-spherical or varied-density clusters (e.g., concentric circles, moons)",
+      "Forgetting to scale features, allowing large-magnitude features to dominate Euclidean distances",
+      "Relying on the Elbow method when the curve shows no clear distinct elbow"
+    ],
+    "fu": [
+      "How does DBSCAN cluster non-spherical arbitrary shapes and detect noise outliers?",
+      "Why is K-Means sensitive to outliers and how does K-Medoids provide a robust alternative?"
+    ],
+    "tags": [
+      "clustering",
+      "kmeans",
+      "unsupervised-learning",
+      "silhouette"
+    ]
+  },
+  {
+    "q": "What is the difference between Generative AI models and Discriminative AI models?",
+    "sub": "AI Foundations",
+    "d": "Beginner",
+    "ans": "1) Discriminative Models: learn the conditional probability distribution `P(Y | X)`—the boundary between classes given features X. They do not model how data was generated; they discriminate between labels (e.g., Logistic Regression, SVMs, Decision Trees, CNN image classifiers). They answer: 'Given this image, is it a cat or a dog?'. 2) Generative Models: model the joint probability distribution `P(X, Y)` or the data distribution `P(X)`—how the data was generated. They capture the underlying probability of the data itself, enabling the generation of novel synthetic samples (e.g., GANs, Diffusion Models, VAEs, Autoregressive LLMs). They answer: 'Generate a realistic picture of a cat.'",
+    "kp": [
+      "Discriminative: models `P(Y | X)`; learns decision boundaries to classify or predict",
+      "Generative: models `P(X, Y)` or `P(X)`; learns underlying data distribution to create new data",
+      "Discriminative examples: Logistic Regression, SVM, Random Forest, CNN classifiers",
+      "Generative examples: GPT-4, Stable Diffusion, GANs, VAEs"
+    ],
+    "cm": [
+      "Assuming all machine learning is generative",
+      "Thinking generative models cannot perform classification tasks",
+      "Confusing generative probability modeling with simple data augmentation"
+    ],
+    "fu": [
+      "How does an autoregressive LLM generate text by repeatedly sampling from `P(token_t | tokens_<t)`?",
+      "Why do generative models require significantly more data and compute than discriminative models?"
+    ],
+    "tags": [
+      "generative-ai",
+      "discriminative-ai",
+      "machine-learning"
+    ]
+  },
+  {
+    "q": "How do Diffusion Models (like Stable Diffusion) generate images from noise?",
+    "sub": "Generative AI",
+    "d": "Advanced",
+    "ans": "Diffusion models generate high-fidelity images through a two-phase process: 1) Forward Diffusion Process (fixed): gradually adds Gaussian noise to an image over T sequential timesteps until it turns into pure random noise. 2) Reverse Diffusion Process (learned): a neural network (typically a U-Net with cross-attention) is trained to predict and subtract the added noise at each timestep, reconstructing clean data from random noise. During generation, the model starts from pure Gaussian noise and iteratively denoises it over 20-50 steps conditioned on text prompt embeddings via cross-attention. Latent Diffusion Models (Stable Diffusion) run this process in a compressed latent space (via VAE encoder/decoder), reducing compute costs by 10x.",
+    "kp": [
+      "Forward process gradually adds Gaussian noise until image becomes pure noise",
+      "Reverse process trains a U-Net to predict and subtract noise step-by-step",
+      "Conditioned on text prompts via cross-attention with text encoders (CLIP / T5)",
+      "Latent Diffusion runs in compressed VAE latent space for efficiency"
+    ],
+    "cm": [
+      "Thinking diffusion models generate entire images in a single forward pass like GANs",
+      "Assuming the forward noise addition requires training (it is a fixed mathematical schedule)",
+      "Ignoring the compute difference between pixel-space diffusion and latent-space diffusion"
+    ],
+    "fu": [
+      "How does Classifier-Free Guidance (CFG) balance prompt adherence against image quality?",
+      "Why did Diffusion models largely replace Generative Adversarial Networks (GANs) for image synthesis?"
+    ],
+    "tags": [
+      "diffusion-models",
+      "stable-diffusion",
+      "image-generation"
+    ]
+  },
+  {
+    "q": "What is catastrophic forgetting in neural networks and how is it mitigated during continual learning?",
+    "sub": "Continual Learning",
+    "d": "Advanced",
+    "ans": "Catastrophic Forgetting occurs when a neural network trained on Task A is subsequently trained on Task B: as backpropagation updates weights to optimize Task B, the parameters that encoded Task A's knowledge are overwritten, causing severe performance collapse on Task A. Mitigation strategies: 1) Elastic Weight Consolidation (EWC): penalizes changes to parameters that were critical to Task A using the Fisher Information Matrix. 2) Replay Buffers / Experience Replay: interleaving a small percentage of Task A data into Task B training batches. 3) Parameter-Efficient Fine-Tuning (PEFT / LoRA): keeps base model weights completely frozen and trains lightweight adapter matrices for new tasks, mathematically guaranteeing zero forgetting of the base model's knowledge.",
+    "kp": [
+      "Neural networks overwrite old task representations when trained on new tasks",
+      "EWC (Elastic Weight Consolidation) protects parameters critical to past tasks",
+      "Experience replay mixes historical data into current training batches",
+      "PEFT/LoRA avoids catastrophic forgetting by freezing base model weights completely"
+    ],
+    "cm": [
+      "Fine-tuning an LLM exclusively on new domain data without keeping base instruction data, degrading general reasoning",
+      "Believing catastrophic forgetting only happens in small models",
+      "Assuming standard regularization (L2) prevents forgetting"
+    ],
+    "fu": [
+      "How do modular adapter architectures allow switching between multiple tasks dynamically?",
+      "How does rehearsal-based replay compare to pseudo-rehearsal with synthetic data?"
+    ],
+    "tags": [
+      "continual-learning",
+      "catastrophic-forgetting",
+      "peft"
+    ]
+  },
+  {
+    "q": "What is the difference between Word2Vec Skip-Gram and Continuous Bag of Words (CBOW)?",
+    "sub": "NLP Embeddings",
+    "d": "Intermediate",
+    "ans": "Word2Vec generates static embeddings using a shallow 2-layer neural network trained on self-supervised text windows: 1) CBOW (Continuous Bag of Words): predicts the target center word given its surrounding context words (e.g., given 'the cat sits on the', predict 'mat'). Faster to train and performs well on frequent words because it smooths over context distributions. 2) Skip-Gram: predicts the surrounding context words given a single center target word (e.g., given 'mat', predict 'cat', 'sits', 'on'). Skip-Gram performs significantly better on infrequent words and small datasets because it creates multiple training pairs per word instance. Both use Negative Sampling to optimize training speed by sampling random non-context words rather than computing full vocabulary softmax.",
+    "kp": [
+      "CBOW: predicts target center word from surrounding context words; faster",
+      "Skip-Gram: predicts surrounding context words from target center word; better for rare words",
+      "Trained using Negative Sampling to avoid full vocabulary softmax denominator",
+      "Output weights form the final static word embedding lookup matrix"
+    ],
+    "cm": [
+      "Confusing CBOW input/output with Skip-Gram input/output",
+      "Thinking Word2Vec uses deep neural networks (it is a single linear projection matrix)",
+      "Expecting Word2Vec to generate contextual representations for homonyms (bank vs river bank)"
+    ],
+    "fu": [
+      "What is Negative Sampling and how does it convert multi-class classification into binary logistic regressions?",
+      "Why did Transformer contextual embeddings (BERT/RoBERTa) supersede Word2Vec?"
+    ],
+    "tags": [
+      "word2vec",
+      "cbow",
+      "skip-gram",
+      "embeddings"
+    ]
+  },
+  {
+    "q": "What is the Attention is All You Need breakthrough? Why did Transformers replace RNNs and LSTMs?",
+    "sub": "Transformer Foundations",
+    "d": "Beginner",
+    "ans": "Recurrent Neural Networks (RNNs and LSTMs) processed sequences sequentially token-by-token, maintaining an internal hidden state. Drawbacks: 1) Sequential bottleneck: prevents GPU parallelization during training because token T requires hidden state T-1. 2) Vanishing gradients and memory bottlenecks: struggle to retain long-range dependencies across hundreds of tokens. The 2017 Transformer architecture ('Attention is All You Need') eliminated recurrence entirely, relying exclusively on Self-Attention: 1) Full Parallelization: all tokens in a sequence are processed simultaneously during training, unlocking massive scaling on modern GPUs. 2) Direct Token Connections: attention connects any two tokens in O(1) path length regardless of distance, preserving long-range context flawlessly.",
+    "kp": [
+      "RNNs/LSTMs are sequential; cannot parallelize training across sequence length",
+      "Transformers process all tokens in parallel, unlocking massive GPU training scalability",
+      "Self-attention provides O(1) path length between any two tokens, resolving long-range dependency loss",
+      "Positional encodings inject sequence order information into permutation-invariant attention"
+    ],
+    "cm": [
+      "Assuming Transformers generate tokens in parallel during inference (generation is still autoregressive token-by-token)",
+      "Thinking LSTMs are faster than Transformers on modern GPU hardware",
+      "Believing self-attention inherently knows word order without positional encodings"
+    ],
+    "fu": [
+      "Why is Transformer training fully parallelizable, but text generation during inference sequential?",
+      "What is FlashAttention and how does it optimize GPU SRAM access to speed up attention?"
+    ],
+    "tags": [
+      "transformers",
+      "self-attention",
+      "nlp",
+      "deep-learning"
+    ]
+  },
+  {
+    "q": "What is temperature, top-p (nucleus sampling), and top-k in LLM text generation?",
+    "sub": "LLM Sampling Parameters",
+    "d": "Beginner",
+    "ans": "When an LLM generates text, it outputs unnormalized logit scores across its vocabulary. Decoding parameters control how the model samples the next token: 1) Temperature: scales logits before softmax (`logits / T`). T=0 (greedy) picks the single highest-probability token deterministically (ideal for coding and factual QA). High T (> 0.8) flattens distribution, increasing diversity and creativity at the risk of incoherence. 2) Top-K: restricts sampling to the K highest probability tokens (e.g., K=50), truncating the long tail of unlikely words. 3) Top-P (Nucleus Sampling): dynamically selects the smallest set of top tokens whose cumulative probability exceeds P (e.g., P=0.9). Top-P adapts dynamically to confidence, sampling from few tokens when the model is certain, and expanding when options are varied.",
+    "kp": [
+      "Temperature scales logit distribution: low T = deterministic/factual, high T = creative/diverse",
+      "Top-K restricts sampling pool to a fixed number K of highest-probability tokens",
+      "Top-P (Nucleus) dynamically pools tokens until cumulative probability exceeds P",
+      "Best practice: tune either Temperature or Top-P; rarely adjust both aggressively simultaneously"
+    ],
+    "cm": [
+      "Setting temperature to 1.0 for SQL generation or structured JSON extraction",
+      "Confusing greedy decoding (T=0) with Beam Search",
+      "Setting Top-P too low (e.g., 0.1), causing repetitive and robotic generation"
+    ],
+    "fu": [
+      "What is Beam Search and why is nucleus sampling preferred for creative open-ended text generation?",
+      "What is Frequency Penalty and Presence Penalty in OpenAI/Groq API parameters?"
+    ],
+    "tags": [
+      "temperature",
+      "top-p",
+      "sampling",
+      "decoding"
+    ]
+  },
+  {
+    "q": "What is the difference between an Encoder-only, Decoder-only, and Encoder-Decoder Transformer architecture?",
+    "sub": "Transformer Architectures",
+    "d": "Intermediate",
+    "ans": "1) Encoder-Only (e.g., BERT, RoBERTa): bidirectional attention (tokens attend to both past and future tokens). Ideal for understanding, sequence classification, named entity recognition, and dense embedding generation. Cannot generate autoregressive text efficiently. 2) Decoder-Only (e.g., GPT-4, Llama 3, Mistral): causal / masked self-attention (tokens attend ONLY to preceding tokens). Optimized for autoregressive next-token text generation. Dominates modern generative AI and LLMs due to pretraining simplicity and scaling laws. 3) Encoder-Decoder (e.g., T5, BART): full encoder processes input bidirectionally; decoder generates output autoregressively via cross-attention. Ideal for sequence-to-sequence translation and abstractive summarization.",
+    "kp": [
+      "Encoder-Only (BERT): bidirectional attention, ideal for classification and embeddings",
+      "Decoder-Only (GPT, Llama): causal masked attention, ideal for autoregressive text generation",
+      "Encoder-Decoder (T5): sequence-to-sequence transformation via cross-attention",
+      "Modern frontier LLMs are predominantly Decoder-Only architectures"
+    ],
+    "cm": [
+      "Using BERT for open-ended creative text generation",
+      "Assuming GPT uses bidirectional attention (it uses causal masking to prevent looking ahead)",
+      "Thinking Encoder-Decoder models cannot perform simple text classification"
+    ],
+    "fu": [
+      "Why did Decoder-Only architectures win the scaling race over Encoder-Decoder models?",
+      "How does causal masking enforce that token T cannot attend to token T+1?"
+    ],
+    "tags": [
+      "encoder-decoder",
+      "bert",
+      "gpt",
+      "transformers"
+    ]
+  },
+  {
+    "q": "What are AI Hallucination Evaluation benchmarks (e.g., HaluEval, TruthfulQA)? How do they measure grounding?",
+    "sub": "LLM Benchmarking",
+    "d": "Intermediate",
+    "ans": "Evaluating hallucinations requires standardized empirical benchmarks that test whether models resist generating plausible falsehoods: 1) TruthfulQA: evaluates whether an LLM mimics common human false superstitions and conspiracy theories; scores models on Truthfulness and Informativeness. 2) HaluEval: large-scale collection of 35,000 generated and human-annotated hallucinated samples across QA, dialogue, and summarization, evaluating whether models can detect hallucinations and distinguish factual claims from confabulations. 3) Faithfulness Benchmarking: evaluates RAG systems by prompting models with poisoned or counterfactual contexts to verify whether the model answers strictly from context rather than leaking prior training assumptions. Automated metrics use GPT-4 as an objective judge with rubric scoring.",
+    "kp": [
+      "TruthfulQA benchmarks resistance to human misconceptions and falsehoods",
+      "HaluEval tests detection and generation of factual vs hallucinated content",
+      "Counterfactual testing verifies model relies on provided context rather than prior biases",
+      "Essential for verifying enterprise LLM readiness before deployment"
+    ],
+    "cm": [
+      "Assuming high MMLU benchmark scores guarantee low hallucination rates",
+      "Relying on subjective developer testing rather than standardized test suites",
+      "Ignoring domain-specific hallucination benchmarks in medical and legal applications"
+    ],
+    "fu": [
+      "What is MMLU (Massive Multitask Language Understanding) and what does it measure?",
+      "How does Needle In A Haystack (NIAH) test long-context retrieval fidelity?"
+    ],
+    "tags": [
+      "benchmarks",
+      "mmlu",
+      "evaluation",
+      "testing"
+    ]
+  },
+  {
+    "q": "What is Guardrails AI / NeMo Guardrails and how do programmable guardrails safeguard LLM applications?",
+    "sub": "AI Safety & Guardrails",
+    "d": "Intermediate",
+    "ans": "Guardrails are programmable software layers positioned between users and LLMs (and between LLMs and external systems) that enforce safety, topic boundaries, compliance, and structure: 1) Input Guardrails: inspect user prompts for prompt injection, jailbreak patterns, toxic language, and off-topic inquiries before the LLM executes, rejecting or sanitizing malicious inputs. 2) Output Guardrails: inspect generated LLM responses for PII leaks (credit cards, social security numbers), competitor mentions, toxic content, and hallucinations before displaying to users. 3) Structural Guardrails: validate that JSON responses adhere strictly to defined Pydantic schemas, triggering automated retries if validation fails. Frameworks like NeMo Guardrails use Colang to define programmable dialogue policies.",
+    "kp": [
+      "Sits as a verification layer between user inputs, LLM, and output responses",
+      "Input rails block prompt injection, jailbreaks, and off-topic queries",
+      "Output rails prevent PII leaks, brand violations, and hallucinations",
+      "Structural rails enforce schema adherence and trigger automatic repair loops"
+    ],
+    "cm": [
+      "Relying solely on system prompts for safety without deterministic validation code",
+      "Letting PII (passwords, emails) flow unredacted into third-party LLM APIs",
+      "Not having automated retry logic when an LLM produces slightly invalid JSON"
+    ],
+    "fu": [
+      "How does Colang in NeMo Guardrails define conversational flow rules?",
+      "What is Llama Guard and how can it be used as a lightweight guardrail classifier?"
+    ],
+    "tags": [
+      "guardrails",
+      "safety",
+      "nemo",
+      "verification"
+    ]
+  },
+  {
+    "q": "Explain the difference between SFT (Supervised Fine-Tuning) and Pretraining in the LLM lifecycle.",
+    "sub": "LLM Training Stages",
+    "d": "Beginner",
+    "ans": "1) Pretraining (Foundation Stage): self-supervised learning on massive internet-scale text corpora (trillions of tokens) using next-token prediction loss (`Predict word T given words 1 to T-1`). Goal: learn grammar, facts, reasoning patterns, and world representations. Highly expensive (millions of dollars, thousands of GPUs for months). Result: a 'Base Model' that completes text but is not a conversational assistant (e.g., prompting 'How to write a resume?' might yield 'Chapter 2: Resume templates'). 2) SFT (Supervised Fine-Tuning / Instruction Tuning): trains the base model on curated prompt-response pairs (`User: ... Assistant: ...`). Goal: teach the model how to follow instructions, respond helpfully, maintain conversational tone, and format outputs cleanly. Inexpensive (< 1% of pretraining compute).",
+    "kp": [
+      "Pretraining: self-supervised next-token prediction on trillions of tokens; learns world knowledge",
+      "Pretraining produces a raw Base Model that completes text without conversational format",
+      "SFT (Instruction Tuning): supervised training on curated Q&A pairs; teaches instruction-following",
+      "SFT represents < 1% of total training compute but determines usability"
+    ],
+    "cm": [
+      "Assuming SFT is where models learn all their world knowledge (knowledge is learned in pretraining)",
+      "Trying to pretrain an LLM from scratch for a standard business project instead of fine-tuning an open base model",
+      "Confusing next-token completion with conversational instruction-following"
+    ],
+    "fu": [
+      "What are Chinchilla Scaling Laws regarding compute-optimal tokens vs parameter counts?",
+      "Why does instruction tuning require high-quality curated data rather than massive volume?"
+    ],
+    "tags": [
+      "pretraining",
+      "sft",
+      "scaling-laws",
+      "instruction-tuning"
+    ]
+  },
+  {
+    "q": "What is Vector Similarity Search with metadata filtering, and how do pre-filtering and post-filtering differ?",
+    "sub": "Vector Search & Retrieval",
+    "d": "Intermediate",
+    "ans": "In production RAG, queries often require both semantic similarity and structured metadata constraints (e.g., 'find resume questions where difficulty = \"Beginner\" and category = \"HR\"'): 1) Post-Filtering: performs vector similarity search first to find top-K candidates, then discards candidates that fail metadata conditions. Problem: if top-K vectors lack the requested metadata, post-filtering returns zero or very few results. 2) Pre-Filtering: applies metadata filters first to narrow the search space, then performs vector search on the filtered subset. Problem: traditional vector indices (HNSW) struggle with isolated graph traversal on small subsets. 3) Single-Stage / Iterative Filtering (Modern Standard): integrated vector databases (Pinecone, Qdrant, Milvus) traverse HNSW graphs while evaluating metadata predicates dynamically during graph exploration.",
+    "kp": [
+      "Combines unstructured semantic vector search with structured SQL-like metadata filtering",
+      "Post-filtering: vector search top-K -> filter metadata (risks empty results)",
+      "Pre-filtering: filter metadata -> vector search on remaining subset",
+      "Modern databases use integrated single-stage filtering during graph traversal"
+    ],
+    "cm": [
+      "Using post-filtering on restrictive metadata, resulting in zero returned documents",
+      "Storing metadata in separate relational tables without synchronized vector IDs",
+      "Not indexing high-frequency filter metadata fields in vector databases"
+    ],
+    "fu": [
+      "How does Qdrant or Milvus implement payload-based filtered graph traversal?",
+      "When is a hybrid SQL + Vector search (pgvector) optimal for relational enterprise data?"
+    ],
+    "tags": [
+      "vector-search",
+      "metadata-filtering",
+      "retrieval"
+    ]
+  },
+  {
+    "q": "What is Cross-Encoder Reranking in RAG pipelines, and how does it differ from Bi-Encoder retrieval?",
+    "sub": "RAG Reranking",
+    "d": "Advanced",
+    "ans": "1) Bi-Encoder (Embedding Models like BGE, OpenAI text-embedding-3): embeds query and documents independently into vector space; similarity is computed via fast Cosine Similarity. Fast (sub-millisecond search over millions of vectors via HNSW), but lacks cross-attention between query tokens and document tokens, missing subtle semantic interactions. 2) Cross-Encoder (Reranker models like BGE-Reranker, Cohere Rerank): feeds query AND document together into a full Transformer attention block (`[CLS] Query [SEP] Document [SEP]`), allowing every query token to attend directly to every document token. Output is a calibrated relevance score (0 to 1). Highly accurate, but computationally heavy. Production Pattern: use Bi-Encoder to retrieve top-50 candidates fast, then use Cross-Encoder to rerank top-5 for LLM context.",
+    "kp": [
+      "Bi-Encoder: separate query and document embeddings; fast vector search",
+      "Cross-Encoder: joint attention over query + document; highly accurate relevance scoring",
+      "Cross-Encoder cannot pre-compute embeddings; must run inference at query time",
+      "Two-stage retrieval pattern: Bi-Encoder retrieves top-50, Cross-Encoder reranks top-5"
+    ],
+    "cm": [
+      "Attempting to use a Cross-Encoder over 100,000 documents (causes massive latency bottlenecks)",
+      "Skipping reranking in production RAG, feeding noisy chunks to LLM and causing hallucinations",
+      "Assuming Bi-Encoder cosine similarity scores are equivalent to calibrated relevance probabilities"
+    ],
+    "fu": [
+      "What is FlashRank and how does it enable lightweight CPU reranking in Python?",
+      "How much does a reranker typically improve RAG Answer Relevance and Context Precision?"
+    ],
+    "tags": [
+      "reranking",
+      "cross-encoder",
+      "rag",
+      "search"
+    ]
+  },
+  {
+    "q": "What are AI Evaluation benchmarks (MMLU, GSM8K, HumanEval)? What do they measure?",
+    "sub": "LLM Benchmarking",
+    "d": "Beginner",
+    "ans": "Standardized academic benchmarks evaluate distinct dimensions of LLM capability: 1) MMLU (Massive Multitask Language Understanding): 57 multiple-choice subjects spanning humanities, STEM, law, and medicine; tests broad world knowledge and academic recall. 2) GSM8K (Grade School Math 8K): multi-step elementary math word problems; tests step-by-step arithmetic reasoning and Chain-of-Thought problem solving. 3) HumanEval: 164 hand-written Python programming problems developed by OpenAI; tests code generation correctness via unit tests (`pass@1`). 4) Chatbot Arena (LMSYS): crowdsourced human pairwise Elo rating leaderboard measuring subjective user preference in blind head-to-head comparisons.",
+    "kp": [
+      "MMLU: broad factual and academic knowledge across 57 subjects",
+      "GSM8K: multi-step mathematical reasoning and logic",
+      "HumanEval: functional code generation correctness verified by unit tests",
+      "Chatbot Arena: crowdsourced human blind Elo ranking"
+    ],
+    "cm": [
+      "Assuming a model with high MMLU is automatically good at coding or conversational empathy",
+      "Contaminating benchmarks by including test sets in training pretraining corpora (data contamination)",
+      "Relying on benchmark scores without evaluating on your specific business domain data"
+    ],
+    "fu": [
+      "What is Data Contamination in LLM benchmarks and how do researchers test for it?",
+      "What does pass@1 vs pass@10 measure in code evaluation benchmarks?"
+    ],
+    "tags": [
+      "benchmarks",
+      "mmlu",
+      "evaluation",
+      "testing"
+    ]
+  },
+  {
+    "q": "What is the difference between synchronous LLM inference and streaming (Server-Sent Events) inference?",
+    "sub": "LLM Serving & UX",
+    "d": "Beginner",
+    "ans": "1) Synchronous Inference: the client makes an HTTP POST request and waits with an open connection until the LLM generates the ENTIRE completion before receiving a response. For a 500-token answer, this creates a 5 to 15 second delay where the user stares at a frozen screen, causing poor perceived latency. 2) Streaming Inference: uses Server-Sent Events (SSE) via HTTP `text/event-stream`. As the LLM generates tokens autoregressively one by one, each token is streamed to the client immediately in real time. The Time-to-First-Token (TTFT) drops to 200-500ms, providing immediate visual feedback and a conversational typing experience. Streaming is the universal UX standard for chat interfaces.",
+    "kp": [
+      "Synchronous: waits for entire generation to complete (high perceived latency)",
+      "Streaming: sends tokens in real-time as generated via Server-Sent Events (SSE)",
+      "Time-to-First-Token (TTFT) drops from seconds to hundreds of milliseconds",
+      "HTTP header: `Content-Type: text/event-stream` with chunked transfer encoding"
+    ],
+    "cm": [
+      "Using synchronous API endpoints for user-facing chat applications, making the app feel slow",
+      "Forgetting to handle stream connection disconnects or client cancellations",
+      "Not knowing how to parse SSE chunks (`data: {...}`) on the frontend"
+    ],
+    "fu": [
+      "What is the difference between Server-Sent Events (SSE) and WebSockets for LLM streaming?",
+      "How do you handle structured JSON output validation when an LLM is actively streaming?"
+    ],
+    "tags": [
+      "streaming",
+      "sse",
+      "latency",
+      "ux"
+    ]
+  },
+  {
+    "q": "How does LoRA (Low-Rank Adaptation) mathematically reduce trainable parameters in LLM fine-tuning?",
+    "sub": "Parameter-Efficient Fine-Tuning",
+    "d": "Advanced",
+    "ans": "When fine-tuning a dense layer with weight matrix `W` (dimension `d x k`), updating all weights requires optimizing `d * k` parameters. LoRA hypothesizes that the weight updates `delta_W` have a low 'intrinsic rank'. Instead of training `delta_W` directly, LoRA decomposes it into the product of two low-rank matrices: `delta_W = B * A`, where `B` is `d x r` and `A` is `r x k`, with rank `r << min(d, k)` (e.g., r=8 or 16). Matrix `A` is initialized with Gaussian noise and `B` with zeros, so `delta_W = 0` at startup. During fine-tuning, original `W` remains completely frozen; only `A` and `B` are updated, reducing trainable parameters by 99%+. At inference, `B * A` can be merged back into `W` with zero added inference latency.",
+    "kp": [
+      "Decomposes weight updates `delta_W` into low-rank matrices `B * A` (rank r << d)",
+      "Freezes original weight matrix W completely; updates only A and B",
+      "Reduces trainable parameters by 99%+, saving GPU VRAM and storage",
+      "Can merge weights back into base model (`W + B*A`) for zero added inference latency"
+    ],
+    "cm": [
+      "Setting rank r too high (e.g., r=512), negating the efficiency benefits of LoRA",
+      "Fine-tuning base weights alongside LoRA adapters, causing base model drift",
+      "Believing LoRA adds latency during deployment (weights can be mathematically merged)"
+    ],
+    "fu": [
+      "What is QLoRA and how does NF4 (NormalFloat4) quantization enable training on consumer GPUs?",
+      "Which layers (query, key, value, output, MLP) yield best results when targeted by LoRA?"
+    ],
+    "tags": [
+      "peft",
+      "lora",
+      "fine-tuning",
+      "efficiency"
+    ]
+  },
+  {
+    "q": "What is LangChain and LlamaIndex? What are their core architectural differences for GenAI developers?",
+    "sub": "GenAI Frameworks",
+    "d": "Beginner",
+    "ans": "Both are leading Python/TypeScript orchestration frameworks for LLM development: 1) LangChain: general-purpose orchestration framework focused on chaining modular components (prompts, models, memory, tools, and autonomous agent loops). Highly flexible for complex workflows, multi-step agents, and custom tool calling (LangGraph). 2) LlamaIndex: specialized data framework focused specifically on connecting external data to LLMs (RAG). Excels at data ingestion, parsing complex documents, hierarchical indexing, and advanced retrieval strategies (sub-question query engines, auto-merging retrievers). Production architecture often pairs both: LlamaIndex handles data ingestion, chunking, and retrieval; LangChain / LangGraph handles conversational agents and tool execution.",
+    "kp": [
+      "LangChain: general orchestration for prompts, chains, tools, and agent workflows",
+      "LlamaIndex: specialized data framework optimized for document ingestion and RAG retrieval",
+      "LlamaIndex excels at complex parsing and hierarchical retrieval",
+      "LangGraph provides stateful multi-agent loop orchestration with persistence"
+    ],
+    "cm": [
+      "Using complex heavy frameworks for simple 10-line direct API calls",
+      "Treating LangChain and LlamaIndex as mutual enemies when they integrate cleanly",
+      "Over-abstracting simple prompt calls with unnecessary chain wrappers"
+    ],
+    "fu": [
+      "What is LangGraph and how does it model agent workflows as Directed Acyclic Graphs (DAGs)?",
+      "When is it better to write native API calls with Pydantic rather than using a large orchestration framework?"
+    ],
+    "tags": [
+      "langchain",
+      "llamaindex",
+      "frameworks",
+      "orchestration"
+    ]
+  },
+  {
+    "q": "What is the difference between Autoregressive models and Masked Language Models in NLP?",
+    "sub": "NLP Foundations",
+    "d": "Beginner",
+    "ans": "1) Masked Language Models (MLMs, e.g., BERT): trained on the Cloze task—randomly masking 15% of tokens in a sequence and predicting masked tokens using bidirectional context (both left and right tokens simultaneously). They learn rich bidirectional representations of entire sentences, making them exceptional for classification, sentence embeddings, and extractive QA, but cannot generate sequential text. 2) Autoregressive Models (e.g., GPT, Llama): trained on causal next-token prediction—predicting token T given strictly preceding tokens 1 to T-1 using unidirectional causal masking. They generate coherent, sequential text step-by-step. All modern generative AI models and chatbots are autoregressive.",
+    "kp": [
+      "Masked LM (BERT): bidirectional context, predicts masked tokens; ideal for understanding and embeddings",
+      "Autoregressive (GPT): unidirectional causal context, predicts next token; ideal for text generation",
+      "Masked LMs cannot generate coherent open-ended text autoregressively",
+      "Autoregressive models dominate generative conversational AI and code generation"
+    ],
+    "cm": [
+      "Trying to generate long text sequences using BERT",
+      "Assuming GPT attends to future tokens during training (causal mask strictly blocks future tokens)",
+      "Confusing model pretraining objectives with downstream fine-tuning tasks"
+    ],
+    "fu": [
+      "How does Causal Masking mathematically prevent attention from looking at future tokens?",
+      "What is a Prefix LM and how does it blend bidirectional and causal attention?"
+    ],
+    "tags": [
+      "ml",
+      "ai",
+      "genai"
+    ]
+  }
+]

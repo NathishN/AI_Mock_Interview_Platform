@@ -1,0 +1,8 @@
+{
+  "id_prefix": "comp",
+  "category": "Company & Workplace",
+  "target": 50,
+  "roles": ["Software Development Engineer", "Python Developer", "Java Developer", "Data Analyst", "Data Scientist", "Machine Learning Engineer", "AI Engineer", "Generative AI Engineer", "Full-Stack Developer", "Backend Developer", "Business Analyst"],
+  "stages": ["HR", "Managerial", "Final"],
+  "criteria": ["Company research depth", "Workplace professionalism and judgment", "Adaptability and learning mindset", "Stakeholder empathy", "Clear professional boundaries"]
+}

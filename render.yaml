@@ -1,0 +1,35 @@
+services:
+  - type: web
+    name: interviewace-backend
+    env: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: free
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: interviewace-db
+          property: connectionString
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: CORS_ORIGINS
+        value: https://your-frontend.vercel.app
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GROQ_MODEL
+        value: qwen/qwen3.8-27b
+      - key: SEED_QUESTIONS
+        value: "true"
+      - key: BOOTSTRAP_ADMIN_EMAIL
+        value: admin@interviewace.ai
+      - key: BOOTSTRAP_ADMIN_PASSWORD
+        generateValue: true
+
+databases:
+  - name: interviewace-db
+    plan: free
+    databaseName: interviewace
+    user: interviewace

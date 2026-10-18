@@ -1,0 +1,8 @@
+{
+  "id_prefix": "sql",
+  "category": "SQL & Analytics",
+  "target": 50,
+  "roles": ["Data Analyst", "Data Scientist", "Business Analyst", "Software Development Engineer", "Backend Developer", "Full-Stack Developer", "Machine Learning Engineer"],
+  "stages": ["Online Assessment", "Technical Screening", "Technical"],
+  "criteria": ["SQL syntax and semantic accuracy", "Logical aggregation and grouping", "Window function mastery", "Performance and indexing intuition", "Business metric interpretation"]
+}
