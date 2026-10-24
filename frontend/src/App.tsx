@@ -14,6 +14,7 @@ import { DashboardPage } from './pages/DashboardPage';
 import { LibraryPage } from './pages/LibraryPage';
 import { InterviewRoomPage } from './pages/InterviewRoomPage';
 import { InterviewResultsPage } from './pages/InterviewResultsPage';
+import { ResumePrepPage } from './pages/ResumePrepPage';
 import { HRStudioPage } from './pages/HRStudioPage';
 import { CompanyPrepPage } from './pages/CompanyPrepPage';
 import { RoadmapPage } from './pages/RoadmapPage';
@@ -64,6 +65,16 @@ export const App: React.FC = () => {
                   element={
                     <ProtectedRoute>
                       <DashboardPage />
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* 5b. Resume Analysis & Interview Prep */}
+                <Route
+                  path="/resume-prep"
+                  element={
+                    <ProtectedRoute>
+                      <ResumePrepPage />
                     </ProtectedRoute>
                   }
                 />

@@ -29,11 +29,21 @@ export const questionsApi = {
     role?: string;
     stage?: string;
     tag?: string;
+    q?: string;
     search?: string;
     limit?: number;
     offset?: number;
+    page?: number;
+    page_size?: number;
   }) => {
-    const res = await apiClient.get<QuestionListResponse>('/questions', { params });
+    const queryParams: Record<string, any> = { ...params };
+    if (queryParams.search && !queryParams.q) {
+      queryParams.q = queryParams.search;
+    }
+    if (queryParams.limit && !queryParams.page_size) {
+      queryParams.page_size = queryParams.limit;
+    }
+    const res = await apiClient.get<QuestionListResponse>('/questions', { params: queryParams });
     return res.data;
   },
 

@@ -161,11 +161,15 @@ export const AdminQuestionsPage: React.FC = () => {
             <option value="HR">HR</option>
             <option value="Behavioral">Behavioral</option>
             <option value="Resume & Projects">Resume & Projects</option>
+            <option value="Coding">Coding</option>
             <option value="Python">Python</option>
+            <option value="Java & OOP">Java & OOP</option>
             <option value="SQL & Analytics">SQL & Analytics</option>
             <option value="ML, AI & GenAI">ML, AI & GenAI</option>
+            <option value="Web Development">Web Development</option>
+            <option value="Git & CI/CD">Git & CI/CD</option>
+            <option value="Networking & IoT">Networking & IoT</option>
             <option value="Company & Workplace">Company & Workplace</option>
-            <option value="Coding">Coding</option>
           </select>
           <span className="text-slate-400 font-medium">Total: {totalCount} records</span>
         </div>
@@ -272,11 +276,15 @@ export const AdminQuestionsPage: React.FC = () => {
                     <option value="HR">HR</option>
                     <option value="Behavioral">Behavioral</option>
                     <option value="Resume & Projects">Resume & Projects</option>
+                    <option value="Coding">Coding</option>
                     <option value="Python">Python</option>
+                    <option value="Java & OOP">Java & OOP</option>
                     <option value="SQL & Analytics">SQL & Analytics</option>
                     <option value="ML, AI & GenAI">ML, AI & GenAI</option>
+                    <option value="Web Development">Web Development</option>
+                    <option value="Git & CI/CD">Git & CI/CD</option>
+                    <option value="Networking & IoT">Networking & IoT</option>
                     <option value="Company & Workplace">Company & Workplace</option>
-                    <option value="Coding">Coding</option>
                   </select>
                 </div>
 

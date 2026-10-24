@@ -20,23 +20,41 @@ const CATEGORIES = [
   'HR',
   'Behavioral',
   'Resume & Projects',
+  'Coding',
   'Python',
+  'Java & OOP',
   'SQL & Analytics',
   'ML, AI & GenAI',
+  'Web Development',
+  'Git & CI/CD',
+  'Networking & IoT',
   'Company & Workplace',
-  'Coding',
 ];
 
 const DIFFICULTIES = ['All', 'Beginner', 'Intermediate', 'Advanced'];
+
+const QUICK_TAG_FILTERS = [
+  { id: 'all', label: 'All Curated Questions' },
+  { id: 'top-30', label: '⭐ Top 30 High Priority' },
+  { id: 'master-bank', label: '🏢 Master Bank' },
+  { id: 'ibm', label: 'IBM' },
+  { id: 'hexaware', label: 'Hexaware' },
+  { id: 'payoda', label: 'Payoda' },
+  { id: 'sws-ai', label: 'SWS AI' },
+  { id: 'aquaairx', label: 'AquaAirX' },
+  { id: 'wheelson', label: 'Wheelson' },
+];
 
 export const LibraryPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const initialCategory = searchParams.get('category') || 'All';
   const initialDifficulty = searchParams.get('difficulty') || 'All';
+  const initialTag = searchParams.get('tag') || 'all';
   const initialSearch = searchParams.get('q') || '';
 
   const [category, setCategory] = useState(initialCategory);
   const [difficulty, setDifficulty] = useState(initialDifficulty);
+  const [activeTag, setActiveTag] = useState(initialTag);
   const [searchTerm, setSearchTerm] = useState(initialSearch);
 
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -50,6 +68,7 @@ export const LibraryPage: React.FC = () => {
       const params: Record<string, any> = { limit: 100 };
       if (category !== 'All') params.category = category;
       if (difficulty !== 'All') params.difficulty = difficulty;
+      if (activeTag !== 'all') params.tag = activeTag;
       if (searchTerm.trim()) params.search = searchTerm.trim();
 
       const res = await questionsApi.list(params);
@@ -64,7 +83,7 @@ export const LibraryPage: React.FC = () => {
 
   useEffect(() => {
     fetchQuestions();
-  }, [category, difficulty]);
+  }, [category, difficulty, activeTag]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,13 +98,56 @@ export const LibraryPage: React.FC = () => {
     <div className="space-y-6 py-4">
       {/* Header */}
       <div className="space-y-2">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-50 dark:bg-brand-950/60 border border-brand-200 dark:border-brand-800 text-brand-700 dark:text-brand-300 text-xs font-semibold">
+          <span>⚡ Master Interview Question Bank</span>
+          <span>•</span>
+          <span>{totalCount} Questions Active</span>
+        </div>
         <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2.5">
-          <BookOpen className="w-6 h-6 text-brand-600" />
-          500-Question Knowledge Base
+          <BookOpen className="w-7 h-7 text-brand-600" />
+          Master Interview Question Bank & Knowledge Base
         </h1>
-        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-          Curated interview questions frequently encountered in Indian campus placements and entry-level engineering interviews.
+        <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 max-w-3xl leading-relaxed">
+          Consolidated technical and HR question bank from real interview experiences at{' '}
+          <strong className="text-slate-900 dark:text-white">IBM, Hexaware, Payoda, SWS AI, AquaAirX, and Wheelson Technologies</strong>.
+          Study model answers, key evaluation criteria, common mistakes, and practice live in the mock room.
         </p>
+      </div>
+
+      {/* Quick Company & Priority Tag Filters */}
+      <div className="p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-2 shadow-sm">
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+            <Tag className="w-3.5 h-3.5 text-brand-500" />
+            Curated Company & Priority Tracks:
+          </span>
+          {activeTag !== 'all' && (
+            <button
+              onClick={() => setActiveTag('all')}
+              className="text-[11px] text-brand-600 hover:underline font-semibold"
+            >
+              Reset Filter
+            </button>
+          )}
+        </div>
+        <div className="flex flex-wrap gap-1.5">
+          {QUICK_TAG_FILTERS.map((tf) => {
+            const isSelected = activeTag === tf.id;
+            return (
+              <button
+                key={tf.id}
+                onClick={() => setActiveTag(tf.id)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                  isSelected
+                    ? 'bg-brand-600 text-white shadow-sm'
+                    : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                }`}
+              >
+                {tf.label}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* Search and Filters Bar */}
@@ -202,6 +264,31 @@ export const LibraryPage: React.FC = () => {
                       >
                         {q.difficulty}
                       </span>
+                      {q.tags && q.tags.includes('top-30') && (
+                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-800">
+                          ⭐ Top 30 Priority
+                        </span>
+                      )}
+                      {q.tags && q.tags.includes('master-bank') && (
+                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-900">
+                          Master Bank
+                        </span>
+                      )}
+                      {q.tags &&
+                        q.tags
+                          .filter((t) =>
+                            ['ibm', 'hexaware', 'payoda', 'sws-ai', 'aquaairx', 'wheelson'].includes(
+                              t.toLowerCase()
+                            )
+                          )
+                          .map((ct, idx) => (
+                            <span
+                              key={idx}
+                              className="px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800"
+                            >
+                              {ct}
+                            </span>
+                          ))}
                     </div>
 
                     <h3 className="text-sm sm:text-base font-semibold text-slate-900 dark:text-white leading-snug">

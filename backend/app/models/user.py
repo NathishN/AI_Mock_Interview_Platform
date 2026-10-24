@@ -22,6 +22,9 @@ class User(TimestampMixin, Base):
     profile: Mapped["UserProfile | None"] = relationship(
         back_populates="user", uselist=False, cascade="all, delete-orphan"
     )
+    resumes = relationship(
+        "UserResume", back_populates="user", cascade="all, delete-orphan", order_by="desc(UserResume.created_at)"
+    )
 
 
 class UserProfile(TimestampMixin, Base):

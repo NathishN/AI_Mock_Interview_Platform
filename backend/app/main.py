@@ -11,6 +11,7 @@ from app.api.routes import (
     interviews,
     profile,
     questions,
+    resumes,
     roadmap,
 )
 from app.core.config import get_settings
@@ -44,6 +45,7 @@ def create_app() -> FastAPI:
         analytics.router,
         company_prep.router,
         roadmap.router,
+        resumes.router,
     ):
         app.include_router(r, prefix=prefix)
     return app

@@ -14,11 +14,13 @@ import {
   ChevronRight,
   Flame,
   CheckCircle2,
+  FileText,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { analyticsApi, AnalyticsOverview } from '../api/analytics';
 import { interviewsApi, InterviewSessionSummary } from '../api/interviews';
 import { profileApi, UserProfile } from '../api/profile';
+import { resumesApi, ResumeDetail } from '../api/resumes';
 
 export const DashboardPage: React.FC = () => {
   const { user } = useAuth();
@@ -27,19 +29,22 @@ export const DashboardPage: React.FC = () => {
   const [overview, setOverview] = useState<AnalyticsOverview | null>(null);
   const [sessions, setSessions] = useState<InterviewSessionSummary[]>([]);
   const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [latestResume, setLatestResume] = useState<ResumeDetail | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [ov, sess, prof] = await Promise.all([
+        const [ov, sess, prof, resm] = await Promise.all([
           analyticsApi.getOverview().catch(() => null),
           interviewsApi.listSessions(5).catch(() => []),
           profileApi.getProfile().catch(() => null),
+          resumesApi.getLatest().catch(() => null),
         ]);
         setOverview(ov);
         setSessions(sess);
         setProfile(prof);
+        setLatestResume(resm);
       } catch (err) {
         console.error(err);
       } finally {
@@ -69,13 +74,20 @@ export const DashboardPage: React.FC = () => {
             </p>
           </div>
 
-          <div className="flex sm:flex-col items-center sm:items-end justify-between border-t sm:border-t-0 border-white/10 pt-4 sm:pt-0">
+          <div className="flex flex-wrap sm:flex-col items-center sm:items-end gap-2.5 border-t sm:border-t-0 border-white/10 pt-4 sm:pt-0">
             <Link
               to="/interview/new"
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white text-brand-900 hover:bg-slate-100 font-bold text-xs shadow-md transition-all hover:scale-105"
             >
               <Mic className="w-4 h-4 text-brand-600" />
               Start Mock Interview
+            </Link>
+            <Link
+              to="/resume-prep"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white/15 hover:bg-white/25 text-white font-semibold text-xs backdrop-blur-md border border-white/20 transition-all hover:scale-105"
+            >
+              <FileText className="w-3.5 h-3.5 text-amber-300" />
+              Upload & Analyze Resume
             </Link>
           </div>
         </div>
@@ -141,12 +153,34 @@ export const DashboardPage: React.FC = () => {
       </div>
 
       {/* Main Actions Grid */}
-      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+        {/* Card 1: Resume Defense */}
+        <Link
+          to="/resume-prep"
+          className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-blue-500/60 transition-all hover:shadow-md group space-y-3 relative overflow-hidden"
+        >
+          <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold group-hover:scale-105 transition-transform">
+            <FileText className="w-5 h-5" />
+          </div>
+          <div className="space-y-1">
+            <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center justify-between">
+              Resume Defense
+              <ChevronRight className="w-4 h-4 text-slate-400 group-hover:translate-x-1 transition-transform" />
+            </h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">
+              {latestResume
+                ? `${latestResume.filename} (ATS: ${latestResume.analysis?.ats_score || '--'}/100)`
+                : 'Upload resume to generate customized project questions.'}
+            </p>
+          </div>
+        </Link>
+
+        {/* Card 2: Mock Interview */}
         <Link
           to="/interview/new"
-          className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-brand-500/60 transition-all hover:shadow-md group space-y-3"
+          className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-blue-500/60 transition-all hover:shadow-md group space-y-3"
         >
-          <div className="w-10 h-10 rounded-xl bg-brand-50 dark:bg-brand-950/60 text-brand-600 dark:text-brand-400 flex items-center justify-center font-bold group-hover:scale-105 transition-transform">
+          <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold group-hover:scale-105 transition-transform">
             <Mic className="w-5 h-5" />
           </div>
           <div className="space-y-1">
@@ -154,12 +188,13 @@ export const DashboardPage: React.FC = () => {
               Mock Interview Room
               <ChevronRight className="w-4 h-4 text-slate-400 group-hover:translate-x-1 transition-transform" />
             </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              Adaptive difficulty, real-time rubric marks & speech-to-text input.
+            <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">
+              Adaptive difficulty, real-time rubric marks & speech-to-text.
             </p>
           </div>
         </Link>
 
+        {/* Card 3: HR Studio */}
         <Link
           to="/hr-studio"
           className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-indigo-500/60 transition-all hover:shadow-md group space-y-3"
@@ -172,12 +207,13 @@ export const DashboardPage: React.FC = () => {
               HR Answer Studio
               <ChevronRight className="w-4 h-4 text-slate-400 group-hover:translate-x-1 transition-transform" />
             </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
+            <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">
               Build and critique self-intro & weaknesses without clichés.
             </p>
           </div>
         </Link>
 
+        {/* Card 4: Company Prep */}
         <Link
           to="/company-prep"
           className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-emerald-500/60 transition-all hover:shadow-md group space-y-3"
@@ -187,15 +223,16 @@ export const DashboardPage: React.FC = () => {
           </div>
           <div className="space-y-1">
             <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center justify-between">
-              Company-Specific Prep
+              Company Guides
               <ChevronRight className="w-4 h-4 text-slate-400 group-hover:translate-x-1 transition-transform" />
             </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              Hiring rounds, focus areas, and guides for TCS, Infosys, Amazon, etc.
+            <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">
+              Hiring rounds and focus areas for TCS, Infosys, Amazon, etc.
             </p>
           </div>
         </Link>
 
+        {/* Card 5: Library */}
         <Link
           to="/library"
           className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-amber-500/60 transition-all hover:shadow-md group space-y-3"
@@ -205,11 +242,11 @@ export const DashboardPage: React.FC = () => {
           </div>
           <div className="space-y-1">
             <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center justify-between">
-              500-Question Library
+              500-Q Library
               <ChevronRight className="w-4 h-4 text-slate-400 group-hover:translate-x-1 transition-transform" />
             </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              Curated reference answers, common mistakes & key evaluation points.
+            <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">
+              Reference answers, common mistakes & scoring criteria.
             </p>
           </div>
         </Link>

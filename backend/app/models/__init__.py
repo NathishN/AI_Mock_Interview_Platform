@@ -1,5 +1,6 @@
 from app.models.interview import HRAnswerDraft, InterviewSession, InterviewTurn
 from app.models.question import Question, question_fingerprint
+from app.models.resume import UserResume
 from app.models.rubric import Rubric
 from app.models.user import User, UserProfile
 
@@ -11,5 +12,6 @@ __all__ = [
     "Rubric",
     "User",
     "UserProfile",
+    "UserResume",
     "question_fingerprint",
 ]

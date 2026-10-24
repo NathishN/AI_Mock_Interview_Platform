@@ -15,6 +15,10 @@ class QuestionCategory(StrEnum):
     ML_AI = "ML, AI & GenAI"
     COMPANY_WORKPLACE = "Company & Workplace"
     CODING = "Coding"
+    JAVA_OOP = "Java & OOP"
+    WEB_DEV = "Web Development"
+    GIT_DEVOPS = "Git & CI/CD"
+    NETWORKING_IOT = "Networking & IoT"
 
 
 class Difficulty(StrEnum):

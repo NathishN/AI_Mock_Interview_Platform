@@ -16,6 +16,7 @@ import {
   Menu,
   X,
   User,
+  FileText,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
@@ -34,6 +35,7 @@ export const Navbar: React.FC = () => {
 
   const navLinks = [
     { name: 'Dashboard', path: '/dashboard', icon: BarChart3 },
+    { name: 'Resume Prep', path: '/resume-prep', icon: FileText },
     { name: 'Library', path: '/library', icon: BookOpen },
     { name: 'Mock Interview', path: '/interview/new', icon: Mic },
     { name: 'HR Studio', path: '/hr-studio', icon: MessageSquare },

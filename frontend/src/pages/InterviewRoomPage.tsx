@@ -16,8 +16,19 @@ import {
   CornerDownRight,
 } from 'lucide-react';
 import { interviewsApi, InterviewSessionDetail, InterviewTurn } from '../api/interviews';
+import { resumesApi, ResumeDetail } from '../api/resumes';
 
 const PRESETS = [
+  {
+    id: 'resume_round',
+    title: 'Resume Deep-Dive',
+    time: '25 mins',
+    desc: 'Probing questions generated directly from your uploaded resume projects, tech stack & claims.',
+    stage: 'Technical',
+    mode: 'resume',
+    numQuestions: 5,
+    difficulty: 'Intermediate',
+  },
   {
     id: 'hr_round',
     title: 'HR Round',
@@ -79,6 +90,7 @@ export const InterviewRoomPage: React.FC = () => {
   const [targetRole, setTargetRole] = useState('Software Development Engineer');
   const [company, setCompany] = useState('TCS');
   const [isCreating, setIsCreating] = useState(false);
+  const [activeResume, setActiveResume] = useState<ResumeDetail | null>(null);
 
   // Active interview state (for /interview/:sessionId)
   const [session, setSession] = useState<InterviewSessionDetail | null>(null);
@@ -89,6 +101,16 @@ export const InterviewRoomPage: React.FC = () => {
   const [speechError, setSpeechError] = useState<string | null>(null);
 
   const recognitionRef = useRef<any>(null);
+
+  // Fetch active resume when configuring interview
+  useEffect(() => {
+    if (!sessionId) {
+      resumesApi.getLatest().then((r) => {
+        setActiveResume(r);
+        if (r.target_role) setTargetRole(r.target_role);
+      }).catch(() => setActiveResume(null));
+    }
+  }, [sessionId]);
 
   // Load session if sessionId is provided
   useEffect(() => {
@@ -255,7 +277,7 @@ export const InterviewRoomPage: React.FC = () => {
                   onClick={() => setSelectedPreset(preset.id)}
                   className={`p-4 rounded-2xl border cursor-pointer transition-all space-y-2 ${
                     isSelected
-                      ? 'border-brand-500 bg-brand-50/50 dark:bg-brand-950/40 ring-2 ring-brand-500/20'
+                      ? 'border-blue-600 bg-blue-50/60 dark:bg-blue-950/40 ring-2 ring-blue-500/20'
                       : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-slate-300 dark:hover:border-slate-700'
                   }`}
                 >
@@ -263,7 +285,11 @@ export const InterviewRoomPage: React.FC = () => {
                     <span className="text-sm font-bold text-slate-900 dark:text-white">
                       {preset.title}
                     </span>
-                    <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
+                    <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${
+                      isSelected
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                    }`}>
                       {preset.time}
                     </span>
                   </div>
@@ -274,6 +300,44 @@ export const InterviewRoomPage: React.FC = () => {
               );
             })}
           </div>
+
+          {selectedPreset === 'resume_round' && (
+            <div className={`p-4 rounded-xl border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs ${
+              activeResume
+                ? 'bg-blue-50/80 dark:bg-blue-950/40 border-blue-200 dark:border-blue-900/60'
+                : 'bg-amber-50/80 dark:bg-amber-950/40 border-amber-200 dark:border-amber-900/60'
+            }`}>
+              <div className="flex items-center gap-2.5">
+                {activeResume ? (
+                  <>
+                    <Sparkles className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
+                    <span className="text-blue-900 dark:text-blue-200">
+                      Using active resume: <strong className="font-bold">{activeResume.filename}</strong> (
+                      {activeResume.analysis?.generated_questions?.length || 5} custom interview questions prepared).
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                    <span className="text-amber-900 dark:text-amber-200">
+                      No resume uploaded yet. Upload your resume so our AI can analyze your projects and ask questions based on your resume.
+                    </span>
+                  </>
+                )}
+              </div>
+              <Link
+                to="/resume-prep"
+                className={`font-bold px-3 py-1.5 rounded-lg border transition-all flex items-center gap-1.5 shrink-0 ${
+                  activeResume
+                    ? 'bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-300 border-blue-200 dark:border-blue-700 hover:bg-blue-50'
+                    : 'bg-amber-600 hover:bg-amber-700 text-white border-amber-600 shadow-xs'
+                }`}
+              >
+                {activeResume ? 'Manage Resume' : 'Upload Resume Now'}
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+          )}
         </div>
 
         {/* Custom Controls */}
@@ -287,7 +351,7 @@ export const InterviewRoomPage: React.FC = () => {
               value={targetRole}
               onChange={(e) => setTargetRole(e.target.value)}
               placeholder="e.g. Software Development Engineer"
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-brand-500"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
@@ -298,8 +362,14 @@ export const InterviewRoomPage: React.FC = () => {
             <select
               value={company}
               onChange={(e) => setCompany(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-brand-500"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
             >
+              <option value="IBM">IBM</option>
+              <option value="Hexaware">Hexaware Technologies</option>
+              <option value="Payoda">Payoda Technologies</option>
+              <option value="SWS AI">SWS AI</option>
+              <option value="AquaAirX">AquaAirX</option>
+              <option value="Wheelson">Wheelson Technologies</option>
               <option value="TCS">TCS (Tata Consultancy Services)</option>
               <option value="Infosys">Infosys</option>
               <option value="Amazon">Amazon</option>
@@ -315,10 +385,10 @@ export const InterviewRoomPage: React.FC = () => {
           <button
             onClick={handleStartSession}
             disabled={isCreating}
-            className="px-8 py-3.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold text-sm shadow-lg shadow-brand-500/25 transition-all inline-flex items-center gap-2 hover:scale-105 disabled:opacity-50"
+            className="px-8 py-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold text-sm shadow-md transition-all inline-flex items-center gap-2 hover:scale-105 disabled:opacity-50 cursor-pointer"
           >
             {isCreating ? 'Setting Up Room...' : 'Launch Interview Session'}
-            <ArrowRight className="w-4 h-4" />
+            <ArrowRight className="w-4 h-4 text-white" />
           </button>
         </div>
       </div>
@@ -418,17 +488,17 @@ export const InterviewRoomPage: React.FC = () => {
               <button
                 onClick={handleSubmitAnswer}
                 disabled={submitting || !answerText.trim()}
-                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs shadow-md shadow-brand-500/20 transition-all disabled:opacity-50"
+                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold text-xs shadow-sm transition-all disabled:opacity-50 cursor-pointer"
               >
                 {submitting ? (
                   <>
                     <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    AI Evaluating Answer...
+                    <span>AI Evaluating Answer...</span>
                   </>
                 ) : (
                   <>
-                    Submit Answer
-                    <Send className="w-3.5 h-3.5" />
+                    <span>Submit Answer</span>
+                    <Send className="w-3.5 h-3.5 text-white" />
                   </>
                 )}
               </button>

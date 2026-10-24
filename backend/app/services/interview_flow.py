@@ -9,15 +9,24 @@ from sqlalchemy.orm import Session
 from app.models.enums import Difficulty, SessionStatus, TurnStatus
 from app.models.interview import InterviewSession, InterviewTurn
 from app.models.question import Question
+from app.models.resume import UserResume
 from app.services.ai_evaluator import evaluate_interview_answer, get_performance_band
 
 
 CATEGORY_MAP = {
-    "technical": ["Python", "SQL & Analytics", "ML, AI & GenAI", "Resume & Projects"],
+    "technical": [
+        "Python", "SQL & Analytics", "ML, AI & GenAI", "Resume & Projects",
+        "Java & OOP", "Web Development", "Git & CI/CD", "Networking & IoT",
+    ],
     "hr": ["HR", "Company & Workplace"],
     "behavioral": ["Behavioral"],
-    "coding": ["Coding"],
-    "mixed": ["HR", "Behavioral", "Resume & Projects", "Python", "SQL & Analytics", "ML, AI & GenAI", "Company & Workplace", "Coding"],
+    "coding": ["Coding", "Java & OOP"],
+    "mixed": [
+        "HR", "Behavioral", "Resume & Projects", "Python", "SQL & Analytics",
+        "ML, AI & GenAI", "Company & Workplace", "Coding",
+        "Java & OOP", "Web Development", "Git & CI/CD", "Networking & IoT",
+    ],
+    "resume": ["Resume & Projects", "Technical", "Behavioral"],
 }
 
 RUBRIC_FOR_CATEGORY = {
@@ -29,9 +38,21 @@ RUBRIC_FOR_CATEGORY = {
     "SQL & Analytics": "technical",
     "ML, AI & GenAI": "technical",
     "Resume & Projects": "technical",
+    "Technical": "technical",
+    "Java & OOP": "technical",
+    "Web Development": "technical",
+    "Git & CI/CD": "technical",
+    "Networking & IoT": "technical",
 }
 
 PRESET_CONFIGS = {
+    "resume_round": {
+        "duration_minutes": 25,
+        "interview_stage": "Technical",
+        "mode": "resume",
+        "num_questions": 5,
+        "difficulty": "Intermediate",
+    },
     "hr_round": {
         "duration_minutes": 15,
         "interview_stage": "HR",
@@ -120,6 +141,65 @@ def start_interview_session(
     target_role = config.get("target_role", "Software Development Engineer")
     difficulty = config.get("difficulty", "Intermediate")
 
+    # If resume mode is selected, load tailored questions from user's resume
+    if mode == "resume" or config.get("resume_id"):
+        resume_id_str = config.get("resume_id")
+        resume: UserResume | None = None
+        if resume_id_str:
+            try:
+                resume = db.get(UserResume, uuid.UUID(str(resume_id_str)))
+            except Exception:
+                resume = None
+        if not resume:
+            stmt = (
+                select(UserResume)
+                .where(UserResume.user_id == user_id, UserResume.is_active == True)
+                .order_by(UserResume.created_at.desc())
+                .limit(1)
+            )
+            resume = db.scalars(stmt).first()
+
+        if resume and resume.analysis:
+            resume_questions = list(resume.analysis.get("generated_questions", []))
+            if resume_questions:
+                config["resume_id"] = str(resume.id)
+                config["resume_filename"] = resume.filename
+                config["mode"] = "resume"
+                first_rq = resume_questions[0]
+                session = InterviewSession(
+                    user_id=user_id,
+                    status=SessionStatus.IN_PROGRESS.value,
+                    config=config,
+                    adaptive_state={
+                        "running_scores": [],
+                        "current_difficulty": first_rq.get("difficulty", difficulty),
+                        "target_count": min(num_questions, len(resume_questions)),
+                        "question_pool_ids": [],
+                        "asked_question_ids": [],
+                        "resume_questions": resume_questions,
+                        "resume_index": 1,
+                        "vagueness_count": 0,
+                    },
+                    started_at=datetime.now(timezone.utc),
+                )
+                db.add(session)
+                db.flush()
+
+                turn1 = InterviewTurn(
+                    session_id=session.id,
+                    sequence=1,
+                    question_id=None,
+                    question_text=first_rq["question"],
+                    rubric_key=first_rq.get("rubric_key", "technical"),
+                    difficulty=first_rq.get("difficulty", "Intermediate"),
+                    topic=first_rq.get("topic", "Resume Deep Dive"),
+                    status=TurnStatus.ASKED.value,
+                )
+                db.add(turn1)
+                db.commit()
+                db.refresh(session)
+                return session
+
     selected_questions = _select_candidate_questions(
         db=db,
         mode=mode,
@@ -200,13 +280,26 @@ def process_candidate_answer(
 
     target_role = session.config.get("target_role", "Software Development Engineer")
 
+    ref_answer = ref_q.reference_answer if ref_q else ""
+    key_points = ref_q.key_points if ref_q else []
+    eval_criteria = ref_q.evaluation_criteria if ref_q else []
+
+    if not ref_q and session.config.get("mode") == "resume":
+        resume_questions = session.adaptive_state.get("resume_questions", [])
+        matched = next((rq for rq in resume_questions if rq.get("question") == turn.question_text), None)
+        if matched:
+            ref_answer = matched.get("ideal_answer_outline", "")
+            key_points = matched.get("key_points", [])
+            if matched.get("interviewer_context"):
+                eval_criteria = [matched["interviewer_context"]]
+
     eval_result = evaluate_interview_answer(
         question_text=turn.question_text,
         answer_text=answer_text,
         rubric_key=turn.rubric_key or "technical",
-        reference_answer=ref_q.reference_answer if ref_q else "",
-        key_points=ref_q.key_points if ref_q else [],
-        evaluation_criteria=ref_q.evaluation_criteria if ref_q else [],
+        reference_answer=ref_answer,
+        key_points=key_points,
+        evaluation_criteria=eval_criteria,
         difficulty=turn.difficulty or "Intermediate",
         target_role=target_role,
     )
@@ -272,48 +365,69 @@ def process_candidate_answer(
             )
             db.add(next_turn)
         else:
-            # Pick next question from pool or db
-            pool = list(adaptive_state.get("question_pool_ids", []))
-            asked_ids = set(adaptive_state.get("asked_question_ids", []))
-            available = [qid for qid in pool if qid not in asked_ids]
-
-            next_q: Question | None = None
-            if available:
-                next_qid = available[0]
-                next_q = db.get(Question, next_qid)
-            
-            if not next_q:
-                # Query a new question from DB matching category
-                mode = session.config.get("mode", "mixed")
-                categories = CATEGORY_MAP.get(mode, CATEGORY_MAP["mixed"])
-                diff = adaptive_state.get("current_difficulty", Difficulty.INTERMEDIATE.value)
-                stmt = select(Question).where(
-                    Question.category.in_(categories),
-                    Question.id.not_in(list(asked_ids) or [""]),
-                    Question.is_active == True,
-                )
-                candidates = list(db.scalars(stmt).all())
-                if candidates:
-                    next_q = random.choice(candidates)
-
-            if next_q:
-                rubric_key = RUBRIC_FOR_CATEGORY.get(next_q.category, "technical")
-                next_turn = InterviewTurn(
-                    session_id=session.id,
-                    sequence=asked_count + 1,
-                    question_id=next_q.id,
-                    question_text=next_q.question,
-                    rubric_key=rubric_key,
-                    difficulty=next_q.difficulty,
-                    topic=next_q.subcategory or next_q.category,
-                    status=TurnStatus.ASKED.value,
-                )
-                adaptive_state["asked_question_ids"].append(next_q.id)
-                session.adaptive_state = adaptive_state
-                db.add(next_turn)
+            if session.config.get("mode") == "resume":
+                resume_questions = list(adaptive_state.get("resume_questions", []))
+                resume_idx = int(adaptive_state.get("resume_index", 1))
+                if resume_idx < len(resume_questions) and asked_count < target_count:
+                    next_rq = resume_questions[resume_idx]
+                    adaptive_state["resume_index"] = resume_idx + 1
+                    session.adaptive_state = adaptive_state
+                    next_turn = InterviewTurn(
+                        session_id=session.id,
+                        sequence=asked_count + 1,
+                        question_id=None,
+                        question_text=next_rq["question"],
+                        rubric_key=next_rq.get("rubric_key", "technical"),
+                        difficulty=next_rq.get("difficulty", "Intermediate"),
+                        topic=next_rq.get("topic", "Resume Deep Dive"),
+                        status=TurnStatus.ASKED.value,
+                    )
+                    db.add(next_turn)
+                else:
+                    conclude_interview_session(session)
             else:
-                # Conclude session if no more questions
-                conclude_interview_session(session)
+                # Pick next question from pool or db
+                pool = list(adaptive_state.get("question_pool_ids", []))
+                asked_ids = set(adaptive_state.get("asked_question_ids", []))
+                available = [qid for qid in pool if qid not in asked_ids]
+
+                next_q: Question | None = None
+                if available:
+                    next_qid = available[0]
+                    next_q = db.get(Question, next_qid)
+                
+                if not next_q:
+                    # Query a new question from DB matching category
+                    mode = session.config.get("mode", "mixed")
+                    categories = CATEGORY_MAP.get(mode, CATEGORY_MAP["mixed"])
+                    diff = adaptive_state.get("current_difficulty", Difficulty.INTERMEDIATE.value)
+                    stmt = select(Question).where(
+                        Question.category.in_(categories),
+                        Question.id.not_in(list(asked_ids) or [""]),
+                        Question.is_active == True,
+                    )
+                    candidates = list(db.scalars(stmt).all())
+                    if candidates:
+                        next_q = random.choice(candidates)
+
+                if next_q:
+                    rubric_key = RUBRIC_FOR_CATEGORY.get(next_q.category, "technical")
+                    next_turn = InterviewTurn(
+                        session_id=session.id,
+                        sequence=asked_count + 1,
+                        question_id=next_q.id,
+                        question_text=next_q.question,
+                        rubric_key=rubric_key,
+                        difficulty=next_q.difficulty,
+                        topic=next_q.subcategory or next_q.category,
+                        status=TurnStatus.ASKED.value,
+                    )
+                    adaptive_state["asked_question_ids"].append(next_q.id)
+                    session.adaptive_state = adaptive_state
+                    db.add(next_turn)
+                else:
+                    # Conclude session if no more questions
+                    conclude_interview_session(session)
     else:
         # Target question count reached
         conclude_interview_session(session)
