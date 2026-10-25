@@ -19,6 +19,7 @@ from app.schemas.auth import (
     LoginRequest,
     RefreshRequest,
     RegisterRequest,
+    ResetPasswordRequest,
     TokenPair,
     UserOut,
 )
@@ -79,6 +80,16 @@ def refresh(body: RefreshRequest, db: DbDep) -> TokenPair:
     if user is None or not user.is_active:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid or expired refresh token")
     return _tokens(user)
+
+
+@router.post("/reset-password", response_model=dict)
+def reset_password(body: ResetPasswordRequest, db: DbDep) -> dict:
+    user = db.scalar(select(User).where(User.email == body.email))
+    if user is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "No account found with this email address")
+    user.password_hash = hash_password(body.new_password)
+    db.commit()
+    return {"message": "Password updated successfully. You can now sign in with your new password."}
 
 
 @router.get("/me", response_model=UserOut)

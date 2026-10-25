@@ -44,6 +44,27 @@ class LoginRequest(BaseModel):
         return v.strip().lower()
 
 
+class ResetPasswordRequest(BaseModel):
+    email: EmailStr
+    new_password: str
+
+    @field_validator("email")
+    @classmethod
+    def _lower_email(cls, v: str) -> str:
+        return v.strip().lower()
+
+    @field_validator("new_password")
+    @classmethod
+    def _password_strength(cls, v: str) -> str:
+        if len(v) < 8:
+            raise ValueError("Password must be at least 8 characters")
+        if len(v.encode("utf-8")) > 72:
+            raise ValueError("Password must be at most 72 bytes")
+        if not any(c.isalpha() for c in v) or not any(c.isdigit() for c in v):
+            raise ValueError("Password must contain at least one letter and one digit")
+        return v
+
+
 class RefreshRequest(BaseModel):
     refresh_token: str
 
@@ -61,6 +82,7 @@ class UserOut(BaseModel):
     email: str
     full_name: str
     role: str
+    is_active: bool = True
     created_at: datetime
 
 

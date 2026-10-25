@@ -9,10 +9,15 @@ import { useAuth } from '../context/AuthContext';
 
 const registerSchema = z
   .object({
-    full_name: z.string().min(2, 'Name must be at least 2 characters'),
+    full_name: z.string().trim().min(2, 'Name must be at least 2 characters'),
     email: z.string().email('Please enter a valid email address'),
-    password: z.string().min(6, 'Password must be at least 6 characters'),
-    confirmPassword: z.string().min(6, 'Please confirm your password'),
+    password: z
+      .string()
+      .min(8, 'Password must be at least 8 characters')
+      .max(72, 'Password must be at most 72 characters')
+      .regex(/[a-zA-Z]/, 'Password must contain at least one letter')
+      .regex(/[0-9]/, 'Password must contain at least one digit'),
+    confirmPassword: z.string().min(1, 'Please confirm your password'),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: 'Passwords do not match',
@@ -20,6 +25,15 @@ const registerSchema = z
   });
 
 type RegisterFormValues = z.infer<typeof registerSchema>;
+
+const formatApiError = (err: any, fallback: string): string => {
+  const detail = err.response?.data?.detail;
+  if (typeof detail === 'string') return detail;
+  if (Array.isArray(detail)) {
+    return detail.map((d: any) => d.msg || d.message || JSON.stringify(d)).join(', ');
+  }
+  return err.message || fallback;
+};
 
 export const RegisterPage: React.FC = () => {
   const navigate = useNavigate();
@@ -46,8 +60,7 @@ export const RegisterPage: React.FC = () => {
       await login(authRes.tokens.access_token, authRes.tokens.refresh_token, authRes.user);
       navigate('/onboarding');
     } catch (err: any) {
-      const msg = err.response?.data?.detail || 'Registration failed. Email may already be in use.';
-      setErrorMsg(msg);
+      setErrorMsg(formatApiError(err, 'Registration failed. Email may already be in use.'));
     }
   };
 

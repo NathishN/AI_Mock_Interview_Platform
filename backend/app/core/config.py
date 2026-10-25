@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     refresh_token_expire_days: int = 14
 
     # Comma-separated list of allowed browser origins.
-    cors_origins: str = "http://localhost:5173"
+    cors_origins: str = "http://localhost:5173,http://127.0.0.1:5173"
 
     # Optional first admin, created by `python -m app.scripts.bootstrap`.
     bootstrap_admin_email: str = ""
