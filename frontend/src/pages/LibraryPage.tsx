@@ -12,19 +12,24 @@ import {
   HelpCircle,
   Mic,
   Code2,
+  Calculator,
+  Compass,
+  Sparkles,
 } from 'lucide-react';
 import { questionsApi, Question } from '../api/questions';
 
 const CATEGORIES = [
   'All',
+  'Aptitude',
+  'Coding',
+  'SQL & Analytics',
+  'Operating Systems',
+  'ML, AI & GenAI',
+  'Resume & Projects',
   'HR',
   'Behavioral',
-  'Resume & Projects',
-  'Coding',
   'Python',
   'Java & OOP',
-  'SQL & Analytics',
-  'ML, AI & GenAI',
   'Web Development',
   'Git & CI/CD',
   'Networking & IoT',
@@ -35,6 +40,7 @@ const DIFFICULTIES = ['All', 'Beginner', 'Intermediate', 'Advanced'];
 
 const QUICK_TAG_FILTERS = [
   { id: 'all', label: 'All Curated Questions' },
+  { id: 'aptitude', label: '🧮 Aptitude & Quant (150)' },
   { id: 'top-30', label: '⭐ Top 30 High Priority' },
   { id: 'master-bank', label: '🏢 Master Bank' },
   { id: 'ibm', label: 'IBM' },
@@ -61,10 +67,13 @@ export const LibraryPage: React.FC = () => {
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [showAptitudeCheatSheet, setShowAptitudeCheatSheet] = useState(false);
 
   const fetchQuestions = async () => {
     try {
       setLoading(true);
+      setError(null);
       const params: Record<string, any> = { limit: 100 };
       if (category !== 'All') params.category = category;
       if (difficulty !== 'All') params.difficulty = difficulty;
@@ -74,8 +83,13 @@ export const LibraryPage: React.FC = () => {
       const res = await questionsApi.list(params);
       setQuestions(res.items);
       setTotalCount(res.total);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
+      if (err?.response?.status === 401) {
+        setError('Authentication required to access the Question Bank. Please log in.');
+      } else {
+        setError('Unable to load questions. Please check your connection and retry.');
+      }
     } finally {
       setLoading(false);
     }
@@ -150,6 +164,113 @@ export const LibraryPage: React.FC = () => {
         </div>
       </div>
 
+      {/* Aptitude 150 Formulas & Strategy Action Banner */}
+      <div className="rounded-2xl border border-indigo-200 dark:border-indigo-900/60 bg-gradient-to-r from-indigo-50/70 via-purple-50/50 to-brand-50/60 dark:from-indigo-950/40 dark:via-purple-950/20 dark:to-brand-950/30 p-4 shadow-sm transition-all">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div className="space-y-1">
+            <div className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-700 dark:text-indigo-400">
+              <Calculator className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+              <span>Campus Placement Aptitude Master Track</span>
+              <span className="text-slate-400">•</span>
+              <span className="px-1.5 py-0.5 rounded bg-indigo-100 dark:bg-indigo-900/60 text-[10px] font-extrabold uppercase">150 Questions</span>
+            </div>
+            <p className="text-xs text-slate-600 dark:text-slate-300">
+              Quantitative Aptitude, Logical Reasoning, Verbal Ability & Data Interpretation with step-by-step solutions and speed-math tricks.
+            </p>
+          </div>
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <button
+              onClick={() => {
+                setCategory('Aptitude');
+                setActiveTag('all');
+              }}
+              className="flex-1 sm:flex-none px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs shadow-sm transition-all text-center"
+            >
+              Filter Aptitude Questions
+            </button>
+            <button
+              onClick={() => setShowAptitudeCheatSheet((prev) => !prev)}
+              className="px-3.5 py-2 rounded-xl border border-indigo-300 dark:border-indigo-800 bg-white dark:bg-slate-900 hover:bg-indigo-50 dark:hover:bg-slate-800 text-indigo-700 dark:text-indigo-300 font-semibold text-xs transition-colors flex items-center gap-1.5"
+            >
+              <Compass className="w-3.5 h-3.5" />
+              {showAptitudeCheatSheet ? 'Hide Cheat Sheet' : 'Formula & Crash Plan'}
+            </button>
+          </div>
+        </div>
+
+        {/* Collapsible Formulas & Strategies Sheet */}
+        {showAptitudeCheatSheet && (
+          <div className="mt-4 pt-4 border-t border-indigo-100 dark:border-indigo-900/40 space-y-4 text-xs">
+            {/* The 20 Formulas Grid */}
+            <div className="space-y-2">
+              <h4 className="font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                <Sparkles className="w-4 h-4 text-amber-500" />
+                The 20 Must-Memorize Aptitude Formulas:
+              </h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+                {[
+                  { topic: 'Percentage', formula: '(Part / Whole) × 100' },
+                  { topic: 'Profit %', formula: '(Profit / CP) × 100' },
+                  { topic: 'Loss %', formula: '(Loss / CP) × 100' },
+                  { topic: 'Discount %', formula: '[(MP − SP) / MP] × 100' },
+                  { topic: 'Average', formula: 'Sum of Terms / Total Count' },
+                  { topic: 'Speed', formula: 'Distance / Time' },
+                  { topic: 'Relative Speed', formula: 'Same Dir: S1 − S2 | Opp: S1 + S2' },
+                  { topic: 'Speed Conversion', formula: 'km/h × (5/18) = m/s' },
+                  { topic: 'Time & Work', formula: 'If A takes N days, 1-day work = 1/N' },
+                  { topic: 'Together Work', formula: '(A × B) / (A + B) days' },
+                  { topic: 'Simple Interest', formula: '(P × R × T) / 100' },
+                  { topic: 'Compound Interest', formula: 'P(1 + R/100)^T − P' },
+                  { topic: 'CI − SI (2 Years)', formula: 'P × (R / 100)²' },
+                  { topic: 'Successive %', formula: 'a + b + (ab / 100)%' },
+                  { topic: 'Equal +/- Change', formula: '+x% & −x% = (x²/100)% Net Loss' },
+                  { topic: 'Ranking Total', formula: 'Total = Top + Bottom − 1' },
+                  { topic: 'Circular Opposite', formula: 'Between = (N − 2) / 2' },
+                  { topic: 'Probability', formula: 'Favorable Cases / Total Cases' },
+                  { topic: 'Permutation', formula: 'nPr = n! / (n − r)!' },
+                  { topic: 'Combination', formula: 'nCr = n! / [r!(n − r)!]' },
+                ].map((item, idx) => (
+                  <div key={idx} className="p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-indigo-100 dark:border-indigo-950 flex flex-col justify-between">
+                    <span className="font-semibold text-slate-500 dark:text-slate-400 text-[11px]">{item.topic}</span>
+                    <span className="font-mono font-bold text-slate-900 dark:text-white mt-1 text-[11px]">{item.formula}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Exam Hall Rules and Crash Plan */}
+            <div className="grid sm:grid-cols-2 gap-3 pt-1">
+              <div className="p-3 rounded-xl bg-white dark:bg-slate-900 border border-indigo-100 dark:border-indigo-950 space-y-1.5">
+                <span className="font-bold text-slate-900 dark:text-white text-xs flex items-center gap-1.5">
+                  ⚡ 5 Golden Exam-Hall Rules:
+                </span>
+                <ul className="text-slate-600 dark:text-slate-400 space-y-1 text-[11px] list-disc list-inside">
+                  <li><strong>30–45s Rule:</strong> If no clear path in 45 seconds, flag and skip immediately.</li>
+                  <li><strong>Accuracy First:</strong> Target high accuracy over blind volume to beat negative marking.</li>
+                  <li><strong>Percentage Trap:</strong> +20% followed by −20% is NOT 0% (it is a 4% decrease).</li>
+                  <li><strong>Speed Anchors:</strong> 36 km/h = 10 m/s; 72 km/h = 20 m/s; 108 km/h = 30 m/s.</li>
+                  <li><strong>Ranking -1:</strong> Always subtract 1 when summing top and bottom rank of a person.</li>
+                </ul>
+              </div>
+
+              <div className="p-3 rounded-xl bg-white dark:bg-slate-900 border border-indigo-100 dark:border-indigo-950 space-y-1.5">
+                <span className="font-bold text-slate-900 dark:text-white text-xs flex items-center gap-1.5">
+                  🔥 12-Hour Placement Crash Plan:
+                </span>
+                <ul className="text-slate-600 dark:text-slate-400 space-y-1 text-[11px] list-disc list-inside">
+                  <li><strong>Hours 1–2:</strong> Percentages, Profit/Loss, Ratios, Averages, Time & Work.</li>
+                  <li><strong>Hours 3–4:</strong> Speed/Distance, Number Series, Coding-Decoding, Blood Relations.</li>
+                  <li><strong>Hours 5–6:</strong> Direction Sense, Syllogisms, Seating Arrangement & Ranking.</li>
+                  <li><strong>Hour 7:</strong> Verbal Ability: Grammar, Prepositions, Sentence Corrections.</li>
+                  <li><strong>Hour 8:</strong> Data Interpretation Table calculations & shortcuts.</li>
+                  <li><strong>Final 2 Hours:</strong> Timed practice with mock tests.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
       {/* Search and Filters Bar */}
       <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-4 shadow-sm">
         <form onSubmit={handleSearchSubmit} className="flex gap-2">
@@ -221,6 +342,24 @@ export const LibraryPage: React.FC = () => {
         <div className="py-16 text-center text-xs text-slate-500">
           <div className="w-6 h-6 border-2 border-brand-500 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
           Loading questions...
+        </div>
+      ) : error ? (
+        <div className="p-8 text-center bg-white dark:bg-slate-900 rounded-2xl border border-rose-200 dark:border-rose-900/40 text-xs text-rose-600 dark:text-rose-400 space-y-3">
+          <p className="font-medium">{error}</p>
+          <div className="flex items-center justify-center gap-3">
+            <button
+              onClick={() => fetchQuestions()}
+              className="px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-semibold text-xs transition-colors"
+            >
+              Retry
+            </button>
+            <Link
+              to="/login"
+              className="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-semibold text-xs hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+            >
+              Go to Login
+            </Link>
+          </div>
         </div>
       ) : questions.length === 0 ? (
         <div className="p-8 text-center bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 text-xs text-slate-500">

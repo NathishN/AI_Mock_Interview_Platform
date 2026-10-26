@@ -80,7 +80,14 @@ export const App: React.FC = () => {
                 />
 
                 {/* 6. Interview Preparation Library */}
-                <Route path="/library" element={<LibraryPage />} />
+                <Route
+                  path="/library"
+                  element={
+                    <ProtectedRoute>
+                      <LibraryPage />
+                    </ProtectedRoute>
+                  }
+                />
 
                 {/* 7. AI Mock Interview Room */}
                 <Route

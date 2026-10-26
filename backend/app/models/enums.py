@@ -19,6 +19,8 @@ class QuestionCategory(StrEnum):
     WEB_DEV = "Web Development"
     GIT_DEVOPS = "Git & CI/CD"
     NETWORKING_IOT = "Networking & IoT"
+    OPERATING_SYSTEMS = "Operating Systems"
+    APTITUDE = "Aptitude"
 
 
 class Difficulty(StrEnum):
